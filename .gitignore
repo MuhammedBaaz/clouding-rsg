@@ -1,0 +1,14 @@
+# Secrets: local SMTP configuration for the OTP API (keep on disk, never commit)
+.env
+.env.*
+!.env.example
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+desktop.ini

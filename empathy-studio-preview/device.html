@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Device frame</title>
+<style>
+  html, body { margin: 0; background: #1d2227; }
+  iframe { display: block; border: 0; background: #fff; }
+</style>
+</head>
+<body>
+<script>
+  /* Capture helper: embeds chat-context.html in an iframe of an exact mobile width so media queries see a true
+     390 px or 360 px viewport even when the capturing window cannot go that narrow. */
+  var q = new URLSearchParams(location.search), w = +q.get("w") || 390, hgt = +q.get("h") || 760;
+  var f = document.createElement("iframe"); f.width = w; f.height = hgt;
+  f.src = "chat-context.html?v=" + (q.get("v") || "v1") + (q.get("at") ? "&at=" + q.get("at") : "");
+  document.body.appendChild(f);
+</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+{
+  "purpose": "Design comparison brief, prepared 2026-10-20. Recorded scenario, not live inventory or a booking API response.",
+  "authority": "The new prompt overrides conflicting legacy source comments and screenshots. Arabic display translations are working UI translations, not claimed official localized product names.",
+  "resorts": [
+    {
+      "id": "shebara",
+      "name": "Shebara",
+      "locationAr": "جزيرة شيبارة",
+      "image": "assets/resorts/shebara.webp",
+      "detailsUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    },
+    {
+      "id": "desert-rock",
+      "name": "Desert Rock",
+      "locationAr": "وادٍ جبلي قرب أملج",
+      "image": "assets/resorts/desert-rock.webp",
+      "detailsUrl": null
+    },
+    {
+      "id": "six-senses-southern-dunes",
+      "name": "Six Senses Southern Dunes, The Red Sea",
+      "locationAr": "الكثبان الجنوبية",
+      "image": "assets/resorts/six-senses-southern-dunes.webp",
+      "detailsUrl": null
+    }
+  ],
+  "villas": [
+    {
+      "sourceName": "One Bedroom Overwater Villa",
+      "displayNameAr": "فيلا فوق الماء بغرفة نوم واحدة",
+      "occupancyAr": "2 بالغين + طفل + رضيع",
+      "image": "assets/villas/shebara-one-bedroom-overwater-villa-1.webp",
+      "totalForRecordedStaySAR": 28980.0,
+      "priceMissing": false,
+      "dedicatedVillaUrl": null,
+      "fallbackOfficialInformationUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    },
+    {
+      "sourceName": "Two Bedroom Overwater Villa",
+      "displayNameAr": "فيلا فوق الماء بغرفتي نوم",
+      "occupancyAr": "4 بالغين + طفلان + رضيع",
+      "image": "assets/villas/shebara-two-bedroom-overwater-villa.webp",
+      "totalForRecordedStaySAR": null,
+      "priceMissing": true,
+      "dedicatedVillaUrl": null,
+      "fallbackOfficialInformationUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    },
+    {
+      "sourceName": "One Bedroom Beach Villa",
+      "displayNameAr": "فيلا شاطئية بغرفة نوم واحدة",
+      "occupancyAr": "2 بالغين + طفل + رضيع",
+      "image": "assets/villas/shebara-one-bedroom-beach-villa.webp",
+      "totalForRecordedStaySAR": null,
+      "priceMissing": true,
+      "dedicatedVillaUrl": null,
+      "fallbackOfficialInformationUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    },
+    {
+      "sourceName": "Two Bedroom Beach Villa",
+      "displayNameAr": "فيلا شاطئية بغرفتي نوم",
+      "occupancyAr": "4 بالغين + طفلان + رضيع",
+      "image": "assets/villas/shebara-two-bedroom-beach-villa.webp",
+      "totalForRecordedStaySAR": null,
+      "priceMissing": true,
+      "dedicatedVillaUrl": null,
+      "fallbackOfficialInformationUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    },
+    {
+      "sourceName": "Three Bedroom Beach Crown Villa",
+      "displayNameAr": "فيلا كراون شاطئية بـ3 غرف نوم",
+      "occupancyAr": "6 بالغين + 3 أطفال أو 7 بالغين",
+      "image": "assets/villas/shebara-three-bedroom-beach-crown-villa.webp",
+      "totalForRecordedStaySAR": null,
+      "priceMissing": true,
+      "dedicatedVillaUrl": null,
+      "fallbackOfficialInformationUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    },
+    {
+      "sourceName": "One Bedroom Beach Crown Villa",
+      "displayNameAr": "فيلا كراون شاطئية بغرفة نوم واحدة",
+      "occupancyAr": "2 بالغين + طفل + رضيع",
+      "image": "assets/villas/shebara-one-bedroom-beach-crown-villa.webp",
+      "totalForRecordedStaySAR": null,
+      "priceMissing": true,
+      "dedicatedVillaUrl": null,
+      "fallbackOfficialInformationUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    },
+    {
+      "sourceName": "Four Bedroom Beach Royal Villa",
+      "displayNameAr": "فيلا رويال شاطئية بـ4 غرف نوم",
+      "occupancyAr": "8 بالغين + 4 أطفال",
+      "image": "assets/villas/shebara-four-bedroom-beach-royal-villa.webp",
+      "totalForRecordedStaySAR": null,
+      "priceMissing": true,
+      "dedicatedVillaUrl": null,
+      "fallbackOfficialInformationUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    },
+    {
+      "sourceName": "One Bedroom Beach Royal Villa",
+      "displayNameAr": "فيلا رويال شاطئية بغرفة نوم واحدة",
+      "occupancyAr": "2 بالغين + طفل + رضيع",
+      "image": "assets/villas/shebara-one-bedroom-beach-royal-villa.webp",
+      "totalForRecordedStaySAR": null,
+      "priceMissing": true,
+      "dedicatedVillaUrl": null,
+      "fallbackOfficialInformationUrl": "https://www.visitredsea.com/en/resorts/shebara"
+    }
+  ],
+  "stay": {
+    "checkIn": "2026-10-23",
+    "checkOut": "2026-10-25",
+    "nights": 2,
+    "adults": 2,
+    "children": 0
+  },
+  "rate": {
+    "sourceName": "Villa Flat Rate",
+    "displayNameAr": "السعر الأساسي للفيلا",
+    "accommodationTotalSAR": 28980.0,
+    "allTaxesIncluded": true,
+    "basis": "Entire recorded stay, not per night; 2 adults, 2 nights, 23–25 Oct 2026"
+  },
+  "guest": {
+    "title": "السيد",
+    "firstName": "محمد",
+    "familyName": "باز",
+    "mobileCountryCode": "+966",
+    "nationalMobile": "508416627",
+    "emailManuallyTyped": "muhammed.baz@clouding.ai",
+    "wifeFirstName": "نورة",
+    "wifeFamilyName": "الحربي",
+    "optionalRequest": "تسجيل وصول متأخر إن أمكن",
+    "marketingOptIn": false
+  },
+  "transport": {
+    "modesAr": [
+      "بالطائرة",
+      "بطائرة خاصة",
+      "بالسيارة",
+      "باليخت"
+    ],
+    "selectedModeAr": "بالطائرة",
+    "airports": [
+      {
+        "sourceName": "Yanbu Airport",
+        "displayNameAr": "مطار ينبع"
+      },
+      {
+        "sourceName": "Red Sea International Airport - RSIA",
+        "displayNameAr": "مطار البحر الأحمر الدولي – RSIA"
+      },
+      {
+        "sourceName": "Al Wajh Domestic Airport",
+        "displayNameAr": "مطار الوجه المحلي"
+      }
+    ],
+    "legs": [
+      {
+        "labelAr": "الذهاب",
+        "from": "Yanbu Airport",
+        "to": "Shebara",
+        "sourceProduct": "Private Luxury Car + Shared Leisure Boat",
+        "displayProductAr": "سيارة فاخرة خاصة + قارب ترفيهي مشترك",
+        "totalSAR": 3622.5
+      },
+      {
+        "labelAr": "العودة",
+        "from": "Shebara",
+        "to": "Red Sea International Airport - RSIA",
+        "sourceProduct": "Shared Speed Boat + Private Luxury Car",
+        "displayProductAr": "قارب سريع مشترك + سيارة فاخرة خاصة",
+        "totalSAR": 1191.4
+      }
+    ],
+    "subtotalSAR": 4813.9,
+    "priceBasis": "Total for 2 adults, taxes included"
+  },
+  "activities": [
+    {
+      "sourceName": "Adrena",
+      "displayName": "Adrena",
+      "image": "assets/activities/adrena-7.webp"
+    },
+    {
+      "sourceName": "Garden Discovery and Planting Experience",
+      "displayName": "استكشاف الحديقة وتجربة الزراعة",
+      "image": "assets/activities/garden-discovery-and-planting-experience.webp"
+    },
+    {
+      "sourceName": "Stand Up Paddle-Boarding",
+      "displayName": "التجديف باللوح واقفًا",
+      "image": "assets/activities/stand-up-paddle-boarding.webp"
+    }
+  ],
+  "activitiesBooked": [],
+  "grandTotalSAR": 33793.9,
+  "links": {
+    "allResorts": "https://www.visitredsea.com/en/resorts",
+    "shebara": "https://www.visitredsea.com/en/resorts/shebara",
+    "terms": "https://www.visitredsea.com/en/terms-and-conditions",
+    "privacy": "https://www.visitredsea.com/en/privacy-policy",
+    "checkout": "https://www.visitredsea.com/en/booking/checkout?startDate=2026-10-23&endDate=2026-10-25&rooms=%5B%7B%22adultCount%22%3A2%2C%22childAges%22%3A%5B%5D%7D%5D&resortName=Shebara&hotelId=1035&currency=SAR"
+  },
+  "brand": {
+    "chat": {
+      "aqua": "#71bfb7",
+      "deepTeal": "#37706c",
+      "charcoal": "#1e282f",
+      "paleAqua": "#e6f6f5",
+      "offWhite": "#fafaf7"
+    },
+    "pdf": {
+      "navy": "#04253c",
+      "darkNavy": "#0a1d2d",
+      "gold": "#b89c67",
+      "logo": "assets/logos/rsg-logo-horizontal.svg"
+    }
+  },
+  "integrationNotes": [
+    "Email service exists in the project; do not read or request credentials for design work.",
+    "Five-second payment transition is scripted and does not prove payment.",
+    "Recorded voice and prepared field extraction are separate; existing extraction is a prepared mapping, not general speech recognition."
+  ]
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "label": "resorts",
+    "file": "background-resorts-tile-0.png",
+    "height": 790,
+    "vh": 668,
+    "vw": 714,
+    "width": 377.7749938964844,
+    "x": 45.712501525878906,
+    "y": 117.5999984741211
+  },
+  {
+    "label": "resorts",
+    "file": "background-resorts-tile-1.png",
+    "height": 790,
+    "vh": 668,
+    "vw": 714,
+    "width": 377.7749938964844,
+    "x": 45.712501525878906,
+    "y": -274.3999938964844
+  },
+  {
+    "label": "calendar",
+    "file": "background-calendar-tile-0.png",
+    "height": 790,
+    "vh": 668,
+    "vw": 714,
+    "width": 377.7749938964844,
+    "x": 45.712501525878906,
+    "y": 109.5999984741211
+  },
+  {
+    "label": "calendar",
+    "file": "background-calendar-tile-1.png",
+    "height": 790,
+    "vh": 668,
+    "vw": 714,
+    "width": 377.7749938964844,
+    "x": 45.712501525878906,
+    "y": -274.3999938964844
+  },
+  {
+    "label": "confirmation",
+    "file": "background-confirmation-tile-0.png",
+    "height": 790,
+    "vh": 668,
+    "vw": 714,
+    "width": 360,
+    "x": 54.60000228881836,
+    "y": 109.5999984741211
+  },
+  {
+    "label": "confirmation",
+    "file": "background-confirmation-tile-1.png",
+    "height": 790,
+    "vh": 668,
+    "vw": 714,
+    "width": 360,
+    "x": 54.60000228881836,
+    "y": -274.3999938964844
+  }
+]

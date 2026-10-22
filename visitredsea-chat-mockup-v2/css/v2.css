@@ -1,0 +1,153 @@
+/* ============================================================
+   V2 overrides: compact components, resort suggestions in the chat,
+   calmer scrolling, header typing status, final-review editing.
+   Loaded after chat.css; the visual identity is unchanged.
+   ============================================================ */
+
+/* ---------- header typing status and the new-messages control ---------- */
+.chat-head .typing-status { display: none; color: var(--aqua-200); font-family: var(--arabic); font-size: 13px; }
+.chat-panel.typing .chat-head .online { display: none; }
+.chat-panel.typing .chat-head .typing-status { display: inline-flex; align-items: center; gap: 6px; }
+.chat-panel.typing .chat-head .typing-status i { width: 6px; height: 6px; border-radius: 50%; background: var(--aqua-400); animation: blink 1.2s infinite ease-in-out; }
+.chat-new-msgs { position: absolute; left: 50%; transform: translateX(-50%); bottom: 84px; z-index: 5; height: 32px; padding: 0 14px; border-radius: 9999px; border: 1px solid var(--aqua-200); background: #fff; color: var(--aqua-900); font-family: var(--arabic); font-size: 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(30,40,47,0.18); display: inline-flex; align-items: center; gap: 6px; }
+.chat-new-msgs[hidden] { display: none; }
+.chat-new-msgs svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.chat-panel { position: fixed; }
+.chat-scroll { overflow-anchor: none; }           /* nothing moves the reading position but the customer */
+
+/* ---------- general compaction ---------- */
+.rich { margin: 2px 0 12px; }
+.rich .cardbox { border-radius: 12px; }
+.rich .chead { padding: 10px 12px 8px; }
+.rich .ctitle { font-size: 16px; }
+.rich .csub { font-size: 12px; margin-top: 2px; }
+.rich .pill-btn { height: 36px; padding: 0 16px; font-size: 13.5px; }
+.rich .pill-btn.sm { height: 30px; padding: 0 12px; font-size: 12.5px; }
+.rich .factions { padding: 6px 12px 12px; }
+.rich img { background: var(--charcoal-50); }      /* reserved space while the image loads */
+
+/* resort details: a short strip instead of a tall card */
+.rdet img { aspect-ratio: 21 / 9; height: 140px; }
+.rdet .b { padding: 10px 12px 12px; }
+.rdet h4 { font-size: 17px; margin: 2px 0 4px; }
+.rdet .f { font-size: 12.5px; margin-bottom: 6px; }
+
+/* ---------- resort suggestions in the chat ---------- */
+.rpick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.rpick .rtile { background: #fff; border: 1px solid rgba(30,40,47,0.10); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(30,40,47,0.14); display: flex; flex-direction: column; }
+.rpick .rtile img { width: 100%; height: 86px; object-fit: cover; display: block; }
+.rpick .rtile .rn { font-family: var(--arabic); font-weight: 600; font-size: 13px; line-height: 1.3; padding: 8px 10px 4px; min-height: 42px; }
+.rpick .rtile .pill-btn { margin: 0 10px 10px; align-self: flex-start; }
+.rpick-more { display: inline-flex; margin-top: 8px; }
+.rich.used .rpick .pill-btn { opacity: .55; pointer-events: none; }
+
+/* ---------- villas: image, name, capacity, price, select ---------- */
+.villas .vrow { grid-template-columns: 92px 1fr; gap: 10px; padding: 8px 10px; align-items: center; }
+.villas .vrow .vimg { display: block; width: 92px; height: 64px; border-radius: 8px; overflow: hidden; }
+.villas .vrow .vimg img { width: 92px; height: 64px; object-fit: cover; border-radius: 8px; display: block; }
+.villas .vrow .vimg:hover img { opacity: .9; }
+.villas .vrow h4 { font-size: 14px; margin: 0 0 2px; font-family: var(--arabic); }
+.villas .vrow .f { font-size: 12px; }
+.villas .vrow .vb { gap: 4px; }
+.villas .vrow .rate { padding: 5px 9px; gap: 0 10px; font-size: 11.5px; border-radius: 8px; }
+.villas .vrow .rate .rp { font-size: 14px; grid-row: auto; }
+.villas .vrow .rate .rb { grid-column: 1 / -1; }
+.villas .vrow .pick { height: 30px; padding: 0 12px; font-size: 12.5px; }
+
+/* ---------- calendar: smaller cells, tinted surface, no white block below ---------- */
+.rich.calcard .cardbox { background: var(--sand-50); border-color: rgba(30,40,47,0.08); }
+.cal { padding: 10px 12px 10px; }
+.cal .m { margin-bottom: 6px; }
+.cal .m .mt { font-size: 15px; font-family: var(--arabic); }
+.cal .m .nav button { width: 26px; height: 26px; background: transparent; }
+.cal th { font-size: 10px; padding: 3px 0; }
+.cal td { padding: 1px 0; font-size: 13px; }
+.cal td button { width: 32px; height: 32px; font-size: 13px; }
+.cal td.in button, .cal td.out button, .cal td.night button { height: 32px; }
+.cal td.in button { border-start-start-radius: 16px; border-end-start-radius: 16px; }
+.cal td.out button { border-start-end-radius: 16px; border-end-end-radius: 16px; }
+.cal .calfoot { margin-top: 8px; gap: 8px; }
+.cal .calfoot .st { font-size: 12px; }
+.cal .calfoot .pill-btn { height: 32px; padding: 0 14px; font-size: 12.5px; }
+
+/* ---------- summaries ---------- */
+.bsum { padding: 12px 14px; border-radius: 12px; }
+.bsum h4 { font-size: 17px; margin: 0 0 8px; padding-bottom: 8px; }
+.bsum .sec { font-size: 12.5px; margin: 10px 0 6px; }
+.bsum .sec svg { width: 18px; height: 18px; }
+.bsum .item .n { font-size: 14px; }
+.bsum .item .d, .bsum .line, .bsum .sub { font-size: 12.5px; }
+.bsum .ok { margin: 10px 0 8px; padding: 8px 10px; font-size: 12px; }
+.bsum .tot .v { font-size: 26px; }
+.bsum .foot { font-size: 12px; }
+
+/* ---------- transport ---------- */
+.modes { gap: 8px; }
+.modes .mode { padding: 10px 6px 8px; gap: 6px; font-size: 11px; border-radius: 10px; }
+.modes .mode svg { width: 24px; height: 24px; }
+.trans .airports { padding: 10px 12px; gap: 8px 10px; }
+.trans .airports .fld { padding: 6px 10px; font-size: 13px; }
+.trans2 { padding: 10px 12px 12px; font-family: var(--arabic); }
+.trans2 .row { display: grid; grid-template-columns: 54px 1fr auto; gap: 10px; align-items: center; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--charcoal-50); }
+.trans2 .row .lbl { font-size: 11.5px; color: var(--aqua-900); background: var(--aqua-50); border-radius: 9999px; padding: 3px 0; text-align: center; }
+.trans2 .row .prod { font-family: var(--sans); direction: ltr; text-align: left; }
+.trans2 .row .amt { font-family: var(--sans); font-weight: 600; white-space: nowrap; }
+.trans2 .row.tot { border-bottom: 0; padding-top: 10px; font-weight: 600; grid-template-columns: 1fr auto; }
+.trans2 .row.tot .amt { font-size: 16px; }
+
+/* ---------- experiences: three small options side by side ---------- */
+.acts2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.acts2 .act2 { background: #fff; border: 1px solid rgba(30,40,47,0.10); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(30,40,47,0.14); }
+.acts2 .act2 img { width: 100%; height: 80px; object-fit: cover; display: block; }
+.acts2 .act2 .n { font-family: var(--sans); font-weight: 500; font-size: 12.5px; line-height: 1.3; padding: 8px 10px 10px; direction: ltr; text-align: left; }
+
+/* ---------- guest form, review, verify, payment, confirmation ---------- */
+.gform { padding: 2px 12px; }
+.gform .gsec { font-size: 14px; margin: 10px 0 8px; }
+.gform .grid { gap: 10px 10px; }
+.gform .fld { padding: 6px 10px; }
+.gform .fld input, .gform .fld select, .gform .fld textarea { font-size: 13px; }
+.gform .chk { font-size: 12px; }
+.gform .consent { font-size: 11px; padding: 8px 0 2px; }
+.review .r { grid-template-columns: 110px 1fr; padding: 6px 12px; font-size: 13px; }
+.review .r .v small { font-size: 11.5px; }
+.review .tot { padding: 10px 12px 12px; }
+.review .tot .v { font-size: 22px; }
+.review .agree { padding: 10px 12px; font-size: 12px; }
+.review .ractions { display: flex; justify-content: flex-start; padding: 0 12px 12px; }
+.review .editbtn { height: 32px; padding: 0 14px; border-radius: 9999px; border: 1px solid var(--charcoal-200); background: #fff; color: var(--charcoal-900); font-family: var(--arabic); font-size: 13px; cursor: pointer; }
+.review .editbtn:hover { border-color: var(--aqua-700); }
+.rich.used .review .editbtn { opacity: .55; pointer-events: none; }
+.verify { padding: 12px; }
+.verify .vt { font-size: 18px; }
+.verify p { font-size: 12.5px; margin: 4px 0 10px; }
+.pay .top { grid-template-columns: 1fr 96px; }
+.pay .top img { width: 96px; }
+.pay .top .t { padding: 12px 14px; }
+.pay h4 { font-size: 19px; }
+.pay .d { font-size: 12.5px; }
+.pay .amt { padding: 10px 14px; }
+.pay .amt .v { font-size: 26px; }
+.pay .cta { padding: 0 14px 14px; }
+.confirm img { aspect-ratio: 21 / 8; }
+.confirm .ch { padding: 12px; }
+.confirm .r { grid-template-columns: 120px 1fr; padding: 6px 12px; font-size: 12.5px; }
+.confirm .tot { padding: 10px 12px 12px; }
+.confirm .tot .v { font-size: 22px; }
+.confirm .dl { padding: 2px 12px 12px; }
+
+/* ---------- mobile ---------- */
+@media (max-width: 720px) {
+  .rpick { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .rpick .rtile img { height: 72px; }
+  .rpick .rtile .rn { font-size: 12px; padding: 6px 8px 2px; min-height: 40px; }
+  .rpick .rtile .pill-btn { margin: 0 8px 8px; }
+  .acts2 { gap: 6px; }
+  .acts2 .act2 img { height: 68px; }
+  .acts2 .act2 .n { font-size: 11.5px; padding: 6px 8px 8px; }
+  .villas .vrow { grid-template-columns: 80px 1fr; }
+  .villas .vrow .vimg, .villas .vrow .vimg img { width: 80px; height: 58px; }
+  .cal td button { width: 30px; height: 30px; }
+  .trans2 .row { grid-template-columns: 50px 1fr auto; gap: 8px; font-size: 12.5px; }
+  .chat-new-msgs { bottom: 80px; }
+}

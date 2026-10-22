@@ -1,0 +1,35 @@
+{
+  "stateChecks": [
+    {
+      "width": 1440,
+      "states": 51,
+      "overflow": []
+    },
+    {
+      "width": 360,
+      "states": 51,
+      "overflow": []
+    }
+  ],
+  "fullJourney": "passed",
+  "emailInvalidation": "passed",
+  "voiceEmailEmpty": "passed",
+  "singleAirportForm": "passed",
+  "singleGuestForm": "passed",
+  "readingScroll": {
+    "before": 0,
+    "after": 0
+  },
+  "allImagesLoaded": true,
+  "externalRequests": [],
+  "consoleErrors": [],
+  "pdfGeometry": {
+    "pageHeight": 1122.515625,
+    "legalBottom": 1047.28125,
+    "bottomMargin": 75.234375
+  },
+  "dynamicPDF": "passed",
+  "finalPDF": "1 A4 page; >15mm bottom margin; visually checked with Poppler",
+  "pdfAmountsAndOriginalEmail": "passed (whitespace-normalized PDF text)",
+  "dynamicEditedEmailInPDF": "passed"
+}

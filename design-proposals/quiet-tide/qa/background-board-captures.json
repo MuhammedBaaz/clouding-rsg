@@ -1,0 +1,93 @@
+[
+  {
+    "file": "background-board-tile-0.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 0
+  },
+  {
+    "file": "background-board-tile-1.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 468
+  },
+  {
+    "file": "background-board-tile-2.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 935.2000122070312
+  },
+  {
+    "file": "background-board-tile-3.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 1403.199951171875
+  },
+  {
+    "file": "background-board-tile-4.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 1870.4000244140625
+  },
+  {
+    "file": "background-board-tile-5.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 2338.39990234375
+  },
+  {
+    "file": "background-board-tile-6.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 2805.60009765625
+  },
+  {
+    "file": "background-board-tile-7.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 3273.60009765625
+  },
+  {
+    "file": "background-board-tile-8.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 3740.800048828125
+  },
+  {
+    "file": "background-board-tile-9.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 4208.7998046875
+  },
+  {
+    "file": "background-board-tile-10.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 4676
+  },
+  {
+    "file": "background-board-tile-11.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 5144
+  },
+  {
+    "file": "background-board-tile-12.png",
+    "height": 5911,
+    "vh": 668,
+    "vw": 714,
+    "y": 5243.2001953125
+  }
+]

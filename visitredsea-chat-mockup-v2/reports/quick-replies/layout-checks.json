@@ -1,0 +1,426 @@
+{
+  "recorded": [
+    {
+      "size": "Desktop",
+      "captionCount": 0,
+      "composer": [
+        {
+          "height": 44,
+          "id": "chat-input",
+          "width": 340.3999938964844
+        },
+        {
+          "height": 44,
+          "id": "chat-mic",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "id": "chat-send",
+          "width": 44
+        }
+      ],
+      "groups": [
+        {
+          "buttonLeft": 774.4000244140625,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 774.4000244140625,
+          "left": 774.4000244140625,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 774.4000244140625,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            },
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 774.4000244140625,
+          "left": 774.4000244140625,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 774.4000244140625,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            },
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 774.4000244140625,
+          "left": 774.4000244140625,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 774.4000244140625,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 774.4000244140625,
+          "left": 774.4000244140625,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 774.4000244140625,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 774.4000244140625,
+          "left": 774.4000244140625,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 774.4000244140625,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 774.4000244140625,
+          "left": 774.4000244140625,
+          "overflow": false
+        }
+      ],
+      "scrollWidth": 1250,
+      "viewport": 1250
+    },
+    {
+      "size": "390 px",
+      "captionCount": 0,
+      "composer": [
+        {
+          "height": 44,
+          "id": "chat-input",
+          "width": 264.3999938964844
+        },
+        {
+          "height": 44,
+          "id": "chat-mic",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "id": "chat-send",
+          "width": 44
+        }
+      ],
+      "groups": [
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            },
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            },
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        }
+      ],
+      "scrollWidth": 390,
+      "viewport": 390
+    },
+    {
+      "size": "360 px",
+      "captionCount": 0,
+      "composer": [
+        {
+          "height": 44,
+          "id": "chat-input",
+          "width": 234
+        },
+        {
+          "height": 44,
+          "id": "chat-mic",
+          "width": 44
+        },
+        {
+          "height": 44,
+          "id": "chat-send",
+          "width": 44
+        }
+      ],
+      "groups": [
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            },
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            },
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        },
+        {
+          "buttonLeft": 12,
+          "buttons": [
+            {
+              "background": "rgb(221, 236, 232)",
+              "color": "rgb(32, 79, 80)",
+              "height": 44,
+              "opacity": "1"
+            }
+          ],
+          "labelLeft": 12,
+          "left": 12,
+          "overflow": false
+        }
+      ],
+      "scrollWidth": 360,
+      "viewport": 360
+    }
+  ],
+  "active": [
+    {
+      "size": "Desktop",
+      "buttons": [
+        {
+          "background": "rgb(251, 243, 230)",
+          "color": "rgb(32, 79, 80)",
+          "height": 44,
+          "left": 774.4000244140625,
+          "text": "نكمل على فيلا فوق الماء بغرفة نوم واحدة",
+          "width": 270.13751220703125
+        }
+      ],
+      "labelLeft": 774.4000244140625,
+      "left": 774.4000244140625,
+      "scroll": 385,
+      "width": 385
+    },
+    {
+      "size": "390 px",
+      "buttons": [
+        {
+          "background": "rgb(251, 243, 230)",
+          "color": "rgb(32, 79, 80)",
+          "height": 44,
+          "left": 12,
+          "text": "نكمل على فيلا فوق الماء بغرفة نوم واحدة",
+          "width": 261.5375061035156
+        }
+      ],
+      "labelLeft": 12,
+      "left": 12,
+      "scroll": 335,
+      "width": 335
+    },
+    {
+      "size": "360 px",
+      "buttons": [
+        {
+          "background": "rgb(251, 243, 230)",
+          "color": "rgb(32, 79, 80)",
+          "height": 44,
+          "left": 12,
+          "text": "نكمل على فيلا فوق الماء بغرفة نوم واحدة",
+          "width": 261.5375061035156
+        }
+      ],
+      "labelLeft": 12,
+      "left": 12,
+      "scroll": 306,
+      "width": 306
+    }
+  ],
+  "dispatch": {
+    "before": 4,
+    "after": 5,
+    "action": "villa_supported",
+    "nextStage": "party"
+  }
+}

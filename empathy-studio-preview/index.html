@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RSG × Empathy Studio — component proposal (Phase 1)</title>
+<link rel="stylesheet" href="studio/studio-components.css">
+<link rel="stylesheet" href="studio/studio-rtl.css">
+<style>
+  @font-face { font-family: "Fedra Sans AL"; src: url("assets/fonts/FedraSansAL-Book.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Fedra Sans AL"; src: url("assets/fonts/FedraSansAL-Medium.woff2") format("woff2"); font-weight: 500; }
+  :root { --ink: #1e282f; --muted: #5a6670; --line: #d9dee2; --aqua: #37706c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.55 "Fedra Sans AL", Arial, sans-serif; color: var(--ink); background: #f3f4f2; }
+  header.top { padding: 28px 32px 18px; border-bottom: 1px solid var(--line); background: #fff; }
+  header.top h1 { margin: 0 0 6px; font-size: 22px; font-weight: 500; }
+  header.top p { margin: 0; color: var(--muted); max-width: 900px; }
+  nav.toc { padding: 10px 32px; display: flex; flex-wrap: wrap; gap: 6px 14px; background: #fff; border-bottom: 1px solid var(--line); font-size: 13px; }
+  nav.toc a { color: var(--aqua); text-decoration: none; }
+  .tools { padding: 10px 32px; display: flex; gap: 14px; align-items: center; font-size: 13px; color: var(--muted); }
+  .tools button { font: inherit; padding: 5px 12px; border: 1px solid var(--line); background: #fff; border-radius: 4px; cursor: pointer; }
+  .tools button.on { background: var(--aqua); color: #fff; border-color: var(--aqua); }
+  main { padding: 0 32px 60px; }
+  section.group { display: grid; grid-template-columns: minmax(0, 620px) minmax(280px, 1fr); gap: 28px; padding: 30px 0; border-bottom: 1px solid var(--line); }
+  section.group h2 { margin: 0 0 4px; font-size: 18px; font-weight: 500; grid-column: 1 / -1; }
+  .studio-tag { display: inline-block; font-size: 11px; letter-spacing: .4px; text-transform: uppercase; color: #fff; background: #1f2937; border-radius: 3px; padding: 2px 7px; margin-left: 8px; vertical-align: middle; font-family: Arial, sans-serif; }
+  .studio-tag.keep { background: #8a6d1f; }
+  .frames { display: flex; flex-direction: column; gap: 18px; }
+  .frame { position: relative; padding: 18px 18px 18px; border-radius: 14px; background: linear-gradient(rgba(250,250,247,.38), rgba(250,250,247,.38)), url("assets/resorts/shebara.webp") center 30% / cover; }
+  .frame.v2 { background: linear-gradient(#183c4224, #082f3c24), url("assets/resorts/shebara.webp") 43% 50% / cover; }
+  .frame .label { font-size: 11px; color: #fff; background: rgba(0,0,0,.45); display: inline-block; padding: 2px 8px; border-radius: 3px; margin-bottom: 10px; font-family: Arial, sans-serif; }
+  .host { direction: rtl; --font-family: "Fedra Sans AL", Tahoma, Arial, sans-serif; }
+  .host.v1 { --primary-color: #37706c; --text-color: #1e282f; --border-color: #c5cdd2; }
+  .host.v2 { --primary-color: #2c6663; --text-color: #142f35; --border-color: #c8c4b7; }
+  .notes { font-size: 13px; color: #2f3b44; }
+  .notes h3 { margin: 0 0 6px; font-size: 13px; font-weight: 500; letter-spacing: .3px; text-transform: uppercase; color: var(--muted); }
+  .notes dl { margin: 0 0 14px; display: grid; grid-template-columns: 120px 1fr; gap: 3px 10px; }
+  .notes dt { color: var(--muted); }
+  .notes dd { margin: 0; }
+  .notes ul { margin: 4px 0 12px 18px; padding: 0; }
+  .ok { color: #1f6b3a; } .bad { color: #a33a2a; white-space: pre-wrap; }
+  code { font-family: Consolas, monospace; font-size: 12px; background: #eceff1; padding: 0 4px; border-radius: 3px; }
+  .devices { display: flex; gap: 24px; flex-wrap: wrap; padding: 30px 0; }
+  .device { border: 10px solid #1d2227; border-radius: 28px; overflow: hidden; background: #000; align-self: flex-start; }
+  .device iframe { display: block; border: 0; background: #fff; }
+  .device .cap { color: #fff; text-align: center; font-size: 11px; padding: 4px; background: #1d2227; font-family: Arial, sans-serif; }
+  .desktop-frame { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #fff; }
+  .desktop-frame iframe { display: block; border: 0; }
+  .state-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 1000px) { section.group { grid-template-columns: 1fr; } .state-row { grid-template-columns: 1fr; } }
+  img.current { max-width: 300px; border-radius: 10px; border: 1px solid var(--line); display: block; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>RSG concierge × Empathy Studio rich components — Phase 1 proposal board</h1>
+  <p>Every card below is rendered by a line-for-line port of the Empathy Studio web-SDK renderers (carousel, carousel-card, selection-list-picker, grouped-list-picker, confirmation-card, buttons) with the SDK's own CSS, populated from the live RSG booking data and photographs. Theme hooks used are the SDK's supported ones only: <code>--primary-color</code>, <code>--text-color</code>, <code>--border-color</code>, <code>--font-family</code>, <code>iconBaseUrl</code>. Notes in the right-hand column are for the review, never for customers.</p>
+</header>
+<nav class="toc" id="toc"></nav>
+<div class="tools">Data set: <button id="btn-v1" class="on">V1 (page resort flow)</button><button id="btn-v2">V2 (in-chat suggestions)</button><span>Switching re-renders every card with that version's data and theme.</span></div>
+<main>
+  <div id="groups"></div>
+  <section class="group" id="in-chat">
+    <h2>Representative components inside the chat shells</h2>
+    <div class="frames" style="grid-column:1/-1">
+      <div class="desktop-frame"><iframe id="desk" src="chat-context.html?v=v1" width="600" height="760" title="V1 desktop"></iframe></div>
+      <div class="devices">
+        <div class="device"><iframe id="m390" src="chat-context.html?v=v1" width="390" height="760" title="390 px"></iframe><div class="cap">390 × 760</div></div>
+        <div class="device"><iframe id="m360" src="chat-context.html?v=v1" width="360" height="720" title="360 px"></iframe><div class="cap">360 × 720</div></div>
+      </div>
+    </div>
+    <div class="notes" style="grid-column:1/-1">Each frame is the version's real shell stylesheet (header, bubbles, photo background, composer) with a static representative route. Agent turns on the left, customer turns on the right; the calendar, guest form and e-mail verification keep their current RSG cards (see the groups above) and are marked in the frames.</div>
+  </section>
+</main>
+
+<script src="data/v1/booking.js"></script><script src="data/v1/resorts.js"></script><script src="data/v1/villas.js"></script><script src="data/v1/script.js"></script>
+<script>window.RSG_V1 = { BOOKING: window.BOOKING, RESORTS: window.RESORTS, VILLAS: window.VILLAS, SCRIPT: window.SCRIPT };</script>
+<script src="data/v2/booking.js"></script><script src="data/v2/resorts.js"></script><script src="data/v2/villas.js"></script><script src="data/v2/script.js"></script>
+<script>window.RSG_V2 = { BOOKING: window.BOOKING, RESORTS: window.RESORTS, VILLAS: window.VILLAS, SCRIPT: window.SCRIPT };</script>
+<script src="studio/studio-renderers.js"></script>
+<script src="studio/schemas.js"></script>
+<script src="rsg-payloads.js"></script>
+<script>
+(function () {
+  var ver = new URLSearchParams(location.search).get("v") === "v2" ? "v2" : "v1", resolver = new EmpathyStudio.IconResolver({ baseUrl: "studio/icons" }), registry = EmpathyStudio.createRegistry(resolver);
+  var SCHEMA_OF = { carousel: "carousel", confirmation_card: "confirmation_card", selection_list_picker: "selection_list_picker", grouped_list_picker: "grouped_list_picker", buttons: "reply_buttons" };
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+  function render(c, selection, onSelect) {
+    var host = el("div", "rc-container host " + ver); host.setAttribute("dir", "rtl");
+    var component = { type: c.type, payload: JSON.parse(JSON.stringify(c.payload)), selection: selection };
+    var out = EmpathyStudio.renderRichMessage([component], registry, onSelect || function () {});
+    host.appendChild(out.firstChild); return host;
+  }
+  function frame(label, node) { var f = el("div", "frame " + ver); f.appendChild(el("div", "label", label)); f.appendChild(node); return f; }
+  function validation(c) {
+    if (c.type === "buttons") return '<span class="ok">web `buttons` renderer payload (text + buttons[]); the Studio <em>Reply Buttons Message</em> schema is the WhatsApp contract (header/body/footer, ≤14-char titles) and is not what the web SDK renders — see note.</span>';
+    var errs = EmpathyStudio.validate(SCHEMA_OF[c.type], c.payload);
+    return errs.length ? '<span class="bad">✗ ' + errs.map(function (e) { return e.replace(/</g, "&lt;"); }).join("\n") + "</span>" : '<span class="ok">✓ valid against the Studio ' + SCHEMA_OF[c.type] + " schema (required keys, additionalProperties:false, maxLength, enum)</span>";
+  }
+  var GROUPS = [
+    { id: "resorts", title: "Resort suggestions (V2 only) and resort details (both)", tag: "Carousel", build: function (C) { return [
+        ver === "v2" ? frame("V2 · three in-chat suggestions · Carousel (3 cards)", render(C.resorts)) : el("p", "notes", "V1 keeps its resort selection on the page (cards, اختر buttons, spotlight); the chat shows only the details card below."),
+        ver === "v2" ? frame("V2 · after choosing Shebara · first card locked, others disabled by the RSG adapter", render(C.resorts, { index: 0, value: "", cardIndex: 0 })) : null,
+        frame("Both · selected resort details · single-card Carousel = standalone information card (no buttons)", render(C.resortDetails))]; },
+      payloads: ["resorts", "resortDetails"],
+      notes: "<dl><dt>RSG component</dt><dd>V2 <code>C.resortPick</code> (3 rows + استكشف المزيد link) · V1/V2 <code>C.resortDetails</code> strip</dd><dt>Studio</dt><dd>Carousel (docs/rich-components/carousel.md, carousel-card.md); renderer src/rich-components/carousel.ts + carousel-card/index.ts</dd><dt>Payload</dt><dd>image_url = resort photo, main_title = official name, subtitle = place (≤30), description = facts (markdown), primary button اختيار with payload = the version's customer line (V2 <code>نختار Shebara.</code>). The details card has no buttons (information card variant in carousel-card.md).</dd><dt>Action</dt><dd>Tapping sends the payload as the customer message; the adapter maps it to <code>act({type:'resort'})</code>. V1 resort choice stays on the page (unchanged).</dd><dt>Gaps</dt><dd>Studio buttons send messages only: the external استكشف المزيد link (V2) and the visitredsea.com details link (V1) stay as RSG links beside the card. Studio locks one card per tap; RSG retires the whole component, so the adapter disables the other cards (shown).</dd></dl>" },
+    { id: "villas", title: "Villa options and selection", tag: "Carousel", build: function (C) { return [
+        frame("Default · 8 cards, horizontal scroll (desktop arrows on hover, swipe on mobile)", render(C.villas)),
+        frame("After choosing the priced villa · tapped button highlighted, every card locked", render(C.villas, { index: 0, value: "", cardIndex: 0 }))]; },
+      payloads: ["villas"],
+      notes: "<dl><dt>RSG component</dt><dd><code>C.villas</code> rows with photo link, occupancy, facts, price basis</dd><dt>Studio</dt><dd>Carousel of carousel-cards</dd><dt>Payload</dt><dd>badge <code>Villa Flat Rate</code> (15 chars, the limit) on the priced villa only; subtitle = whole-stay price (only evidenced price); description = occupancy + facts as markdown bullets + the recorded price basis; primary اختيار → payload = RSG customer line <code>أختار … على Villa Flat Rate.</code></dd><dt>Gaps</dt><dd>The villa photo currently links to the official Shebara page; Studio cards have no link slot, so that link would move to the agent message or be dropped (decision needed). Unsupported villas keep the RSG re-quote reply; their cards stay interactive because the engine does not advance.</dd></dl>" },
+    { id: "calendar", title: "Date-range calendar", tag: "KEEP (unsupported)", keep: true, build: function () { return [frame("Current RSG calendar, unchanged (screenshot of the live V1 at 390 px)", el("div", "", '<img class="current" src="assets/current-calendar-390.jpg" alt="">'))]; },
+      payloads: [], notes: "<dl><dt>Why</dt><dd>None of the six Studio components takes a date range. The old time-slot picker was replaced by the grouped list picker (docs/aam-components.md), which offers fixed chips only. Turning the calendar into date chips would remove the free range choice the owner asked to keep.</dd><dt>Proposal</dt><dd>Keep the existing calendar component and its customer line; it already uses the RSG surfaces approved on 20 October.</dd></dl>" },
+    { id: "summary", title: "Accommodation cost summary, then the updated totals with transfers", tag: "Confirmation Card", build: function (C) { return [frame("Stay summary · primary button carries the approval (replaces the مناسب، نكمل chip)", render(C.summary1)), frame("Updated totals after transfers · button اعتمد ونكمل", render(C.summary2))]; },
+      payloads: ["summary1", "summary2"],
+      notes: "<dl><dt>RSG component</dt><dd><code>summary1</code> / <code>summary2</code> cost cards + approval quick replies</dd><dt>Studio</dt><dd>Confirmation Card (docs/rich-components/confirmation-card.md; renderer booking-confirmation/index.ts): header image + badge, title, subtitle, 3 detail rows (icons are SVG URLs → local lucide-static copies), instructions ≤150, 1–2 buttons that stay active.</dd><dt>Action</dt><dd>Primary button payload = the approval line already accepted by <code>stageSpec</code> (approve1/approve2). Because Confirmation Card buttons never lock, the adapter ignores a second press once the stage has moved (same guard as today's chips).</dd><dt>Decision</dt><dd>With the approval on the card, the chips مناسب، نكمل / اعتمد ونكمل become redundant for these two turns; the أراجع التفاصيل scroll chip has no Studio equivalent. Keep chips only for turns without a card?</dd></dl>" },
+    { id: "modes", title: "Arrival-mode selection", tag: "Selection List Picker", build: function (C) { return [frame("Default · four rows with Lucide icons", render(C.modes)), frame("After choosing بالطائرة · selected row dark, others disabled", render(C.modes, { index: 0, value: "بالطائرة." }))]; },
+      payloads: ["modes"],
+      notes: "<dl><dt>RSG component</dt><dd><code>C.modes</code> four tiles</dd><dt>Studio</dt><dd>Selection List Picker (selection-list-picker.md); icons plane / plane-takeoff / car / ship by name</dd><dt>Payload</dt><dd>title = RSG mode word; payload = RSG customer line (<code>بالطائرة.</code>) so the sent message is unchanged; subtitle and badge empty strings (schema requires the keys).</dd><dt>Action</dt><dd>Adapter maps the line back to <code>act({type:'mode'})</code>; unsupported modes get the current “other” reply and the chip.</dd></dl>" },
+    { id: "airports", title: "Airports (optional flight details unsupported)", tag: "Sectioned Multi-Select", build: function (C) { return [frame("Default · two groups of chips, send button disabled until a chip is chosen", render(C.airports)), frame("Submitted · both chips highlighted, everything disabled", render(C.airports, { index: 0, value: "مطار الوصول: " + (ver === "v2" ? "مطار ينبع" : "Yanbu Airport") + ", مطار المغادرة: " + (ver === "v2" ? "مطار البحر الأحمر الدولي – RSIA" : "Red Sea International Airport - RSIA") }))]; },
+      payloads: ["airports"],
+      notes: "<dl><dt>RSG component</dt><dd><code>C.airports</code> form: two required selects + optional time / airline / flight number</dd><dt>Studio</dt><dd>Grouped List Picker = “Sectioned Multi-Select” (grouped-list-picker.md); multi-select mode with send button</dd><dt>Payload</dt><dd>groups مطار الوصول / مطار المغادرة with the three recorded airports; send_button_label تأكيد المواصلات.</dd><dt>Action</dt><dd>Studio sends <code>Group: Option, Group: Option</code>; the adapter parses it into arrival/departure and calls <code>act({type:'airports'})</code>. Multi-select cannot enforce one per group: two picks in one group get the existing fallback reply.</dd><dt>Gaps</dt><dd>Optional flight details (time, airline, number) have no Studio component. Options: (a) drop them, (b) keep the current RSG optional disclosure below the picker. The current customer line wording changes to the Studio format shown above.</dd></dl>" },
+    { id: "transport", title: "Transportation details", tag: "Carousel", build: function (C) { return [frame("Two information cards (visible_count 1 → one card at a time with a peek of the next)", render(C.transport))]; },
+      payloads: ["transport"],
+      notes: "<dl><dt>RSG component</dt><dd><code>C.transportTrip</code> legs + subtotal</dd><dt>Studio</dt><dd>Carousel (2 cards, no buttons) for the legs; the subtotal and grand total live in the Confirmation Card above.</dd><dt>Payload</dt><dd>badge الوصول / المغادرة, title = product, subtitle = price, description = route, duration, capacities, requirement and price basis (markdown).</dd><dt>Note</dt><dd>Only the arrival leg has a recorded photo; the departure card renders without media (SDK hides the media area).</dd></dl>" },
+    { id: "experiences", title: "Experiences during the stay", tag: "Carousel", build: function (C) { return [frame("Three information cards · decision stays with the quick replies below", render(C.experiences)), frame("Quick replies rendered with the Studio web `buttons` renderer (no heading)", render(C.quickDefer))]; },
+      payloads: ["experiences", "quickDefer"],
+      notes: "<dl><dt>RSG component</dt><dd><code>C.activities</code> tiles + chip نختار عند الوصول</dd><dt>Studio</dt><dd>Carousel information cards; quick replies as the <code>buttons</code> component (buttons.md: pill, primary-colour outline, single use).</dd><dt>Payload</dt><dd>badge = category, subtitle = recorded price line when ≤30 chars, otherwise the first clause with the full line in the description; tags as bullets.</dd><dt>Gaps</dt><dd>Adding an activity has no booking path in RSG, so no action button is offered. The Studio <em>Reply Buttons Message</em> schema (≤14-char titles, header/footer) is the WhatsApp contract; the web SDK renders the simpler <code>buttons</code> payload shown here — confirm which contract the Studio emits for web.</dd></dl>" },
+    { id: "guest", title: "Guest and wife information, voice composer", tag: "KEEP (unsupported)", keep: true, build: function () { return [frame("Current RSG guest form (voice-filled) · unchanged", el("div", "", '<img class="current" src="assets/current-guest-form-390.jpg" alt="">'))]; },
+      payloads: [], notes: "<dl><dt>Why</dt><dd>Free-text inputs (names, e-mail, phone, requests) have no Studio component. The composer microphone, sent-audio bubble and icon-only extraction markers are shell features that stay as they are.</dd></dl>" },
+    { id: "review", title: "Final review (and editing in V2)", tag: "Confirmation Card", build: function (C) { return [frame(ver === "v2" ? "V2 · secondary button تعديل البيانات opens the existing edit form" : "V1 · single approval button (no editing in V1)", render(C.review))]; },
+      payloads: ["review"],
+      notes: "<dl><dt>RSG component</dt><dd><code>C.review</code> groups + approval chip (+ edit in V2)</dd><dt>Studio</dt><dd>Confirmation Card: 3 detail rows (guests and transfers side by side, contact on the full-width row because the e-mail cannot wrap in the SDK flex pair), instructions = totals and request, primary = the version's own approval line (V1 موافق على الشروط، نكمل / V2 البيانات صحيحة، نكمل), secondary (V2) = تعديل البيانات.</dd><dt>Gaps</dt><dd>Three rows cannot hold every review line; dates and villa move into the subtitle, totals into instructions (≤150 chars, validated). Terms and privacy links have no slot: they stay in the agent message (V1 already asks for consent there). Edited guest data re-renders the card from state as today.</dd></dl>" },
+    { id: "otp", title: "E-mail verification", tag: "KEEP (unsupported)", keep: true, build: function () { return [frame("Current RSG verification card · unchanged", el("div", "", '<img class="current" src="assets/current-verification-390.jpg" alt="">'))]; },
+      payloads: [], notes: "<dl><dt>Why</dt><dd>Six-digit code entry, resend and server states have no Studio component; the server integration stays untouched.</dd></dl>" },
+    { id: "payment", title: "Payment hand-off", tag: "Confirmation Card", build: function (C) { return [frame("Amount, resort, villa, dates · primary button continues to checkout", render(C.payment))]; },
+      payloads: ["payment"],
+      notes: "<dl><dt>RSG component</dt><dd><code>C.payment</code> card with the official checkout link (new tab) and the 5-second continuation</dd><dt>Studio</dt><dd>Confirmation Card with badge visitredsea.com and a lock icon on the button</dd><dt>Conflict</dt><dd>Studio buttons send a visitor message; they do not open URLs. To keep the official checkout, the adapter must open <code>B.checkoutUrl</code> in a new tab from the click and start the existing timer. That is behaviour outside the Studio contract; alternative: keep the current RSG payment card. Needs a decision.</dd></dl>" },
+    { id: "confirmation", title: "Final confirmation and PDF", tag: "Confirmation Card", build: function (C) { return [frame("Badge تم تأكيد الحجز · download button stays active (Studio buttons never lock)", render(C.confirmation))]; },
+      payloads: ["confirmation"],
+      notes: "<dl><dt>RSG component</dt><dd><code>C.confirmation</code> + PDF</dd><dt>Studio</dt><dd>Confirmation Card; primary button تحميل PDF with the download icon → adapter calls <code>BookingPdf.make</code> (unchanged PDF).</dd><dt>Gaps</dt><dd>The card shows the payload a Studio button sends (تحميل PDF) as a customer message; the adapter can suppress that echo for this button only (decision).</dd></dl>" },
+    { id: "states", title: "Shared states: loading, failed media, failed icon", tag: "SDK states", build: function (C) {
+        var loading = el("div", "rc-container host " + ver, '<div class="rc-loading" aria-label="Loading component"></div>');
+        var broken = render({ type: "carousel", payload: { cards: [Object.assign({}, C.resortDetails.payload.cards[0], { image_url: "assets/missing.webp", badge_title: "" })] } });
+        var badIcon = render({ type: "selection_list_picker", payload: { main_title: "", lock_after_selection: true, items: [{ title: "بالطائرة", subtitle: "", icon: "no-such-icon", badge: "", payload: "" }] } });
+        return [frame("rc-loading placeholder (auto-loader waiting for a bundle)", loading), frame("Media failed to load → media area hidden, badge falls inline", broken), frame("Unknown icon name → icon area stays empty (negative cache)", badIcon)]; },
+      payloads: [], notes: "<dl><dt>Source</dt><dd>styles.ts RICH_BASE_STYLES (.rc-loading, .rc-fallback), carousel-card error handler, icons/icon-resolver.ts.</dd></dl>" }
+  ];
+  function build() {
+    var D = window["RSG_" + ver.toUpperCase()], C = RSG_PAYLOADS.build(ver, D), root = document.getElementById("groups"); root.innerHTML = "";
+    GROUPS.forEach(function (g) {
+      var sec = el("section", "group"); sec.id = g.id;
+      sec.appendChild(el("h2", "", g.title + '<span class="studio-tag' + (g.keep ? " keep" : "") + '">' + g.tag + "</span>"));
+      var frames = el("div", "frames"); g.build(C).forEach(function (f) { if (f) frames.appendChild(f); }); sec.appendChild(frames);
+      var notes = el("div", "notes", g.notes);
+      if (g.payloads.length) { var v = el("div", "", "<h3>Schema check</h3>"); g.payloads.forEach(function (k) { v.appendChild(el("p", "", "<code>" + k + "</code> → " + validation(C[k]))); }); notes.appendChild(v); }
+      sec.appendChild(notes); root.appendChild(sec);
+    });
+    ["desk", "m390", "m360"].forEach(function (id) { document.getElementById(id).src = "chat-context.html?v=" + ver; });
+    document.getElementById("desk").width = ver === "v2" ? 472 : 600;
+    document.getElementById("btn-v1").className = ver === "v1" ? "on" : ""; document.getElementById("btn-v2").className = ver === "v2" ? "on" : "";
+  }
+  document.getElementById("toc").innerHTML = GROUPS.map(function (g) { return '<a href="#' + g.id + '">' + g.title.split(" (")[0].split(",")[0] + "</a>"; }).join("") + '<a href="#in-chat">In the chat shells</a>';
+  document.getElementById("btn-v1").onclick = function () { ver = "v1"; build(); };
+  document.getElementById("btn-v2").onclick = function () { ver = "v2"; build(); };
+  build();
+})();
+</script>
+</body>
+</html>

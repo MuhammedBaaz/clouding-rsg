@@ -1,0 +1,28 @@
+/* Empathy Studio rich components inside the Red Sea Concierge chat.
+   The SDK renderers and their CSS are untouched (studio/studio-components.css); the RTL mirroring is
+   studio/studio-rtl.css. This file holds only the RSG hooks: the SDK theme variables, placement in the
+   conversation, the retired and busy states, and the small RSG aside under a component (external links,
+   consent, PDF status) for things that have no slot in a Studio component. */
+.rich.studio{direction:rtl;text-align:right}
+.rich .rc-container{--primary-color:#37706c;--text-color:#1e282f;--border-color:#c5cdd2;--background-color:#fff;--border-radius:12px;--font-family:'Fedra Sans AL',Tahoma,Arial,sans-serif;direction:rtl;text-align:right;font-family:var(--font-family)}
+.rich .rc-container img{background:#e9eeec}
+.chat-scroll.busy .rich .rc-container{pointer-events:none}
+.rich.used .rc-container :is(.cc-btn,.slp-item,.glp-chip,.glp-send-btn,.bc-btn,.rc-btn):disabled{opacity:.72;filter:saturate(.6);cursor:default}
+.rich.used .rc-container :is(.cc-btn--selected,.slp-item--selected,.glp-chip--selected,.rc-selected):disabled,.rich.used .rc-container .bc-btn[data-keep]{opacity:1;filter:none}
+.studio-aside{margin:7px 4px 0;font:13px/1.55 'Fedra Sans AL',Tahoma,Arial,sans-serif;color:#35514d}
+.studio-aside:empty{display:none}
+.studio-aside p{margin:0 0 4px}
+.studio-aside a{color:#2c6663;font-weight:500;text-decoration:none;border-bottom:1px solid #9fcfc6}
+.studio-aside a:hover{border-bottom-color:#2c6663}
+.studio-aside a svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-1px;margin-inline-start:3px}
+.studio-aside .consent{display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin:0 0 4px}
+.studio-aside .consent input{margin:3px 0 0;accent-color:#2c6663;flex-shrink:0}
+.studio-aside .form-error{color:#b3261e;font-size:12.5px;margin-top:4px;display:flex;gap:5px;align-items:center}
+.studio-aside .form-error:empty{display:none}
+.studio-aside .form-error svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.studio-aside.pdfstatus{color:#5a7572;font-size:12.5px;min-height:0}
+.msg.agent .col .rich.quick .rc-container{padding:0}
+.rich.quick .rc-buttons-group{justify-content:flex-start}
+.rich.quick.used .rc-btn:disabled{opacity:.6}
+.rich.quick.used .rc-btn.rc-selected:disabled{opacity:1}
+.walkthrough .rich.studio{break-inside:avoid}

@@ -1,0 +1,17 @@
+# Missing inputs
+
+What the build could not evidence or could not be given, how it is handled on screen, and what would close the gap.
+
+| # | What is missing | How it appears now | What was searched | What is needed |
+|---|---|---|---|---|
+| 1 | Prices for the other seven Shebara villa types for 23–25 Oct 2026, 2 adults | Villa cards show features and occupancy with a Select button and no price. Selecting one gets a neutral reply that the price must be confirmed first | Screenshots 01–03, all CSV registers, research notes 06, the 13 Oct team screenshots | A screenshot of the full accommodation list for the scenario, or confirmation that unpriced cards are acceptable |
+| 2 | Activity prices and availability for 23–25 Oct 2026 | Cards show the recorded examples ("From SAR 500.00 per person", "From SAR 184.58 per person", "SAR 200.00, 1 adult, 1 hour, all taxes included"). The recording dates are in `docs/SOURCES.md`, not on screen | Research step 3 observations (12 Oct, a 10–13 Nov stay), 13 Oct screenshot (16–17 Oct stay) | Screenshots of the experiences step for the scenario, or confirmation that the recorded examples stand |
+| 3 | The booking flow's own transfer photo (teal car in Screenshot 02) | Arrival transfer card uses the official "Getting to and around" car image | The asset is served only inside a booking session, which was not opened | The image file, or acceptance of the current image |
+| 4 | Departure leg details (duration, capacities) | Departure card shows product and price only | Screenshot 02 has the leg collapsed | A screenshot with the leg expanded |
+| 5 | A reservation reference | None shown; the field is omitted | n/a | A real reference format from RSG, if one should appear |
+| 6 | Exact stats tile images on the live home page | Tiles reuse other site images | Home page HTML did not expose the four URLs | Optional; page only |
+| 7 | Font licence for Fedra (Typotheque) and permission for logo and photo use, including the Red Sea Global logo and the Shebara mark used in the PDF | Whole page and both PDFs | Not a research question | Written confirmation from Red Sea Global before any use beyond the project team |
+| 8 | SMTP account for the verification e-mail | Resolved 20 Oct 2026: the owner placed the settings in `.env` (never read by Clouding), started `server.py` with `start.cmd`, clicked Send code in the app and confirmed that the 6-digit code reached the muhammed.baz@clouding.ai inbox. Provider acceptance and inbox receipt are therefore both observed | n/a | Nothing; keep `.env` private |
+| 11 | Red Sea Global typefaces (Questa Grande, Paralucent) for the PDF | The PDF uses the page's Fedra faces | The fonts are served only by redseaglobal.com and are not in the project | Licensed font files, if the PDF must use them |
+
+Decided, not missing: the 10% rate plan was removed from the experience (owner instruction, 18 Oct 2026); Daraah Resort and coming-soon resorts are not on the page's resort rail; the "18 guests" boat capacity on the arrival leg was read from small text and should be checked against the original screenshot; the five-second payment continuation is scripted and is not a payment-provider response; the voice extraction is a fixed mapping for this journey, not speech recognition; the prepared customer is محمد باز, mobile +966 508416627 (owner instruction, 20 Oct 2026), with the second guest نورة الحربي unchanged.

@@ -1,0 +1,308 @@
+[
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(208, 234, 226) 0%, rgba(0, 0, 0, 0) 72%), linear-gradient(150deg, rgb(246, 239, 223), rgb(229, 239, 230))",
+    "id": "resorts",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(208, 234, 226) 0%, rgba(0, 0, 0, 0) 72%), linear-gradient(150deg, rgb(246, 239, 223), rgb(229, 239, 230))",
+    "id": "resorts",
+    "overflow": false,
+    "state": "selected"
+  },
+  {
+    "background": "linear-gradient(105deg, rgba(229, 242, 236, 0.92), rgba(232, 239, 226, 0.96)), url(\"http://127.0.0.1:4175/assets/resorts/shebara.webp\")",
+    "id": "detail",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(224, 239, 229) 0%, rgba(0, 0, 0, 0) 65%), linear-gradient(160deg, rgb(244, 235, 218), rgb(233, 238, 225))",
+    "id": "villas",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(224, 239, 229) 0%, rgba(0, 0, 0, 0) 65%), linear-gradient(160deg, rgb(244, 235, 218), rgb(233, 238, 225))",
+    "id": "villas",
+    "overflow": false,
+    "state": "selected"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(224, 239, 229) 0%, rgba(0, 0, 0, 0) 65%), linear-gradient(160deg, rgb(244, 235, 218), rgb(233, 238, 225))",
+    "id": "villas",
+    "overflow": false,
+    "state": "expanded"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(224, 239, 229) 0%, rgba(0, 0, 0, 0) 65%), linear-gradient(160deg, rgb(244, 235, 218), rgb(233, 238, 225))",
+    "id": "villas",
+    "overflow": false,
+    "state": "requote"
+  },
+  {
+    "background": "linear-gradient(145deg, rgb(224, 241, 235), rgb(237, 242, 229))",
+    "id": "calendar",
+    "overflow": false,
+    "state": "empty"
+  },
+  {
+    "background": "linear-gradient(145deg, rgb(224, 241, 235), rgb(237, 242, 229))",
+    "id": "calendar",
+    "overflow": false,
+    "state": "first"
+  },
+  {
+    "background": "linear-gradient(145deg, rgb(224, 241, 235), rgb(237, 242, 229))",
+    "id": "calendar",
+    "overflow": false,
+    "state": "complete"
+  },
+  {
+    "background": "linear-gradient(145deg, rgb(224, 241, 235), rgb(237, 242, 229))",
+    "id": "calendar",
+    "overflow": false,
+    "state": "invalid"
+  },
+  {
+    "background": "linear-gradient(145deg, rgb(224, 241, 235), rgb(237, 242, 229))",
+    "id": "calendar",
+    "overflow": false,
+    "state": "confirmed"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgba(194, 227, 213, 0.5), rgba(0, 0, 0, 0) 76%), linear-gradient(155deg, rgb(225, 241, 233), rgb(238, 233, 217))",
+    "id": "summary",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgba(194, 227, 213, 0.5), rgba(0, 0, 0, 0) 76%), linear-gradient(155deg, rgb(225, 241, 233), rgb(238, 233, 217))",
+    "id": "summary",
+    "overflow": false,
+    "state": "updated"
+  },
+  {
+    "background": "linear-gradient(140deg, rgb(226, 241, 233), rgb(233, 233, 217))",
+    "id": "modes",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "linear-gradient(140deg, rgb(226, 241, 233), rgb(233, 233, 217))",
+    "id": "modes",
+    "overflow": false,
+    "state": "selected"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(219, 236, 226, 0.5), rgba(0, 0, 0, 0) 70%), linear-gradient(150deg, rgb(243, 233, 215), rgb(238, 238, 226))",
+    "id": "airports",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(219, 236, 226, 0.5), rgba(0, 0, 0, 0) 70%), linear-gradient(150deg, rgb(243, 233, 215), rgb(238, 238, 226))",
+    "id": "airports",
+    "overflow": false,
+    "state": "selected"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(219, 236, 226, 0.5), rgba(0, 0, 0, 0) 70%), linear-gradient(150deg, rgb(243, 233, 215), rgb(238, 238, 226))",
+    "id": "airports",
+    "overflow": false,
+    "state": "optional"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(219, 236, 226, 0.5), rgba(0, 0, 0, 0) 70%), linear-gradient(150deg, rgb(243, 233, 215), rgb(238, 238, 226))",
+    "id": "airports",
+    "overflow": false,
+    "state": "invalid"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(199, 229, 217) 0%, rgba(0, 0, 0, 0) 72%), linear-gradient(145deg, rgb(225, 240, 231), rgb(236, 231, 215))",
+    "id": "transport",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(199, 229, 217) 0%, rgba(0, 0, 0, 0) 72%), linear-gradient(145deg, rgb(225, 240, 231), rgb(236, 231, 215))",
+    "id": "transport",
+    "overflow": false,
+    "state": "accepted"
+  },
+  {
+    "background": "linear-gradient(140deg, rgb(239, 227, 206), rgb(230, 238, 224))",
+    "id": "experiences",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "linear-gradient(140deg, rgb(239, 227, 206), rgb(230, 238, 224))",
+    "id": "experiences",
+    "overflow": false,
+    "state": "deferred"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(207, 231, 221, 0.5), rgba(0, 0, 0, 0) 80%), linear-gradient(150deg, rgb(242, 233, 216), rgb(233, 239, 227))",
+    "id": "guest",
+    "overflow": false,
+    "state": "initial"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(207, 231, 221, 0.5), rgba(0, 0, 0, 0) 80%), linear-gradient(150deg, rgb(242, 233, 216), rgb(233, 239, 227))",
+    "id": "guest",
+    "overflow": false,
+    "state": "voice"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(207, 231, 221, 0.5), rgba(0, 0, 0, 0) 80%), linear-gradient(150deg, rgb(242, 233, 216), rgb(233, 239, 227))",
+    "id": "guest",
+    "overflow": false,
+    "state": "complete"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(207, 231, 221, 0.5), rgba(0, 0, 0, 0) 80%), linear-gradient(150deg, rgb(242, 233, 216), rgb(233, 239, 227))",
+    "id": "guest",
+    "overflow": false,
+    "state": "invalid"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(207, 231, 221, 0.5), rgba(0, 0, 0, 0) 80%), linear-gradient(150deg, rgb(242, 233, 216), rgb(233, 239, 227))",
+    "id": "guest",
+    "overflow": false,
+    "state": "editing"
+  },
+  {
+    "background": "linear-gradient(135deg, rgb(227, 241, 232), rgb(240, 232, 216))",
+    "id": "composer",
+    "overflow": false,
+    "state": "idle"
+  },
+  {
+    "background": "linear-gradient(135deg, rgb(227, 241, 232), rgb(240, 232, 216))",
+    "id": "composer",
+    "overflow": false,
+    "state": "permission"
+  },
+  {
+    "background": "linear-gradient(135deg, rgb(227, 241, 232), rgb(240, 232, 216))",
+    "id": "composer",
+    "overflow": false,
+    "state": "error"
+  },
+  {
+    "background": "linear-gradient(135deg, rgb(227, 241, 232), rgb(240, 232, 216))",
+    "id": "composer",
+    "overflow": false,
+    "state": "recording"
+  },
+  {
+    "background": "linear-gradient(135deg, rgb(227, 241, 232), rgb(240, 232, 216))",
+    "id": "composer",
+    "overflow": false,
+    "state": "preview"
+  },
+  {
+    "background": "linear-gradient(135deg, rgb(227, 241, 232), rgb(240, 232, 216))",
+    "id": "composer",
+    "overflow": false,
+    "state": "cancelled"
+  },
+  {
+    "background": "linear-gradient(135deg, rgb(227, 241, 232), rgb(240, 232, 216))",
+    "id": "composer",
+    "overflow": false,
+    "state": "sent"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(205, 232, 220) 0%, rgba(0, 0, 0, 0) 73%), linear-gradient(145deg, rgb(229, 242, 233), rgb(240, 232, 216))",
+    "id": "review",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "radial-gradient(at 0% 100%, rgba(207, 231, 221, 0.5), rgba(0, 0, 0, 0) 80%), linear-gradient(150deg, rgb(242, 233, 216), rgb(233, 239, 227))",
+    "id": "review",
+    "overflow": false,
+    "state": "editing"
+  },
+  {
+    "background": "radial-gradient(at 100% 0%, rgb(205, 232, 220) 0%, rgba(0, 0, 0, 0) 73%), linear-gradient(145deg, rgb(229, 242, 233), rgb(240, 232, 216))",
+    "id": "review",
+    "overflow": false,
+    "state": "updated"
+  },
+  {
+    "background": "radial-gradient(at 50% 0%, rgb(201, 230, 220) 0%, rgba(0, 0, 0, 0) 75%), linear-gradient(145deg, rgb(229, 242, 233), rgb(239, 233, 217))",
+    "id": "otp",
+    "overflow": false,
+    "state": "initial"
+  },
+  {
+    "background": "radial-gradient(at 50% 0%, rgb(201, 230, 220) 0%, rgba(0, 0, 0, 0) 75%), linear-gradient(145deg, rgb(229, 242, 233), rgb(239, 233, 217))",
+    "id": "otp",
+    "overflow": false,
+    "state": "sending"
+  },
+  {
+    "background": "radial-gradient(at 50% 0%, rgb(201, 230, 220) 0%, rgba(0, 0, 0, 0) 75%), linear-gradient(145deg, rgb(229, 242, 233), rgb(239, 233, 217))",
+    "id": "otp",
+    "overflow": false,
+    "state": "sent"
+  },
+  {
+    "background": "radial-gradient(at 50% 0%, rgb(201, 230, 220) 0%, rgba(0, 0, 0, 0) 75%), linear-gradient(145deg, rgb(229, 242, 233), rgb(239, 233, 217))",
+    "id": "otp",
+    "overflow": false,
+    "state": "invalid"
+  },
+  {
+    "background": "radial-gradient(at 50% 0%, rgb(201, 230, 220) 0%, rgba(0, 0, 0, 0) 75%), linear-gradient(145deg, rgb(229, 242, 233), rgb(239, 233, 217))",
+    "id": "otp",
+    "overflow": false,
+    "state": "expired"
+  },
+  {
+    "background": "radial-gradient(at 50% 0%, rgb(201, 230, 220) 0%, rgba(0, 0, 0, 0) 75%), linear-gradient(145deg, rgb(229, 242, 233), rgb(239, 233, 217))",
+    "id": "otp",
+    "overflow": false,
+    "state": "failure"
+  },
+  {
+    "background": "radial-gradient(at 50% 0%, rgb(201, 230, 220) 0%, rgba(0, 0, 0, 0) 75%), linear-gradient(145deg, rgb(229, 242, 233), rgb(239, 233, 217))",
+    "id": "otp",
+    "overflow": false,
+    "state": "verified"
+  },
+  {
+    "background": "radial-gradient(at 0% 0%, rgba(78, 131, 117, 0.48), rgba(0, 0, 0, 0) 72%), linear-gradient(145deg, rgb(40, 91, 87), rgb(33, 75, 73))",
+    "id": "payment",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "radial-gradient(at 0% 0%, rgba(78, 131, 117, 0.48), rgba(0, 0, 0, 0) 72%), linear-gradient(145deg, rgb(40, 91, 87), rgb(33, 75, 73))",
+    "id": "payment",
+    "overflow": false,
+    "state": "waiting"
+  },
+  {
+    "background": "radial-gradient(at 0% 0%, rgba(78, 131, 117, 0.48), rgba(0, 0, 0, 0) 72%), linear-gradient(145deg, rgb(40, 91, 87), rgb(33, 75, 73))",
+    "id": "payment",
+    "overflow": false,
+    "state": "closed"
+  },
+  {
+    "background": "linear-gradient(140deg, rgba(33, 76, 73, 0.96), rgba(40, 91, 87, 0.92)), url(\"http://127.0.0.1:4175/assets/resorts/shebara.webp\")",
+    "id": "confirmation",
+    "overflow": false,
+    "state": "default"
+  },
+  {
+    "background": "linear-gradient(140deg, rgba(33, 76, 73, 0.96), rgba(40, 91, 87, 0.92)), url(\"http://127.0.0.1:4175/assets/resorts/shebara.webp\")",
+    "id": "confirmation",
+    "overflow": false,
+    "state": "document"
+  }
+]

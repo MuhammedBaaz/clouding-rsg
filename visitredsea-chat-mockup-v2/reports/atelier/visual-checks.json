@@ -1,0 +1,53 @@
+[
+  {
+    "size": "desktop",
+    "brokenImages": [],
+    "overflow": [],
+    "panel": {
+      "bottom": 610.4000244140625,
+      "height": 590.4000244140625,
+      "left": 757.6000366210938,
+      "right": 1229.6000366210938,
+      "top": 20,
+      "width": 472,
+      "x": 757.6000366210938,
+      "y": 20
+    },
+    "rootScroll": 1250,
+    "viewport": 1250
+  },
+  {
+    "size": "390",
+    "brokenImages": [],
+    "overflow": [],
+    "panel": {
+      "bottom": 630.4000244140625,
+      "height": 630.4000244140625,
+      "left": 0,
+      "right": 390.3999938964844,
+      "top": 0,
+      "width": 390.3999938964844,
+      "x": 0,
+      "y": 0
+    },
+    "rootScroll": 390,
+    "viewport": 390
+  },
+  {
+    "size": "360",
+    "brokenImages": [],
+    "overflow": [],
+    "panel": {
+      "bottom": 630.4000244140625,
+      "height": 630.4000244140625,
+      "left": 0,
+      "right": 360,
+      "top": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0
+    },
+    "rootScroll": 360,
+    "viewport": 360
+  }
+]

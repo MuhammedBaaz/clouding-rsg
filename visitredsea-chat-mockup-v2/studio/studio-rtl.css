@@ -1,0 +1,11 @@
+/* PROPOSED RSG CUSTOMIZATION, NOT PART OF THE SDK.
+   The Studio renderers set dir="auto" on text nodes but their layout CSS uses physical left/right values.
+   Inside an RTL host container ([dir="rtl"] .rc-container) these six rules mirror the physical values so the
+   Arabic components read right-to-left. Listed in the proposal as a deviation that needs approval. */
+[dir="rtl"] .slp-item { text-align: right; }
+[dir="rtl"] .cc-badge--inline { margin-left: 0; margin-right: 8px; }
+[dir="rtl"] .cc-description ul { padding-left: 0; padding-right: 18px; }
+[dir="rtl"] .bc-header .bc-badge { left: auto; right: 12px; }
+[dir="rtl"] .cc-media .cc-badge--top-left { left: auto; right: 10px; }
+[dir="rtl"] .cc-media .cc-badge--bottom-left { left: auto; right: 10px; }
+/* Latin names (resort, villa, product, e-mail) keep their own direction through dir="auto" on each text node; nothing to add. */
