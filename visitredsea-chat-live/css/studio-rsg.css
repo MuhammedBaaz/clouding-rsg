@@ -1,0 +1,48 @@
+/* Empathy Studio rich components inside the رفيق رحلتك chat.
+   The SDK renderers and their CSS are untouched (studio/studio-components.css); the RTL mirroring is
+   studio/studio-rtl.css. This file holds only the RSG hooks: the SDK theme variables, placement in the
+   conversation, the retired and busy states, and the small RSG aside under a component (external links,
+   consent, waiting state, PDF status) for things that have no slot in a Studio component. */
+.rich.studio{direction:rtl;text-align:right}
+.rich .rc-container{--primary-color:#2c6663;--text-color:#142f35;--border-color:#c8c4b7;--background-color:#fff;--border-radius:12px;--font-family:'Fedra Sans AL',Tahoma,Arial,sans-serif;direction:rtl;text-align:right;font-family:var(--font-family)}
+.rich .rc-container img{background:#e9eeec}
+.chat-scroll.busy .rich .rc-container{pointer-events:none}
+.rich.used .rc-container :is(.cc-btn,.slp-item,.glp-chip,.glp-send-btn,.bc-btn,.rc-btn):disabled{opacity:.72;filter:saturate(.6);cursor:default}
+.rich.used .rc-container :is(.cc-btn--selected,.slp-item--selected,.glp-chip--selected,.rc-selected):disabled,.rich.used .rc-container .bc-btn[data-keep]{opacity:1;filter:none}
+.studio-aside{margin:7px 4px 0;font:13px/1.55 'Fedra Sans AL',Tahoma,Arial,sans-serif;color:#2f4a47}
+.studio-aside:empty{display:none}
+.studio-aside p{margin:0 0 4px}
+.studio-aside a{color:#1f5a57;font-weight:500;text-decoration:none;border-bottom:1px solid #8fc4b9}
+.studio-aside a:hover{border-bottom-color:#1f5a57}
+.studio-aside a svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-1px;margin-inline-start:3px}
+.studio-aside .consent{display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin:0 0 4px}
+.studio-aside .consent input{margin:3px 0 0;accent-color:#2c6663;flex-shrink:0}
+.studio-aside .form-error{color:#9d392c;font-size:12.5px;margin-top:4px;display:flex;gap:5px;align-items:center}
+.studio-aside .form-error:empty{display:none}
+.studio-aside .form-error svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.studio-aside.pay-wait .status-message{padding:8px 0 0;color:#2c6558}
+.studio-aside.pdfstatus{font-size:12.5px;min-height:0}
+/* quick replies sit on the agent side: the end of the RTL row is the left edge */
+.rich.quick .rc-buttons-group{justify-content:flex-end}
+.rich.quick.used .rc-btn:disabled{opacity:.6}
+.rich.quick.used .rc-btn.rc-selected:disabled{opacity:1}
+.walkthrough .rich.studio{break-inside:avoid}
+/* Arabic cards read from the right: titles, prices and descriptions align right whatever direction dir="auto" resolves */
+.rich .rc-container :is(.cc-title,.cc-subtitle,.cc-description,.slp-title,.slp-item-title,.slp-subtitle,.glp-title,.glp-group-heading){text-align:right}
+/* picker titles on the solid chat surface: the shell ink instead of the SDK's light grey */
+.rich .rc-container :is(.slp-title,.glp-title,.glp-group-heading){color:#2f4a47}
+/* resort photographs open the official resort page: an RSG layer over the Studio card photo, separate from اختيار */
+.rich .rc-container .cc-media{position:relative}
+.rich .rc-container :is(.cc-media,.bc-header) .cc-media-link{position:absolute;inset:0;z-index:2;display:block}
+.rich .rc-container .cc-media-link:focus-visible{outline:3px solid #8ac7b5;outline-offset:-3px}
+.rich .rc-container .cc-media-ext{position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#ffffffd9;color:#1f4f50;box-shadow:0 1px 4px #0b2a2f33}
+.rich .rc-container .cc-media-ext svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rich .rc-container .cc-media-link:hover .cc-media-ext{background:#fff}
+
+/* comparison: a small linked photo beside each resort's name identifies its entry (js/chat.js compareThumbs) */
+.rich[data-component="compare"] .cc-description ul{list-style:none;padding:0;margin:4px 0 0}
+.rich[data-component="compare"] .cc-description li+li{margin-top:10px}
+.rich[data-component="compare"] .cc-description strong.cmp-name{display:flex;align-items:center;gap:8px;margin:0 0 4px}
+.rich[data-component="compare"] .cmp-thumb{flex:0 0 32px;width:32px;height:32px;border-radius:6px;overflow:hidden;display:block;background:#e7ece9}
+.rich[data-component="compare"] .cmp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.rich[data-component="compare"] a.cmp-thumb:focus-visible{outline:3px solid #8ac7b5;outline-offset:2px}

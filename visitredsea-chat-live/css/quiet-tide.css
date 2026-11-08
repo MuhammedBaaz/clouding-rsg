@@ -1,0 +1,302 @@
+/* ============================================================
+   Quiet Tide / هدوء البحر, the approved V2 design.
+   Source: D:\Clouding\RSG\design-proposals\quiet-tide\style.css
+   (component rules and the "Quiet Tide backgrounds" block), ported
+   to the V2 application markup. Loaded after chat.css and v2.css.
+   Tokens follow HANDOFF.md; geometry, type sizes and backgrounds are
+   kept; icons are inline SVG instead of the prototype's icon font.
+   ============================================================ */
+:root {
+  --qt-aqua: #71bfb7; --qt-teal: #37706c; --qt-ink: #1e282f; --qt-pale: #e6f6f5; --qt-paper: #fafaf7; --qt-sand: #f1eee7;
+  --qt-line: #dce3df; --qt-muted: #596967; --qt-danger: #a54035;
+  --surface-aqua: #e1f1ec; --surface-sand: #f1e8d8; --surface-teal: #285b57; --surface-border: #c4d8ce; --surface-light: #f4fbf5;
+  --qt-font: "Fedra Sans AL", Arial, sans-serif; --qt-serif: "Fedra Serif Arabic AR", serif; --qt-display: "Fedra Serif Display", Georgia, serif;
+}
+
+/* ---------- chat shell ---------- */
+.chat-panel { width: 472px; height: min(790px, calc(100vh - 48px)); border-radius: 19px; border: 1px solid #d0dbd1; box-shadow: 0 20px 48px #18372b1a; background: linear-gradient(#10363814, #082e4424), url("../assets/resorts/shebara.webp") 43% center / cover; }
+.chat-head { background: #fafaf7fa; color: var(--qt-ink); border-bottom: 1px solid #d9e3da; padding: 13px 16px; gap: 10px; }
+.chat-head .avatar { width: 43px; height: 43px; padding: 8px; background: var(--qt-pale); border-radius: 50%; object-fit: contain; }
+.chat-head .name { font-family: var(--qt-font); font-size: 14px; font-weight: 500; color: var(--qt-ink); }
+.chat-head .sub { font-size: 10px; color: var(--qt-teal); }
+.chat-head .sub .online { color: var(--qt-teal); }
+.chat-head .sub .online::before { display: none; }
+.chat-head .typing-status { color: var(--qt-teal); font-size: 10px; }
+.chat-head .chat-icon { color: var(--qt-teal); background: transparent; }
+.chat-head .chat-icon:hover { background: var(--qt-pale); }
+.chat-head .chat-menu-list { background: var(--qt-paper); color: var(--qt-ink); border: 1px solid var(--qt-line); }
+.chat-scroll { background: transparent; padding: 20px 13px 30px; font-family: var(--qt-font); }
+.chat-scroll::before { display: none; }
+.msg { margin: 0 0 13px; }
+.msg .av { display: none; }
+.msg .col { max-width: 89%; }
+.msg .bubble { font-family: var(--qt-font); font-size: 13px; line-height: 1.7; box-shadow: 0 2px 6px #163b3120; border: 0; }
+.msg.agent .bubble { background: var(--qt-paper); color: var(--qt-ink); padding: 11px 14px; border-radius: 14px 14px 14px 3px; }
+.msg.guest .bubble { background: #e1f1e6; color: var(--qt-ink); padding: 10px 14px; border-radius: 14px 14px 3px 14px; }
+.msg.guest .col { max-width: 84%; }
+.msg .meta { font-size: 9px; opacity: .7; color: var(--qt-ink); text-shadow: none; margin-top: 2px; }
+.msg .meta .tick { color: var(--qt-teal); }
+.msg.typing .bubble { padding: 10px 14px; }
+.msg.typing .bubble span { width: 5px; height: 5px; background: var(--qt-teal); }
+.rich { width: 89%; margin: 0 0 13px; }
+.chat-new-msgs { background: var(--qt-paper); color: var(--qt-teal); border: 0; box-shadow: 0 3px 20px #0a372733; font-size: 10px; min-height: 36px; bottom: 97px; }
+
+/* ---------- composer (design: aqua-to-sand family, entry pill, 44 px controls) ---------- */
+.chat-composer { background: linear-gradient(115deg, #dfeee5, #ede6d6); border-top: 1px solid #bdcebf; padding: 12px; gap: 5px; }
+.chat-composer .row { gap: 6px; min-height: 46px; }
+.chat-composer .row .field { background: #fffdf5d9; box-shadow: inset 0 0 0 1px #d5decb; border: 0; border-radius: 23px; min-height: 44px; font-size: 13px; padding: 10px 14px; font-family: var(--qt-font); }
+.chat-composer .row .field:focus { box-shadow: inset 0 0 0 1px var(--qt-teal); }
+.chat-composer .row .field::placeholder { color: #5f7365; }
+.chat-composer .row button { width: 44px; height: 44px; }
+.chat-composer .row #chat-send { background: var(--qt-teal); color: #fff; }
+.chat-composer .row #chat-send:hover { background: #2f655d; }
+.chat-composer .row #chat-send:disabled { background: #c9d7cf; color: #fff; }
+.chat-composer .row .mic { background: transparent; border: 0; color: var(--qt-teal); }
+.chat-composer .row .mic:hover { background: #fffdf5a0; }
+.chat-composer .row .mic.on { background: #d44d2b; color: #fff; }
+.chat-composer .row .mic.ready { background: var(--qt-pale); }
+.chat-composer .row button:focus-visible { outline: 3px solid var(--qt-teal); outline-offset: 3px; }
+.rec-box { background: #fffdf5d9; box-shadow: inset 0 0 0 1px #d5decb; border: 0; border-radius: 23px; color: var(--qt-teal); font-family: var(--qt-font); }
+.rec-box .rtime { color: var(--qt-teal); }
+.rec-box .rbtn { border-color: #c9d8cc; color: var(--qt-teal); background: #fff; }
+.rec-box .pplay { background: var(--qt-teal); }
+.rec-box .pbar { background: #d5e3d7; } .rec-box .pbar i { background: var(--qt-teal); }
+.rec-err { color: var(--qt-danger); }
+.composer-caption { font-size: 10px; text-align: center; color: #536b5d; font-family: var(--qt-font); }
+.msg.audio .bubble { background: #e1f1e6; color: #285f56; }
+.msg.audio .vmplay { background: #fff; color: #285f56; }
+.msg.audio .vmbar { background: #c9ddd0; } .msg.audio .vmbar i { background: #376f63; }
+.msg.audio .vm svg.wave { stroke: #376f63; }
+
+/* ---------- component base (prototype .component) ---------- */
+.component { --muted: #4b6156; --teal: #2f655d; background: radial-gradient(ellipse at 100% 0%, #cae7df80, transparent 70%), linear-gradient(145deg, #edf5ed, #f1e8d8); border: 1px solid var(--surface-border); border-radius: 15px; padding: 15px; box-shadow: 0 3px 9px #103c2521; direction: rtl; text-align: right; font-size: 14px; font-family: var(--qt-font); color: var(--qt-ink); min-width: 0; overflow-wrap: anywhere; line-height: 1.7; }
+.component > header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 11px; }
+.component > header h3 { font-size: 14px; font-weight: 500; margin: 0; font-family: var(--qt-font); }
+.component > header svg { color: var(--teal); }
+.component svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.component bdi, .component .ltr { direction: ltr; unicode-bidi: isolate; display: inline-block; }
+.component button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+.component button:disabled { cursor: default; opacity: .55; }
+.component button:focus-visible, .component a:focus-visible, .component input:focus-visible, .component select:focus-visible, .component textarea:focus-visible, .quick .qr:focus-visible { outline: 3px solid #37706c; outline-offset: 3px; }
+.component a { color: var(--teal); text-underline-offset: 4px; }
+.component img { max-width: 100%; object-fit: cover; background: #d9e4de; }
+.component p { margin: 0; }
+.primary, .secondary, .text-action, .component .choose { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 42px; border-radius: 8px; padding: 8px 13px; text-decoration: none; line-height: 1.4; font-size: 12px; font-family: var(--qt-font); cursor: pointer; }
+.primary { background: var(--teal); color: #fff; border: 0; }
+.secondary { background: #edf4ef; color: #2f6561; border: 1px solid #cfdfd6; }
+.text-action { color: var(--teal); padding: 6px 2px; min-height: 42px; background: none; border: 0; }
+.full { width: 100%; }
+.icon-button { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
+.component .muted { color: var(--muted); font-size: 11px; }
+.divider { height: 1px; background: var(--qt-line); margin: 13px 0; }
+.component .row { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.component .between { justify-content: space-between; }
+.component .stack { display: grid; gap: 7px; }
+.money { white-space: nowrap; font-size: 15px; line-height: 1.5; letter-spacing: .1px; font-weight: 500; }
+.money small { font-size: 10px; font-weight: 400; margin-inline-start: 4px; }
+.chosen-tag { display: inline-flex; gap: 4px; align-items: center; color: var(--teal); font-size: 11px; }
+.chosen-tag svg { width: 15px; height: 15px; }
+.error { color: var(--qt-danger); font-size: 11px; display: flex; gap: 6px; align-items: center; }
+.error:empty { display: none; }
+.error svg { width: 14px; height: 14px; }
+.requote { padding: 12px; background: #fff4e6; border-radius: 8px; color: #835e2d; font-size: 11px; margin: 10px 0; }
+.rich.used .component .primary, .rich.used .component .secondary, .rich.used .component .choose, .rich.used .component .mini-select, .rich.used .component .mode { opacity: .55; pointer-events: none; }
+.rich.used .component .villa-photo, .rich.used .component a.text-action { opacity: 1; pointer-events: auto; }
+
+/* 1 resort suggestions */
+.component[data-component="resorts"] { background: radial-gradient(ellipse at 100% 0%, #d0eae2 0%, transparent 72%), linear-gradient(150deg, #f6efdf, #e5efe6); }
+.resort-list { display: grid; gap: 0; }
+.resort-row { display: grid; grid-template-columns: 57px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid #c7d8cc; min-height: 78px; }
+.resort-row:last-child { border: 0; }
+.resort-row img { height: 56px; width: 57px; border-radius: 8px; }
+.resort-name { font: 16px/1.25 var(--qt-display); direction: ltr; text-align: left; display: block; }
+.resort-row:last-child .resort-name { font-size: 14px; }
+.resort-row .choose { border: 1px solid #aac8bc; color: #2c635e; background: #fffdf6b8; border-radius: 7px; min-height: 42px; padding: 6px 9px; font-size: 11px; }
+.resort-row.is-selected { background: #d3e9dd; box-shadow: inset 0 0 0 1px #a4c8b7; border-radius: 9px; padding: 9px 5px; }
+.consumed .resort-row:not(.is-selected) { opacity: .45; }
+.rpick-more { margin-top: 6px; }
+
+/* 2 detail strip */
+.component.resort-details { display: grid; grid-template-columns: 70px 1fr auto; align-items: center; gap: 12px; padding: 10px; background: linear-gradient(105deg, #e5f2eceb, #e8efe2f5), url("../assets/resorts/shebara.webp") 48% 57% / cover; border-color: #b7d1c4; }
+.component.resort-details img { width: 70px; height: 70px; border-radius: 10px; }
+.component.resort-details a { min-height: 44px; display: flex; align-items: center; }
+.component.resort-details .muted { display: block; }
+
+/* 3 villas */
+.component[data-component="villas"] { background: radial-gradient(ellipse at 100% 0%, #e0efe5 0%, transparent 65%), linear-gradient(160deg, #f4ebda, #e9eee1); }
+.villa-row { display: grid; grid-template-columns: 63px minmax(0, 1fr); gap: 11px; padding: 10px 0; border-bottom: 1px solid #cbd6c5; }
+.villa-row:last-child { border: 0; }
+.villa-photo { position: relative; display: block; width: 63px; height: 68px; border-radius: 8px; overflow: hidden; }
+.villa-photo img { width: 100%; height: 100%; display: block; }
+.villa-photo svg { position: absolute; bottom: 3px; left: 3px; background: #fffdf4ed; border-radius: 3px; padding: 2px; width: 19px; height: 19px; color: var(--teal); }
+.villa-title { font-size: 13px; line-height: 1.8; font-weight: 500; }
+.villa-meta { font-size: 11px; color: var(--muted); margin: 2px 0 5px; }
+.villa-bottom { display: flex; justify-content: space-between; gap: 5px; align-items: center; }
+.villa-row .money { font-size: 13px; }
+.mini-select { font-size: 11px; color: #285f58; background: #d8ece1; box-shadow: inset 0 0 0 1px #bad5c6; border-radius: 6px; min-height: 42px; padding: 5px 9px; display: inline-flex; align-items: center; gap: 5px; }
+.rate-choice { font-size: 11px; color: #285f58; margin: 5px 0 0; display: flex; align-items: center; gap: 5px; }
+.rate-choice svg { width: 12px; height: 12px; }
+.catalog-more summary { font-size: 11px; color: var(--teal); cursor: pointer; min-height: 42px; padding: 12px 0 0; }
+.price-basis { font-size: 11px; color: var(--muted); margin: 3px 0 0; }
+.villa-row.is-selected { background: #d3e9dd80; border-radius: 9px; padding: 10px 6px; }
+
+/* 4 calendar */
+.component.calendar { padding: 0; overflow: hidden; background: linear-gradient(145deg, #e0f1eb, #edf2e5); border-color: #bfd4c7; }
+.cal-top { padding: 14px 15px 5px; background: radial-gradient(ellipse at 100% 0%, #c8e5dc99, transparent 75%), linear-gradient(145deg, #e7f3eb, #f1f2e5); }
+.cal-month { display: flex; justify-content: space-between; align-items: center; }
+.cal-month strong { font-weight: 500; }
+.cal-month button { width: 40px; height: 36px; display: flex; align-items: center; justify-content: center; color: #6e8175; }
+.weekdays, .days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); direction: rtl; text-align: center; }
+.weekdays { font-size: 11px; color: var(--muted); margin: 10px 0 4px; }
+.days button, .days .blank { height: 36px; border-radius: 0; font-size: 12px; position: relative; padding: 0; min-width: 0; width: 100%; }
+.days button.endpoint { background: #326b64; color: #fff; border-radius: 8px; }
+.days button.middle { background: #c5e5d9; color: #245c56; }
+.days button.past { color: #5c7165; }
+.days button.invalid { color: var(--qt-danger); background: #fff0e9; border-radius: 8px; }
+.cal-bottom { background: linear-gradient(120deg, #e8dcc3, #d3e9dc); box-shadow: inset 0 1px #c4d5c4; padding: 13px 15px; min-height: 87px; margin-top: 9px; }
+.cal-bottom p { font-size: 12px; margin-bottom: 9px; }
+.cal-bottom .primary { min-height: 36px; padding: 7px 13px; }
+.cal-bottom .between { gap: 6px; }
+.cal-bottom .small { font-size: 10px; color: var(--muted); }
+
+/* 5 summaries */
+.component[data-component="summary"] { background: radial-gradient(ellipse at 100% 0%, #c2e3d580, transparent 76%), linear-gradient(155deg, #e1f1e9, #eee9d9); }
+.stay-strip { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 11px; background: #ffffff94; color: #34574d; box-shadow: inset 0 0 0 1px #bed4c866; border-radius: 7px; padding: 8px 10px; }
+.stay-strip svg { width: 15px; height: 15px; }
+.cost-summary .resort-name { font-size: 20px; margin-bottom: 4px; text-align: right; }
+.cost-summary .villa-title { font-size: 11px; font-weight: 400; }
+.total-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.total-line strong { font-size: 12px; font-weight: 500; }
+.total-line .money { font-size: 22px; }
+
+/* 6 modes */
+.component[data-component="modes"] { background: linear-gradient(140deg, #e2f1e9, #e9e9d9); }
+.mode-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.mode { border: 1px solid #b9cfc0; border-radius: 9px; min-height: 74px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 10px; padding: 4px; background: #fffdf580; position: relative; }
+.mode svg { width: 23px; height: 23px; }
+.mode.active { background: linear-gradient(145deg, #37706c, #285b57); border-color: #285b57; color: #f5fcf6; box-shadow: inset 0 0 0 1px #285b57; }
+
+/* 7 airports, 10 guest form fields */
+.component[data-component="airports"] { background: radial-gradient(ellipse at 0% 100%, #dbece280, transparent 70%), linear-gradient(150deg, #f3e9d7, #eeeee2); }
+label.field { display: block; position: relative; }
+.field-label { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #3f5a4e; margin-bottom: 4px; }
+.field input, .field select, .field textarea { width: 100%; border: 1px solid #b8ccbd; border-radius: 7px; background: #fffef8; padding: 9px 10px; min-height: 42px; line-height: 1.6; font-size: 13px; color: #1e282f; font-family: var(--qt-font); }
+.field input[dir="ltr"], .field select[dir="ltr"] { text-align: left; direction: ltr; }
+.field textarea { resize: vertical; min-height: 66px; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--teal); background: #fffefb; outline: none; }
+.field.invalid input, .field.invalid select { border-color: var(--qt-danger); background: #fff9f5; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-grid .wide { grid-column: 1 / -1; }
+.guest-name-grid { display: grid; grid-template-columns: 65px 1fr 1fr; gap: 8px; }
+.guest-form .subheading { font-size: 12px; font-weight: 500; margin: 14px 0 8px; }
+.phone-grid { display: grid; grid-template-columns: 82px 1fr; gap: 7px; direction: ltr; }
+.phone-grid .field-label { direction: rtl; }
+.field-marker { color: #326b61; height: 14px; display: inline-flex; }
+.field-marker svg { width: 12px; height: 12px; }
+.check-label { font-size: 10px; color: #4e6257; display: flex; align-items: flex-start; gap: 6px; margin: 12px 0; line-height: 1.8; }
+.check-label input { accent-color: var(--teal); min-width: 16px; height: 16px; margin-top: 2px; }
+.legal { font-size: 10px; color: #4e6257; line-height: 1.9; margin: 9px 0; }
+.legal a { color: var(--teal); }
+details.optional { margin: 8px 0 12px; }
+.optional summary { cursor: pointer; font-size: 11px; color: var(--teal); min-height: 38px; padding: 8px 0; }
+.optional .form-grid { margin-top: 6px; }
+.component[data-component="guest"] { background: radial-gradient(ellipse at 0% 100%, #cfe7dd80, transparent 80%), linear-gradient(150deg, #f2e9d8, #e9efe3); }
+.form-error { margin-top: 8px; }
+
+/* 8 transport */
+.component[data-component="transport"] { background: radial-gradient(ellipse at 100% 0%, #c7e5d9 0%, transparent 72%), linear-gradient(145deg, #e1f0e7, #ece7d7); }
+.transport-leg { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 11px 0; }
+.transport-leg + .transport-leg { border-top: 1px solid #c4d4c5; }
+.transport-leg strong { display: block; font-size: 12px; line-height: 1.8; font-weight: 400; margin-top: 3px; }
+.transport-leg .money { font-size: 14px; align-self: center; }
+.leg-label { font-size: 10px; color: var(--teal); display: flex; gap: 6px; align-items: center; }
+.leg-label svg { width: 13px; height: 13px; }
+
+/* 9 experiences */
+.component[data-component="experiences"] { background: linear-gradient(140deg, #efe3ce, #e6eee0); border-color: #cfcfba; }
+.experience-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: start; }
+.experience { padding: 0; text-align: right; line-height: 1.7; font-size: 11px; color: #29463e; display: block; }
+.experience img { width: 100%; height: 81px; border-radius: 8px; display: block; margin-bottom: 6px; }
+.experience.latin span { font-family: var(--qt-display); font-size: 17px; direction: ltr; display: block; }
+
+/* 12 review */
+.component[data-component="review"] { background: radial-gradient(ellipse at 100% 0%, #cde8dc 0%, transparent 73%), linear-gradient(145deg, #e5f2e9, #f0e8d8); }
+.review-group { padding: 11px 0; border-bottom: 1px solid #c2d3c6; }
+.review-group:last-of-type { border: 0; }
+.review-group .group-title { font-size: 11px; color: var(--teal); margin-bottom: 4px; display: flex; gap: 6px; align-items: center; }
+.review-group p { font-size: 12px; line-height: 1.9; }
+.review-group bdi { max-width: 100%; overflow-wrap: anywhere; }
+.review .total-line { padding: 12px 0 5px; }
+.review .total-line .money { font-size: 20px; }
+
+/* 13 verification */
+.component[data-component="otp"] { background: radial-gradient(ellipse at 50% 0%, #c9e6dc 0%, transparent 75%), linear-gradient(145deg, #e5f2e9, #efe9d9); }
+.otp-email { text-align: center; padding: 5px 0 11px; font-size: 12px; }
+.otp-boxes { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; direction: ltr; margin: 8px 0 12px; }
+.otp-boxes input { width: 100%; height: 43px; border: 1px solid #a7c4b4; border-radius: 7px; text-align: center; font-size: 18px; background: #fffef8; color: #1e282f; min-width: 0; font-family: var(--qt-font); }
+.otp-boxes input::placeholder { color: #6f8477; }
+.otp-boxes.invalid input { border-color: var(--qt-danger); }
+.otp-note { min-height: 24px; }
+.status-message { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 14px 6px; color: var(--teal); font-size: 12px; }
+.status-message svg { width: 20px; height: 20px; }
+.status-message.success { background: #c9e5d5; color: #245b4e; border-radius: 9px; }
+.spinner { animation: qtspin 1.3s linear infinite; }
+@keyframes qtspin { to { transform: rotate(360deg); } }
+
+/* 14 payment, 15 confirmation (deep teal) */
+.component.payment { text-align: center; padding: 20px; background: radial-gradient(ellipse at 0% 0%, #4e83757a, transparent 72%), linear-gradient(145deg, #285b57, #214b49); border-color: #3c756a; color: var(--surface-light); }
+.payment > .lock { width: 35px; height: 35px; border-radius: 50%; background: #d8efe1; display: inline-flex; align-items: center; justify-content: center; color: #285b57; }
+.payment .money { font-size: 29px; display: block; margin: 7px 0 3px; color: var(--surface-light); }
+.payment .money small { color: var(--surface-light); }
+.payment .muted, .payment .destination { color: #edf7ec; }
+.payment .destination { font-size: 10px; margin: 11px 0 13px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+.payment .status-message { color: #e4f4e9; }
+.payment .primary { background: #e0f2e5; color: #214f48; }
+.payment .primary:focus-visible { outline-color: #d7eee2; }
+.component.confirmation { background: linear-gradient(140deg, #214c49f5, #285b57eb), url("../assets/resorts/shebara.webp") 42% 55% / cover; border-color: #548478; border-top: 3px solid #9fd5bc; color: var(--surface-light); }
+.confirmation-header { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; color: #dcf1e3; }
+.confirmation-header svg { width: 25px; height: 25px; }
+.confirmation-header h3 { font: 19px var(--qt-serif); margin: 0; }
+.confirmation p { font-size: 12px; }
+.confirmation .muted, .confirmation .optional summary { color: #deeee1; }
+.confirmation .stay-strip { background: #ffffff16; box-shadow: inset 0 0 0 1px #bfdcc52b; color: #edf7ed; }
+.confirmation .review-group { border-bottom-color: #cce6d130; }
+.confirmation .money, .confirmation .money small, .confirmation .resort-name { color: #f5fbf4; }
+.confirmation .primary { background: #e0f2e5; color: #214f48; }
+.confirmation .pdfstatus { font-size: 11px; color: #deeee1; }
+.confirmation button:focus-visible, .confirmation a:focus-visible { outline-color: #d7eee2; }
+
+/* ---------- quick replies: compact RTL chips under the agent column ---------- */
+.rich.quick { width: 89%; margin: -4px 0 13px; }
+.quick .qrs { display: flex; flex-wrap: wrap; gap: 8px; direction: rtl; justify-content: flex-start; }
+.quick .qr { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 14px; border-radius: 22px; font-family: var(--qt-font); font-size: 12.5px; line-height: 1.3; cursor: pointer; border: 1px solid #cfdfd6; background: #edf4efea; color: #2f6561; box-shadow: 0 2px 6px #163b3120; }
+.quick .qr.primary { background: var(--qt-teal); color: #fff; border-color: var(--qt-teal); }
+.quick .qr svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.quick .qr:hover { filter: brightness(.97); }
+.rich.quick.used .qr { opacity: .55; pointer-events: none; }
+.rich.quick.used .qr.chosen { opacity: 1; }
+
+/* ---------- walkthrough document ---------- */
+body.walkthrough .chat-panel { background: #fff; }
+body.walkthrough .rich.quick { break-inside: avoid; }
+
+/* ---------- mobile ---------- */
+@media (max-width: 720px) {
+  .chat-panel { width: auto; height: 100dvh; border-radius: 0; }
+  .chat-scroll { padding: 16px 10px 25px; }
+  .chat-head { padding: 11px 12px; }
+  .msg .col, .rich, .rich.quick { max-width: 92%; width: 92%; }
+  .component { padding: 12px; }
+  .component.calendar { padding: 0; }
+  .component.resort-details { padding: 9px; }
+  .resort-row { grid-template-columns: 50px minmax(0, 1fr) auto; gap: 8px; }
+  .resort-row img { height: 51px; width: 50px; }
+  .resort-name { font-size: 15px; }
+  .resort-row:last-child .resort-name { font-size: 13px; }
+  .experience img { height: 71px; }
+  .mode { font-size: 9px; }
+  .guest-name-grid { grid-template-columns: 59px 1fr 1fr; }
+  .field-label { font-size: 10px; }
+  .total-line .money { font-size: 20px; }
+  .chat-new-msgs { bottom: 92px; }
+}

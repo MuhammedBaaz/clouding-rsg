@@ -1,0 +1,14 @@
+{
+ "_note": "Approved prepared account for the demo, seeded once into the application's own profile store (PROFILE_STORE). Not an RSG customer database record. Special requests are deliberately not stored.",
+ "profiles": {
+  "muhammed.baz@clouding.ai": {
+   "title": "السيد",
+   "firstName": "محمد",
+   "familyName": "باز",
+   "mobileCode": "+966",
+   "mobile": "508416627",
+   "guest2First": "نورة",
+   "guest2Family": "الحربي"
+  }
+ }
+}

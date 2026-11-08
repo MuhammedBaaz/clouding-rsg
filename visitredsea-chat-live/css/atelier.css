@@ -1,0 +1,144 @@
+/* Tidal Atelier — photographic hospitality components, scoped to the V2 chat.
+   Existing engine / services remain unchanged. Local supplied Fedra files only. */
+@font-face{font-family:AtelierArabic;src:url('../assets/fonts/FedraSerifArabic-Book.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:AtelierArabic;src:url('../assets/fonts/FedraSerifArabic-Demi.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:AtelierDisplay;src:url('../assets/fonts/FedSerDis-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+
+.chat-panel{
+  --at-ink:#142f35;--at-marine:#153e44;--at-teal:#2c6663;--at-aqua:#9bd0c5;
+  --at-ivory:#f7f1e7;--at-line:#c8c4b7;--at-muted:#50655f;--at-error:#9d392c;
+  --at-body:'Fedra Sans AL',Tahoma,Arial,sans-serif;
+  --at-title:AtelierArabic,'Fedra Serif Arabic AR',serif;
+  --at-display:AtelierDisplay,'Fedra Serif Display',Georgia,serif;
+  --at-surface:#e4ece8;
+  width:472px;height:min(820px,calc(100dvh - 40px));right:20px;bottom:20px;
+  border-radius:20px 20px 12px 12px;border:1px solid #d5e2d64d;
+  box-shadow:0 26px 70px #071f3466,0 2px 7px #12312c33;
+  background:var(--at-surface);                     /* one calm solid surface: photographs belong inside the components */
+  color:var(--at-ink);font-family:var(--at-body);isolation:isolate;
+}
+.chat-panel [hidden]{display:none!important}
+.chat-head{padding:14px 16px;gap:11px;background:linear-gradient(90deg,#11343aef,#163d43e0),url('../assets/villas/shebara-one-bedroom-overwater-villa-exterior.webp') 50% 45%/cover;border-bottom:1px solid #d7e8dc40;min-height:78px;color:#f8f5eb}
+.chat-head .avatar{width:42px;height:42px;padding:8px;border-radius:50%;background:#f8f2e8;border:1px solid #e5dcc5;object-fit:contain}
+.chat-head .name{font:400 23px/1.4 var(--at-title);color:#fff9ee}
+.chat-head .sub{font:11px/1.5 var(--at-body);color:#d6e6d9;opacity:1;margin-top:1px;min-height:17px}
+.chat-head .sub .online,.chat-head .typing-status{color:#d6e6d9;font:11px/1.5 var(--at-body)}
+.chat-head .sub .online::before{display:none}.chat-head .typing-status i{background:#a5dbca}
+.chat-head .chat-icon{color:#f5efdf;border:1px solid transparent;background:none;border-radius:5px;width:36px;height:40px}
+.chat-head .chat-icon:hover{border-color:#cde0ce60;background:#ffffff0b}
+.chat-head .chat-menu-list{background:#fcf6eb;color:#153e44;border:1px solid #d4d4c7;border-radius:8px;box-shadow:0 12px 30px #102e3d33}
+.chat-scroll{background:none;padding:20px 16px 28px;font-family:var(--at-body);overflow-anchor:none;scrollbar-color:#d4dfc880 transparent;scrollbar-width:thin}
+.chat-scroll::before{display:none}.msg{margin:0 0 13px}.msg .av{display:none}.msg .col{max-width:89%}
+.msg .bubble{font:14px/1.8 var(--at-body);max-width:100%;box-shadow:0 4px 14px #0627321c;border:0}
+.msg.agent .bubble{background:#faf5eefa;color:#183a3c;padding:10px 14px;border-radius:11px 11px 11px 2px}
+.msg.guest .col{max-width:84%}.msg.guest .bubble{background:#16484beF;color:#f9f5ec;padding:10px 14px;border:1px solid #a7d0b64d;border-radius:11px 11px 2px 11px}
+.msg .meta{color:#4b625d;font:10px/1.4 var(--at-body);text-shadow:none;margin-top:4px;opacity:1}
+.msg .meta .tick{color:#2c6663}.msg bdi{font-family:inherit}.msg.typing .bubble{padding:12px 16px}.msg.typing .bubble span{background:#366f69;width:5px;height:5px}
+.rich{width:100%;max-width:100%;margin:0 0 14px;direction:rtl;text-align:right;font-family:var(--at-body)}
+.chat-new-msgs{background:#f9f3e8;color:#194448;box-shadow:0 6px 20px #072c3f44;border:1px solid #d5dbcc;border-radius:7px;font:12px/1.4 var(--at-body);height:38px;bottom:96px}
+
+/* Every component is a real image layer and its independent contrast layer.
+   Opacity belongs to these layers, never to the component's content. */
+.component{
+  --component-image:url('../assets/villas/shebara-one-bedroom-overwater-villa-exterior.webp');
+  --component-crop:50% 50%;
+  --component-overlay:linear-gradient(120deg,#f8f3e9f5 5%,#f6efdfdf 70%,#f8f2e8a8);
+  --muted:var(--at-muted);--teal:var(--at-teal);
+  position:relative;isolation:isolate;min-width:0;padding:16px;border-radius:10px;
+  border:1px solid #f2f1dc80;background:#f5eee1;color:var(--at-ink);
+  font:14px/1.75 var(--at-body);direction:rtl;text-align:right;
+  box-shadow:0 6px 18px #07293826;overflow-wrap:anywhere;
+}
+.component::before,.component::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+.component::before{z-index:-2;background-image:var(--component-image);background-position:var(--component-crop);background-size:cover}
+.component::after{z-index:-1;background:var(--component-overlay)}
+.component>header,.component form>header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 13px}
+.component h3,.component h4{font:400 21px/1.5 var(--at-title);margin:0;color:inherit}
+.component svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.component p{margin:0}.component button{font-family:var(--at-body);cursor:pointer;color:inherit;touch-action:manipulation}
+.component button:disabled{cursor:default;opacity:1}.component img{max-width:100%;object-fit:cover}
+.component bdi,.component .ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.component a{color:inherit;text-underline-offset:4px}.component .muted{color:var(--muted);font:12px/1.7 var(--at-body)}
+.component :is(button,a,input,select,textarea):focus-visible{outline:3px solid #8ac7b5;outline-offset:3px}
+.primary,.secondary,.text-action{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:8px 13px;border-radius:5px;border:0;text-decoration:none;font:13px/1.5 var(--at-body);cursor:pointer;touch-action:manipulation}
+.primary{background:#194c4f;color:#fff8ed;border:1px solid #194c4f}.primary:hover{background:#286267}
+.secondary{background:#f9f5ebc9;color:#214f4e;border:1px solid #b3c3b7}
+.component .primary{color:#fff8ed}.component .secondary{color:#214f4e}
+.text-action{background:none;color:#285f5e;padding:5px 0;min-height:42px;text-decoration:none}
+.full{width:100%}.icon-button{width:44px;min-height:44px;border:0;background:transparent;display:inline-flex;align-items:center;justify-content:center}
+.component .row{display:flex;align-items:center;gap:10px;min-width:0}.between{justify-content:space-between}.stack{display:grid;gap:11px}
+.divider{height:1px;background:#afc4b65e;margin:12px 0}
+.chosen-tag{display:inline-flex;gap:5px;align-items:center;font:12px/1.5 var(--at-body);color:#164b46}.chosen-tag svg{width:14px;height:14px}
+.component .error{display:flex;align-items:flex-start;gap:6px;font:12px/1.8 var(--at-body);color:var(--at-error);background:#fff1eae6;padding:7px 9px;border-radius:4px;margin-top:7px}
+.error:empty{display:none}.error svg{width:15px;height:15px;margin-top:3px}.form-error:empty{display:none}
+.requote{font-size:12px;padding:10px 12px;border:1px solid #e7d3a9;background:#fff3dc;color:#765128;border-radius:5px;margin:8px 0}
+.rich.used .component{opacity:1}.rich.used .component :is(.primary,.secondary){pointer-events:none;cursor:default}
+.rich.used .component :is(.primary,.secondary){filter:saturate(.6);opacity:.78}
+.rich.used .component a.text-action{pointer-events:auto;opacity:1}
+.rich.used .component input,.rich.used .component select,.rich.used .component textarea{color:#35514d;-webkit-text-fill-color:#35514d;opacity:1}
+
+/* The calendar sits over real lagoon water, with an ivory reading plane. */
+.component.calendar{--component-image:url('../assets/site/hero-video-poster.webp');--component-crop:42% 43%;--component-overlay:linear-gradient(145deg,#0c424ea8,#0c343e35);padding:10px;overflow:hidden;border-color:#d6e8d28c}
+.cal-top{background:#f9f4e7ed;border-radius:5px;padding:9px 10px 6px;border:1px solid #f1efddc0;color:#214743}
+.cal-month{display:flex;align-items:center;justify-content:space-between;gap:4px;padding-bottom:6px;border-bottom:1px solid #c7d0bc8c}
+.cal-month strong{font:400 22px/1.5 var(--at-title)}.cal-month button{background:none;border:0;display:flex;align-items:center;justify-content:center;width:36px;height:38px;color:#376b60;padding:0}
+.cal-month button:disabled{color:#748276;opacity:.55}
+.weekdays,.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));direction:rtl;text-align:center}
+.weekdays{font-size:11px;color:#52665a;padding:9px 0 3px}.days button,.days .blank{height:35px;min-width:0;width:100%;padding:0;border:0;border-radius:0;background:transparent;color:#244b43;font:13px/1 var(--at-body)}
+.days button:disabled{color:#68736a;opacity:.65}.days button.endpoint{background:#20574f;color:#fff9e9;border-radius:4px;box-shadow:0 2px 5px #213e3b20}.days button.middle{background:#c6ddd0;color:#173e36}.days button.invalid{background:#f3d7c8;color:#943c2d}
+.days button.endpoint:disabled,.days button.middle:disabled{opacity:1}.days button.endpoint:disabled{color:#fff9e9}.rich.used .days button:not(.endpoint):not(.middle){color:#596f61;opacity:1}
+.cal-bottom{padding:11px 2px 1px;color:#f9f6e7;background:none;margin:0;min-height:80px}.cal-bottom p{font:12px/1.8 var(--at-body);margin:0 0 9px;text-shadow:0 1px 5px #052b34}.cal-bottom .small{font:10px/1.5 var(--at-body);color:#e5ebd9}.cal-bottom .primary{background:#f9f1df;color:#1f514b;border-color:#fff2d8;min-height:39px;padding:7px 11px;font-size:12px}.cal-bottom .chosen-tag{color:#f9f4df}.cal-bottom .error{text-shadow:none;margin:0 0 9px}
+
+/* Forms: architectural image headers over a tactile, readable ivory surface. */
+.component[data-component=guest]{--component-image:url('../assets/villas/shebara-one-bedroom-overwater-villa-interior.webp');--component-crop:25% 48%;--component-overlay:linear-gradient(120deg,#f7efdfed,#f7efdfdf 66%,#e9e1c6b8);padding:16px}
+.surface-heading,.guest-form form>header{background:linear-gradient(270deg,#123b43ef,#183b4470),url('../assets/villas/shebara-one-bedroom-overwater-villa-interior.webp') 44% 50%/cover;color:#fff5e7;margin:-16px -16px 15px!important;padding:13px 16px;min-height:67px;border-radius:9px 9px 0 0;border-bottom:1px solid #a3b4a887}
+.surface-heading h3,.guest-form form>header h3{font:400 23px/1.5 var(--at-title);color:#fff6e5}.surface-heading svg,.guest-form form>header>svg{color:#d9e6d2;opacity:.9}
+label.field{display:block;position:relative;min-width:0}.field-label{display:flex;align-items:center;gap:5px;font:12px/1.6 var(--at-body);color:#38574c;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;min-width:0;max-width:100%;min-height:44px;padding:9px 10px;border:1px solid #b4bfaa;border-radius:4px;background:#fffdf5f5;color:#1d3e3c;font:14px/1.6 var(--at-body);box-shadow:0 1px 3px #3d4d2e05}
+.field :is(input,select,textarea):focus{border-color:#306c60;background:#fffdf7;outline:2px solid #7bb7a645;outline-offset:1px}.field input[dir=ltr],.field select[dir=ltr]{text-align:left;direction:ltr}
+.field textarea{min-height:66px;resize:vertical}.field.invalid :is(input,select,textarea){border-color:#ae4c38;background:#fff4e9;box-shadow:inset 0 0 0 1px #ae4c382b}
+.form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:11px}.form-grid .wide{grid-column:1/-1}
+.guest-name-grid{display:grid;grid-template-columns:65px minmax(0,1fr) minmax(0,1fr);gap:8px}.phone-grid{display:grid;grid-template-columns:82px minmax(0,1fr);gap:8px;direction:ltr}.phone-grid .field-label{direction:rtl}
+.guest-form .subheading{font:400 19px/1.6 var(--at-title);color:#254f45;border-top:1px solid #b3bd9d9c;padding-top:10px;margin:15px 0 8px}.guest-form .subheading .muted{font:11px var(--at-body)}
+.field-marker{display:inline-flex;color:#2e6759;height:15px}.field-marker svg{width:13px;height:13px}
+.check-label{display:flex;align-items:flex-start;gap:7px;font:11px/1.9 var(--at-body);color:#36574a;margin:12px 0}.check-label input{min-width:17px;width:17px;height:17px;accent-color:#285b51;margin-top:3px;flex-shrink:0}
+.legal{font:10.5px/1.9 var(--at-body);color:#4c5e50;margin:8px 0 11px!important}.legal a{color:#285d53}
+
+/* Verification: a quiet architectural image and six crisp code cells. */
+.component.otp{--component-image:url('../assets/villas/shebara-one-bedroom-overwater-villa-interior.webp');--component-crop:36% 50%;--component-overlay:linear-gradient(120deg,#f8f2e7f7,#f1e7d5db);padding:18px 16px 16px}
+.otp>header{padding-bottom:8px;border-bottom:1px solid #c4c5aa80}.otp>header h3{font-size:23px}.otp>header>svg{width:24px;height:24px;color:#2e6356}.otp-email{font:13px/1.8 var(--at-body);text-align:center;padding:9px 0 12px;color:#204b45}
+.otp-boxes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;direction:ltr;margin:8px 0 12px}
+.otp-boxes input{width:100%;min-width:0;height:47px;background:#fffdf5f5;border:1px solid #a4b59f;border-radius:4px;font:24px/1 var(--at-display);color:#1a4c42;text-align:center}
+.otp-boxes input::placeholder{color:#718574}.otp-boxes.invalid input{border-color:#b86c4f;background:#fff3e6}.otp-note{min-height:25px}
+.status-message{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 5px;font:13px/1.6 var(--at-body);color:#2c6558}.status-message.success{background:#e0eddb;color:#255843;border:1px solid #b3ccaa;border-radius:5px}.status-message svg{width:20px;height:20px}.spinner{animation:atelier-spin 1.3s linear infinite}
+@keyframes atelier-spin{to{transform:rotate(360deg)}}
+
+/* ---------- quick replies: suggested answers inside the agent message group ---------- */
+/* quick replies: one row after the complete agent turn, on the agent side */
+.chat-scroll>.rich.quick{margin:-4px 0 16px;padding:0;direction:rtl}
+/* a guest form replaced by the prefilled one sent after a voice message */
+.rich.superseded .component{opacity:.62;filter:saturate(.5)}
+.superseded-note{margin:6px 4px 0;font:12px/1.6 'Fedra Sans AL',Tahoma,Arial,sans-serif;color:#4a5a57;direction:rtl;text-align:right}
+
+/* The recorder stays in the exact composer slot, with real audio unchanged. */
+.chat-composer{padding:11px 14px 8px;gap:4px;border-top:1px solid #dfdfcda8;background:linear-gradient(90deg,#f6efdfed,#f9f4e9ed),url('../assets/villas/shebara-one-bedroom-overwater-villa-interior.webp') 15% 30%/cover}
+.chat-composer .row{gap:7px;align-items:center;min-height:44px}.chat-composer .row .field{font:14px/1.6 var(--at-body);padding:10px 12px;min-height:44px;background:#fffdf5e0;color:#234744;border:1px solid #c5cdb3;border-radius:6px;box-shadow:none}.chat-composer .field::placeholder{color:#53685a}.chat-composer .row .field:focus{border-color:#438074;box-shadow:0 0 0 2px #74b09c33}
+.chat-composer .row button{width:44px;height:44px;border-radius:6px}.chat-composer .row #chat-send{background:#1e5456;color:#fff5de;border:1px solid #1e5456}.chat-composer .row #chat-send:hover{background:#2d6868}.chat-composer .row #chat-send:disabled{background:#d6ddc9;color:#4c6757;border-color:#cad2bd}
+.chat-composer .row .mic{background:transparent;border:1px solid #bbcbb2;color:#285e54}.chat-composer .row .mic:hover{background:#e7edda}.chat-composer .row .mic.on{background:#a94332;border-color:#a94332;color:#fff5e8}.chat-composer .row .mic.ready{background:#deead7;border-color:#3c7562}
+.rec-box{gap:6px;min-height:44px;background:#fff9ece6;color:#2c6556;border:1px solid #b9cbb0;border-radius:6px;font-family:var(--at-body);padding:4px 6px}.rec-box .rtime{min-width:33px;color:#2c6556;font:12px var(--at-body)}.rec-box .rbtn{font:11px var(--at-body);padding:0 6px;border-radius:4px;min-width:30px;height:34px;background:#eef0e2;color:#315e4e;border:1px solid #bdcbae}.rec-box .rdot{width:6px;height:6px}.rec-box .pplay{background:#295d51}.rec-box .pbar{background:#d0debd}.rec-box .pbar i{background:#3b7a62}.rec-err{font:12px/1.8 var(--at-body);color:#983c2b}
+.msg.audio .bubble{min-width:min(242px,100%);background:#18484bf5;color:#f8f3df;padding:10px 12px}.msg.audio .vmplay{background:#f1f0d8;color:#24534c}.msg.audio .vmbar{background:#dce8ce55}.msg.audio .vmbar i{background:#dce8ce}.msg.audio .vm svg.wave{stroke:#dce8ce}
+
+@media(max-width:720px){
+ html:has(body.chat-open),body.chat-open{overflow:hidden}
+ .chat-panel{left:0;right:0;bottom:0;width:auto;height:100dvh;border:0;border-radius:0}
+ .chat-head{padding:12px 14px;min-height:75px}.chat-head .name{font-size:23px}.chat-head .avatar{width:40px;height:40px}.chat-head .chat-icon{width:34px}
+ .chat-scroll{padding:18px 12px 23px}.msg .col{max-width:91%;width:auto}.msg.guest .col{max-width:86%}.rich{width:100%;max-width:100%}.msg .bubble{font-size:14px;max-width:100%}
+ .component{padding:14px}.component h3{font-size:21px}
+ .component.calendar{padding:8px}.cal-top{padding:8px 7px 5px}.cal-month strong{font-size:21px}.days button,.days .blank{height:35px}.cal-bottom{padding:10px 2px 2px}.cal-bottom .small{font-size:10px}
+ .component[data-component=guest]{padding:14px}.surface-heading,.guest-form form>header{margin:-14px -14px 14px!important;padding:12px 14px;min-height:65px}.surface-heading h3,.guest-form form>header h3{font-size:23px}
+ .guest-name-grid{grid-template-columns:60px minmax(0,1fr) minmax(0,1fr);gap:7px}.phone-grid{grid-template-columns:78px minmax(0,1fr);gap:7px}.field-label{font-size:11.5px;gap:4px}.field input,.field select,.field textarea{font-size:14px;padding:9px 8px}.field-marker svg{width:12px;height:12px}
+ .component.otp{padding:16px 14px}.otp>header h3{font-size:22px}.otp-boxes{gap:5px}.otp-boxes input{height:46px;font-size:24px}
+ .chat-composer{padding:10px 12px 7px}.chat-new-msgs{bottom:96px;max-width:85%}.rec-box .rbtn{font-size:10px;padding:0 4px;min-width:28px}.rec-box{gap:4px}.rec-box .rtime{font-size:11px;min-width:31px}
+}
+@media(prefers-reduced-motion:reduce){.chat-panel *,.chat-panel *::before,.chat-panel *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+body.walkthrough .chat-panel{background:var(--at-surface)!important}.walkthrough .rich.quick{break-inside:avoid}

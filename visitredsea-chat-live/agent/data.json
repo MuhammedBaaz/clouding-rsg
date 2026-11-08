@@ -1,0 +1,1029 @@
+{
+ "generated": "2026-11-08T13:00:31.989Z",
+ "sources": {
+  "data/booking.js": "d36ce135c3c20a40e6b7ad903386ef29788a17ab2c6c7d6b8699e236568abf62",
+  "data/resorts.js": "1581fd19a1acb70e733f68a0eb4a328b2447aae79557d1d0585129d41f11984f",
+  "data/villas.js": "85bb190dc40ab0a642c270b257004842da4ca813c98cf6a50851f9fd6bcf9f4a",
+  "data/script.js": "f37ac23a909eebccd1e3c7d7e5d7cff7aa435c5eeeee9657c6b605e43095ad74"
+ },
+ "BOOKING": {
+  "currency": "SAR",
+  "resort": {
+   "id": "shebara",
+   "name": "Shebara",
+   "destination": "The Red Sea",
+   "detailsUrl": "https://www.visitredsea.com/en/resorts/shebara",
+   "image": "assets/resorts/shebara.webp"
+  },
+  "stay": {
+   "checkIn": "2026-10-23",
+   "checkOut": "2026-10-25",
+   "nights": 2,
+   "adults": 2,
+   "children": 0
+  },
+  "villa": {
+   "name": "One Bedroom Overwater Villa",
+   "nameAr": "فيلا فوق الماء بغرفة نوم واحدة",
+   "image": "assets/villas/shebara-one-bedroom-overwater-villa-1.webp",
+   "terraceImage": "assets/villas/shebara-one-bedroom-overwater-villa-exterior.webp"
+  },
+  "rate": {
+   "name": "Villa Flat Rate",
+   "nameAr": "السعر الأساسي للفيلا",
+   "total": 28980,
+   "basis": "2 nights · 2 Adults · Oct 23 - 25, 2026",
+   "basisAr": "ليلتان · شخصان بالغان · 23 - 25 أكتوبر 2026",
+   "taxNote": "All taxes included",
+   "taxNoteAr": "شامل جميع الضرائب"
+  },
+  "occupancyNote": "You've got enough rooms for your group, but feel free to add more if needed!",
+  "occupancyNoteAr": "عدد الغرف يكفي مجموعتكم، ويمكنكم إضافة المزيد عند الحاجة.",
+  "transport": {
+   "modes": [
+    "By Plane",
+    "By Private Jet",
+    "By Car",
+    "By Yacht"
+   ],
+   "supportedMode": "By Plane",
+   "airports": [
+    "Red Sea International Airport - RSIA",
+    "Yanbu Airport",
+    "Al Wajh Domestic Airport"
+   ],
+   "airportsAr": {
+    "Red Sea International Airport - RSIA": "مطار البحر الأحمر الدولي – RSIA",
+    "Yanbu Airport": "مطار ينبع",
+    "Al Wajh Domestic Airport": "مطار الوجه المحلي"
+   },
+   "arrivalAirport": "Yanbu Airport",
+   "departureAirport": "Red Sea International Airport - RSIA",
+   "legs": [
+    {
+     "from": "Yanbu Airport",
+     "to": "Shebara",
+     "product": "Private Luxury Car + Shared Leisure Boat",
+     "productAr": "سيارة فاخرة خاصة + قارب ترفيهي مشترك",
+     "duration": "4h",
+     "durationAr": "4 ساعات",
+     "capacity": [
+      "Private Luxury Car capacity: Up to 3 guests",
+      "Shared Leisure Boat capacity: Up to 18 guests"
+     ],
+     "capacityAr": [
+      "سعة السيارة الفاخرة الخاصة: حتى 3 ضيوف",
+      "سعة القارب الترفيهي المشترك: حتى 18 ضيفًا"
+     ],
+     "needed": "1 Private Luxury Car, 1 Shared Leisure Boat needed",
+     "neededAr": "المطلوب: سيارة فاخرة خاصة واحدة وقارب ترفيهي مشترك واحد",
+     "price": 3622.5,
+     "priceBasis": "Total price (all taxes included) | 2 Adults",
+     "priceBasisAr": "السعر الإجمالي (شامل جميع الضرائب) | شخصان بالغان",
+     "image": "assets/transport/getting-to-and-around-5.webp",
+     "imageAlt": "Visit Red Sea transfer car on a destination road"
+    },
+    {
+     "from": "Shebara",
+     "to": "Red Sea International Airport - RSIA",
+     "product": "Shared Speed Boat + Private Luxury Car",
+     "productAr": "قارب سريع مشترك + سيارة فاخرة خاصة",
+     "duration": null,
+     "capacity": [],
+     "needed": null,
+     "price": 1191.4,
+     "priceBasis": "Total price (all taxes included) | 2 Adults",
+     "priceBasisAr": "السعر الإجمالي (شامل جميع الضرائب) | شخصان بالغان",
+     "upgradeSelector": "Shared Speed Boat + Private Luxury Car",
+     "image": "assets/transport/driving-to-the-red-sea.webp",
+     "imageAlt": "Aerial view of a Visit Red Sea transfer car on the road to The Red Sea"
+    }
+   ],
+   "transfersTotal": 4813.9
+  },
+  "activities": [
+   {
+    "name": "Adrena",
+    "nameAr": "Adrena",
+    "category": "ADRENA",
+    "image": "assets/activities/adrena-7.webp",
+    "imageAlt": "Aerial view of ADRENA water and adventure park, The Red Sea",
+    "price": "From SAR 500.00 per person",
+    "tags": [
+     "Adventure district"
+    ],
+    "categoryAr": "أدرينا",
+    "tagsAr": [
+     "منطقة المغامرات"
+    ],
+    "priceAr": "ابتداءً من SAR 500.00 للشخص"
+   },
+   {
+    "name": "Garden Discovery and Planting Experience",
+    "nameAr": "استكشاف الحديقة وتجربة الزراعة",
+    "category": "NATURE",
+    "image": "assets/activities/garden-discovery-and-planting-experience.webp",
+    "imageAlt": "Garden Discovery and Planting Experience at Botanica, The Red Sea",
+    "price": "From SAR 184.58 per person",
+    "tags": [
+     "1-2-hour",
+     "Beginner",
+     "Solo / Group Activity"
+    ],
+    "categoryAr": "الطبيعة",
+    "tagsAr": [
+     "ساعة إلى ساعتين",
+     "للمبتدئين",
+     "نشاط فردي أو جماعي"
+    ],
+    "priceAr": "ابتداءً من SAR 184.58 للشخص"
+   },
+   {
+    "name": "Stand Up Paddle-Boarding",
+    "nameAr": "التجديف باللوح واقفًا",
+    "category": "WATER SPORTS",
+    "image": "assets/activities/stand-up-paddle-boarding.webp",
+    "imageAlt": "Stand-up paddle-boarding on The Red Sea",
+    "price": "SAR 200.00, 1 adult, 1 hour, all taxes included",
+    "tags": [
+     "1 hr",
+     "Age: 8+",
+     "Beginner"
+    ],
+    "categoryAr": "رياضات مائية",
+    "tagsAr": [
+     "ساعة واحدة",
+     "العمر: 8+",
+     "للمبتدئين"
+    ],
+    "priceAr": "SAR 200.00، شخص بالغ واحد، ساعة واحدة، شامل جميع الضرائب"
+   }
+  ],
+  "guestForm": {
+   "titles": [
+    "السيد",
+    "السيدة",
+    "الآنسة",
+    "الطفل"
+   ],
+   "countryCodes": [
+    "+966",
+    "+971",
+    "+965",
+    "+973",
+    "+974",
+    "+968",
+    "+20",
+    "+44",
+    "+1"
+   ],
+   "defaultCountryCode": "+966"
+  },
+  "checkoutUrl": "https://www.visitredsea.com/en/booking/checkout?startDate=2026-10-23&endDate=2026-10-25&rooms=%5B%7B%22adultCount%22%3A2%2C%22childAges%22%3A%5B%5D%7D%5D&resortName=Shebara&hotelId=1035&currency=SAR",
+  "legal": {
+   "termsUrl": "https://www.visitredsea.com/en/terms-and-conditions",
+   "privacyUrl": "https://www.visitredsea.com/en/privacy-policy"
+  },
+  "grandTotal": 33793.9
+ },
+ "RESORTS": [
+  {
+   "group": "The Red Sea",
+   "items": [
+    {
+     "name": "Six Senses Southern Dunes, The Red Sea",
+     "place": "Inland desert, Southern Dunes",
+     "placeAr": "صحراء داخلية، الكثبان الجنوبية",
+     "facts": "36 rooms and suites plus 40 pool villas",
+     "factsAr": "36 غرفة وجناحًا و40 فيلا بمسبح",
+     "image": "assets/resorts/six-senses-southern-dunes.webp",
+     "status": "Open",
+     "aboutAr": "منتجع صحراوي داخلي بعلامة Six Senses، يجمع برامج العافية والطبيعة.",
+     "settingAr": "صحراء",
+     "locationAr": "الكثبان الجنوبية، نحو 60 دقيقة بالسيارة من مطار البحر الأحمر الدولي",
+     "stayAr": "36 غرفة وجناحًا و40 فيلا بمسبح",
+     "highlightsAr": [
+      "Six Senses Spa",
+      "تسلّق ومشي ودراجات كهربائية",
+      "رصد النجوم"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/six-senses-southern-dunes-the-red-sea"
+    },
+    {
+     "name": "The St. Regis Red Sea Resort",
+     "place": "Ummahat Island",
+     "placeAr": "جزيرة أمهات",
+     "facts": "90 villas",
+     "factsAr": "90 فيلا",
+     "image": "assets/resorts/st-regis-red-sea.webp",
+     "status": "Open",
+     "aboutAr": "منتجع على جزيرة ضمن جزر أمهات، كل فلله بمسبح خاص.",
+     "settingAr": "جزيرة",
+     "locationAr": "جزيرة أمهات",
+     "stayAr": "90 فيلا بمسبح خاص، على الكثبان وفوق الماء",
+     "highlightsAr": [
+      "سبا",
+      "غوص مع Galaxea",
+      "رياضات مائية مع WAMA",
+      "تنس"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/the-st-regis-red-sea-resort"
+    },
+    {
+     "name": "Nujuma, a Ritz-Carlton Reserve",
+     "place": "Ummahat Islands",
+     "placeAr": "جزر أمهات",
+     "facts": "Private island reserve",
+     "factsAr": "محمية في جزيرة خاصة",
+     "image": "assets/resorts/nujuma.webp",
+     "status": "Open",
+     "aboutAr": "محمية Ritz-Carlton على جزر أمهات، بفلل على الشاطئ وفوق الماء.",
+     "settingAr": "جزيرة",
+     "locationAr": "جزر أمهات",
+     "stayAr": "فلل من غرفة إلى ثلاث غرف، كلها بمسبح خاص",
+     "highlightsAr": [
+      "سبا",
+      "غوص وسنوركل",
+      "رياضات مائية",
+      "دراجات"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/nujuma-a-ritz-carlton-reserve"
+    },
+    {
+     "name": "Turtle Bay Hotel",
+     "place": "Mainland coast, 19 km from the airport",
+     "placeAr": "الساحل البري، على بعد 19 كم من المطار",
+     "facts": "144 keys",
+     "factsAr": "144 مفتاحًا",
+     "image": "assets/resorts/turtle-bay-hotel.webp",
+     "status": "Open",
+     "aboutAr": "فندق على الساحل في قرية Turtle Bay، قريب من المطار.",
+     "settingAr": "ساحل",
+     "locationAr": "على بعد 19 كم من مطار البحر الأحمر الدولي، نحو 25 دقيقة بالسيارة",
+     "stayAr": "144 غرفة ديلوكس بإطلالة على الحديقة أو البحر",
+     "highlightsAr": [
+      "نادي أطفال",
+      "مطعم نادي الشاطئ",
+      "بار عصائر على المسبح"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/turtle-bay"
+    },
+    {
+     "name": "Shebara",
+     "place": "Sheybarah Island",
+     "placeAr": "جزيرة شيبارة",
+     "facts": "73 villas: 38 overwater, 35 beachfront",
+     "factsAr": "73 فيلا: 38 فوق الماء و35 على الشاطئ",
+     "image": "assets/resorts/shebara.webp",
+     "status": "Open",
+     "featured": true,
+     "url": "https://www.visitredsea.com/en/resorts/shebara",
+     "aboutAr": "أول منتجع فاخر تملكه Red Sea Global وتديره بالكامل، على جزيرة في عرض البحر الأحمر.",
+     "settingAr": "جزيرة",
+     "locationAr": "جزيرة شيبارة، على بعد 25 كم من البر",
+     "stayAr": "73 فيلا بمسبح خاص: 38 فوق الماء و35 على الشاطئ",
+     "highlightsAr": [
+      "سبا بخمس غرف علاج",
+      "مركز غوص والشعاب على بعد 30 إلى 40 مترًا من الشاطئ",
+      "جلسات رصد النجوم",
+      "بادل وتنس"
+     ],
+     "characterAr": "جزيرة في عرض البحر، بفلل فوق الماء وعلى الشاطئ",
+     "accessAr": "بالسيارة إلى Turtle Bay ثم بالقارب، أو بالطائرة المائية",
+     "suitsAr": "من يبحث عن البحر والشاطئ والغوص"
+    },
+    {
+     "name": "Desert Rock",
+     "place": "Mountain valley near Umluj",
+     "placeAr": "وادٍ جبلي قرب أملج",
+     "facts": "64 keys: 54 villas, 10 suites",
+     "factsAr": "64 مفتاحًا: 54 فيلا و10 أجنحة",
+     "image": "assets/resorts/desert-rock.webp",
+     "status": "Open",
+     "aboutAr": "منتجع في وادٍ بين الجبال قرب أملج، تملكه Red Sea Global وتديره.",
+     "settingAr": "جبال",
+     "locationAr": "وادٍ جبلي قرب أملج",
+     "stayAr": "54 فيلا و10 أجنحة، منها فلل معلّقة على الجرف وأجنحة في كهف جبلي",
+     "highlightsAr": [
+      "سبا",
+      "مركز مغامرات",
+      "جلسات رصد النجوم",
+      "واحة بحيرة"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/desert-rock",
+     "characterAr": "وادٍ بين الجبال، بفلل معلّقة على الجرف وأجنحة في كهف جبلي",
+     "accessAr": "بالسيارة من مطار البحر الأحمر الدولي",
+     "suitsAr": "من يبحث عن الجبال والمغامرة ورصد النجوم"
+    },
+    {
+     "name": "The Red Sea EDITION",
+     "place": "Shura Island",
+     "placeAr": "جزيرة شورى",
+     "facts": "240 rooms",
+     "factsAr": "240 غرفة",
+     "image": "assets/resorts/red-sea-edition.webp",
+     "status": "Open",
+     "aboutAr": "فندق على جزيرة شورى، مع وصول إلى ملعب Shura Links للغولف.",
+     "settingAr": "جزيرة",
+     "locationAr": "جزيرة شورى",
+     "stayAr": "240 غرفة، وأجنحة بعضها بمسبح",
+     "highlightsAr": [
+      "سبا Omorovicza بخمس غرف علاج",
+      "Recovery Dome",
+      "نادي شاطئ"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/shura-the-red-sea-edition"
+    },
+    {
+     "name": "InterContinental The Red Sea Resort",
+     "place": "Shura Island",
+     "placeAr": "جزيرة شورى",
+     "facts": "210 rooms and suites",
+     "factsAr": "210 غرف وأجنحة",
+     "image": "assets/resorts/intercontinental-red-sea.webp",
+     "status": "Open",
+     "aboutAr": "منتجع على جزيرة شورى بغرف وأجنحة تطل على الشاطئ والبحيرة.",
+     "settingAr": "جزيرة",
+     "locationAr": "جزيرة شورى",
+     "stayAr": "210 غرف وأجنحة",
+     "highlightsAr": [
+      "سبا ومسابح",
+      "رياضات مائية مع WAMA",
+      "غوص مع Galaxea",
+      "Adrena على بعد 15 دقيقة"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/shura-intercontinental-the-red-sea-resort"
+    },
+    {
+     "name": "SLS The Red Sea",
+     "place": "Shura Island",
+     "placeAr": "جزيرة شورى",
+     "facts": "150 rooms, suites and villas",
+     "factsAr": "150 غرفة وجناحًا وفيلا",
+     "image": "assets/resorts/sls-red-sea.webp",
+     "status": "Open",
+     "aboutAr": "منتجع على جزيرة شورى بغرف وأجنحة وفلل شاطئية.",
+     "settingAr": "جزيرة",
+     "locationAr": "جزيرة شورى",
+     "stayAr": "117 غرفة و18 جناحًا و15 فيلا على الشاطئ",
+     "highlightsAr": [
+      "Ciel Spa بست غرف علاج",
+      "أكبر مسبح في جزيرة شورى",
+      "سينما مفتوحة",
+      "بادل"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/shura-sls-the-red-sea"
+    },
+    {
+     "name": "Miraval The Red Sea",
+     "place": "Shura Island",
+     "placeAr": "جزيرة شورى",
+     "facts": "Adults only, all-inclusive wellness",
+     "factsAr": "للبالغين فقط، إقامة عافية شاملة",
+     "image": "assets/resorts/miraval-red-sea.webp",
+     "status": "Open",
+     "aboutAr": "منتجع عافية على جزيرة شورى بإقامة شاملة.",
+     "settingAr": "جزيرة",
+     "locationAr": "جزيرة شورى",
+     "stayAr": "غرف وأجنحة وفلل، للبالغين فقط",
+     "highlightsAr": [
+      "سبا Life in Balance",
+      "أكثر من 20 نشاطًا جماعيًا يوميًا ضمن الإقامة الشاملة",
+      "مركز مائي"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/miraval-the-red-sea"
+    },
+    {
+     "name": "Four Seasons Resort and Residences Red Sea at Shura Island",
+     "place": "Shura Island",
+     "placeAr": "جزيرة شورى",
+     "facts": "149 rooms and suites",
+     "factsAr": "149 غرفة وجناحًا",
+     "image": "assets/resorts/four-seasons-shura.webp",
+     "status": "Open",
+     "aboutAr": "منتجع في شرق جزيرة شورى، مطاعمه حلال وخالية من الكحول.",
+     "settingAr": "جزيرة",
+     "locationAr": "شرق جزيرة شورى",
+     "stayAr": "149 غرفة وجناحًا بإطلالة على البحر أو الحديقة",
+     "highlightsAr": [
+      "ثلاثة مسابح منها مسبح للبالغين",
+      "سبا",
+      "مركز الاكتشاف البحري",
+      "1.3 كم من الشاطئ"
+     ],
+     "url": "https://www.visitredsea.com/en/resorts/four-seasons-shura"
+    }
+   ]
+  },
+  {
+   "group": "AMAALA",
+   "items": [
+    {
+     "name": "Four Seasons Resort and Residences AMAALA at Triple Bay",
+     "place": "Triple Bay",
+     "placeAr": "تريبل باي",
+     "facts": "202 rooms, suites and garden villas",
+     "factsAr": "202 غرفة وجناحًا وفيلا حدائقية",
+     "image": "assets/resorts/four-seasons-amaala.webp",
+     "status": "Open"
+    },
+    {
+     "name": "Six Senses AMAALA",
+     "place": "Triple Bay",
+     "placeAr": "تريبل باي",
+     "facts": "100 suites and villas",
+     "factsAr": "100 جناح وفيلا",
+     "image": "assets/resorts/six-senses-amaala.webp",
+     "status": "Open"
+    },
+    {
+     "name": "Rosewood AMAALA",
+     "place": "Triple Bay",
+     "placeAr": "تريبل باي",
+     "facts": "110 keys",
+     "factsAr": "110 مفاتيح",
+     "image": "assets/resorts/rosewood-amaala.webp",
+     "status": "Open"
+    },
+    {
+     "name": "Equinox Resort AMAALA",
+     "place": "Marina Village, Triple Bay",
+     "placeAr": "قرية المارينا، تريبل باي",
+     "facts": "128 rooms and suites, adults only",
+     "factsAr": "128 غرفة وجناحًا، للبالغين فقط",
+     "image": "assets/resorts/equinox-amaala.webp",
+     "status": "Open"
+    },
+    {
+     "name": "Nammos Resort AMAALA",
+     "place": "Triple Bay",
+     "placeAr": "تريبل باي",
+     "facts": "110 keys",
+     "factsAr": "110 مفاتيح",
+     "image": "assets/resorts/nammos-amaala.webp",
+     "status": "Open"
+    },
+    {
+     "name": "Jayasom Wellness Resort AMAALA",
+     "place": "Triple Bay",
+     "placeAr": "تريبل باي",
+     "facts": "153 keys, programme-based wellness stays",
+     "factsAr": "153 مفتاحًا، إقامات عافية ببرامج",
+     "image": "assets/resorts/jayasom-amaala.webp",
+     "status": "Open"
+    }
+   ]
+  },
+  {
+   "group": "Private island",
+   "items": [
+    {
+     "name": "Thuwal Private Retreat",
+     "place": "Thuwal Island, off Jeddah",
+     "placeAr": "جزيرة ثول، قبالة جدة",
+     "facts": "Whole-island buy-out, up to 12 adults",
+     "factsAr": "حجز الجزيرة كاملة، حتى 12 بالغًا",
+     "image": "assets/resorts/thuwal-private-retreat.jpg",
+     "status": "Enquiry only",
+     "aboutAr": "جزيرة خاصة تُحجز كاملة، تملكها Red Sea Global وتديرها، والإقامة شاملة الوجبات.",
+     "settingAr": "جزيرة خاصة",
+     "locationAr": "جزيرة ثول، قبالة جدة",
+     "stayAr": "فيلا رئيسية بثلاث غرف وثلاث أجنحة بغرفة واحدة، حتى 12 بالغًا",
+     "highlightsAr": [
+      "مسبح Turquoise Hole الطبيعي",
+      "رحلات يخت خاصة",
+      "غوص وسنوركل",
+      "سينما على الشاطئ"
+     ],
+     "url": "https://www.thuwalretreat.sa/en/"
+    }
+   ]
+  }
+ ],
+ "VILLAS": [
+  {
+   "name": "One Bedroom Overwater Villa",
+   "nameAr": "فيلا فوق الماء بغرفة نوم واحدة",
+   "occupancy": "2 Adults + 1 Child + 1 Infant",
+   "occupancyAr": "2 بالغين + طفل + رضيع",
+   "facts": "1 Bedroom · 1 King Bed · Overwater Villa · 188 sqm · Private Pool",
+   "factsAr": "غرفة نوم واحدة · سرير كينغ · فيلا فوق الماء · 188 م² · مسبح خاص",
+   "image": "assets/villas/shebara-one-bedroom-overwater-villa-1.webp",
+   "selected": true
+  },
+  {
+   "name": "Two Bedroom Overwater Villa",
+   "nameAr": "فيلا فوق الماء بغرفتي نوم",
+   "occupancy": "4 Adults + 2 Children + 1 Infant",
+   "occupancyAr": "4 بالغين + طفلان + رضيع",
+   "facts": "2 Bedrooms · 1 King + 2 Queens · Overwater View · 288 sqm · Private Pool",
+   "factsAr": "غرفتا نوم · سرير كينغ + سريران كوين · إطلالة فوق الماء · 288 م² · مسبح خاص",
+   "image": "assets/villas/shebara-two-bedroom-overwater-villa.webp"
+  },
+  {
+   "name": "One Bedroom Beach Villa",
+   "nameAr": "فيلا شاطئية بغرفة نوم واحدة",
+   "occupancy": "2 Adults + 1 Child + 1 Infant",
+   "occupancyAr": "2 بالغين + طفل + رضيع",
+   "facts": "1 Bedroom · 1 King Bed · Beachfront View · 248 sqm · Private Pool",
+   "factsAr": "غرفة نوم واحدة · سرير كينغ · إطلالة على الشاطئ · 248 م² · مسبح خاص",
+   "image": "assets/villas/shebara-one-bedroom-beach-villa.webp"
+  },
+  {
+   "name": "Two Bedroom Beach Villa",
+   "nameAr": "فيلا شاطئية بغرفتي نوم",
+   "occupancy": "4 Adults + 2 Children + 1 Infant",
+   "occupancyAr": "4 بالغين + طفلان + رضيع",
+   "facts": "2 Bedrooms · 1 King + 2 Queens · Beachfront View · 367 sqm · Private Pool",
+   "factsAr": "غرفتا نوم · سرير كينغ + سريران كوين · إطلالة على الشاطئ · 367 م² · مسبح خاص",
+   "image": "assets/villas/shebara-two-bedroom-beach-villa.webp"
+  },
+  {
+   "name": "Three Bedroom Beach Crown Villa",
+   "nameAr": "فيلا كراون شاطئية بـ3 غرف نوم",
+   "occupancy": "6 Adults + 3 Children or 7 Adults",
+   "occupancyAr": "6 بالغين + 3 أطفال أو 7 بالغين",
+   "facts": "3 Bedrooms · 2 Kings + 2 Queens · Beachfront View · 692 sqm · Private Infinity Pool",
+   "factsAr": "3 غرف نوم · سريران كينغ + سريران كوين · إطلالة على الشاطئ · 692 م² · مسبح إنفينيتي خاص",
+   "image": "assets/villas/shebara-three-bedroom-beach-crown-villa.webp"
+  },
+  {
+   "name": "One Bedroom Beach Crown Villa",
+   "nameAr": "فيلا كراون شاطئية بغرفة نوم واحدة",
+   "occupancy": "2 Adults + 1 Child + 1 Infant",
+   "occupancyAr": "2 بالغين + طفل + رضيع",
+   "facts": "1 Bedroom · 1 King Bed · Beachfront View · 248 sqm · Private Pool",
+   "factsAr": "غرفة نوم واحدة · سرير كينغ · إطلالة على الشاطئ · 248 م² · مسبح خاص",
+   "image": "assets/villas/shebara-one-bedroom-beach-crown-villa.webp"
+  },
+  {
+   "name": "Four Bedroom Beach Royal Villa",
+   "nameAr": "فيلا رويال شاطئية بـ4 غرف نوم",
+   "occupancy": "8 Adults + 4 Children",
+   "occupancyAr": "8 بالغين + 4 أطفال",
+   "facts": "4 Bedrooms · 3 King Beds + 2 Queen Beds · Beachfront View · 900 sqm · Private Pool",
+   "factsAr": "4 غرف نوم · 3 أسرّة كينغ + سريران كوين · إطلالة على الشاطئ · 900 م² · مسبح خاص",
+   "image": "assets/villas/shebara-four-bedroom-beach-royal-villa.webp"
+  },
+  {
+   "name": "One Bedroom Beach Royal Villa",
+   "nameAr": "فيلا رويال شاطئية بغرفة نوم واحدة",
+   "occupancy": "2 Adults + 1 Child + 1 Infant",
+   "occupancyAr": "2 بالغين + طفل + رضيع",
+   "facts": "1 Bedroom · 1 King Bed · Beachfront View · 248 sqm · Private Pool",
+   "factsAr": "غرفة نوم واحدة · سرير كينغ · إطلالة على الشاطئ · 248 م² · مسبح خاص",
+   "image": "assets/villas/shebara-one-bedroom-beach-royal-villa.webp"
+  }
+ ],
+ "RESORT_COMPARE": [
+  {
+   "title": "المكان والطبيعة",
+   "question": "بحر أم جبال؟",
+   "shebara": "جزيرة في عرض البحر الأحمر على بعد 25 كم من البر، تصلها بالسيارة ثم القارب أو بالطائرة المائية.",
+   "desertRock": "منتجع جبلي داخلي في وادٍ بين الجبال قرب أملج، تصله بالسيارة من مطار البحر الأحمر الدولي.",
+   "diffLabel": "الفرق",
+   "diff": "جزيرة يحيط بها البحر، مقابل وادٍ تحيط به الجبال."
+  },
+  {
+   "title": "العمارة وتجربة الإقامة",
+   "question": "فوق الماء أم في الصخر؟",
+   "shebara": "73 فيلا كلها بمسبح خاص: 38 فوق الماء و35 على الشاطئ.",
+   "desertRock": "54 فيلا و10 أجنحة بين الوادي والجبل، منها فلل معلّقة على الجرف وجناح في كهف جبلي.",
+   "diffLabel": "الفرق",
+   "diff": "في Shebara تسكن فوق الماء أو على الرمل، وفي Desert Rock تسكن داخل التضاريس الجبلية نفسها."
+  },
+  {
+   "title": "الإطلالة والأجواء",
+   "question": "أفق البحر أم الجبال؟",
+   "shebara": "إطلالة على البحر من الفلل فوق الماء وعلى الشاطئ، والشعاب على بعد 30 إلى 40 مترًا من الشاطئ.",
+   "desertRock": "الوادي والجبال حول الفلل، وصالة The Observatory لمشاهدة الغروب.",
+   "diffLabel": "الفرق",
+   "diff": "أجواء بحرية مفتوحة، مقابل أجواء جبلية بين الصخور."
+  },
+  {
+   "title": "تجارب مميزة",
+   "question": "ماذا يميز كل منتجع؟",
+   "shebara": "مركز غوص قريب من الشعاب، وملاعب بادل وتنس.",
+   "desertRock": "مركز مغامرات، وغرفة استماع وبار أسطوانات، وواحة بحيرة.",
+   "diffLabel": "مشترك",
+   "diff": "سبا ورصد النجوم في المنتجعين."
+  },
+  {
+   "title": "يناسب من؟",
+   "question": "حسب ما تحبون",
+   "shebara": "من يريد إجازة بحرية: سباحة وغوص واسترخاء على الشاطئ.",
+   "desertRock": "من يحب الجبال والمغامرة واستكشاف الطبيعة البرية.",
+   "diffLabel": "",
+   "diff": ""
+  }
+ ],
+ "SCRIPT": {
+  "greeting": "يا هلا بك في البحر الأحمر. أنا رفيق رحلتك لترتيب الإقامة من أول خطوة إلى الوصول. وش الاسم اللي تحب نناديك فيه؟",
+  "name": {
+   "ok": [
+    "حياك الله يا {name}. كيف أقدر أساعدك؟"
+   ],
+   "fallback": "يسعدني أخدمك. عشان أناديك باسمك، وش اسمك الكريم؟"
+  },
+  "intent": {
+   "ok": [
+    {
+     "text": "أقترح لكم هذه الوجهات يا {name}. أيها أقرب لجوّكم؟ وإذا تحب تتصفح أكثر، فرابط «استكشف المزيد» تحت الاقتراحات.",
+     "component": "resortPick"
+    }
+   ],
+   "fallback": "على راحتك. تحب أقترح لك وجهات لإجازة لك ولزوجتك، ولا عندك طلب محدد نبدأ فيه؟"
+  },
+  "resort": {
+   "ok": [
+    {
+     "text": "اختيار موفّق. هذه نبذة سريعة عن {{{resort}}}:",
+     "component": "resortDetails"
+    },
+    {
+     "text": "وهذه خيارات الفلل، وأقدر أرتب لك التفاصيل بعدها:",
+     "component": "villas"
+    }
+   ],
+   "other": [
+    {
+     "text": "خيار جميل. هذه نبذة عن {{{resort}}}:",
+     "component": "resortDetails"
+    },
+    {
+     "text": "حاليًا أقدر أكمل لك الحجز في {{Shebara}} مباشرة. إذا يناسبك، نكمل عليه.",
+     "quick": [
+      {
+       "id": "resort_shebara",
+       "label": "نكمل مع Shebara",
+       "primary": true
+      }
+     ]
+    }
+   ],
+   "fallback": {
+    "text": "اختر أحد المنتجعات المقترحة، أو اكتب لي اسم المنتجع وأعرض لك نبذة عنه.",
+    "quick": [
+     {
+      "id": "resort_shebara",
+      "label": "نكمل مع Shebara",
+      "primary": true
+     }
+    ]
+   }
+  },
+  "villa": {
+   "ok": [
+    "اختيار جميل لإقامتكم. أتأكد منك: الإقامة لك ولزوجتك فقط؟"
+   ],
+   "other": [
+    {
+     "text": "سعر {{{villa}}} لهذه التواريخ أحتاج أتأكد منه قبل ما أعطيك رقم. إذا تحب، نكمل على {{One Bedroom Overwater Villa}} وسعرها مؤكد عندي.",
+     "quick": [
+      {
+       "id": "villa_supported",
+       "label": "نكمل على فيلا فوق الماء بغرفة نوم واحدة",
+       "primary": true
+      }
+     ]
+    }
+   ],
+   "fallback": "اختر الفيلا التي تناسبكم من القائمة، وأكمل لك على طول."
+  },
+  "party": {
+   "ok": [
+    {
+     "text": "تمام. متى تحبون يكون الوصول والمغادرة؟",
+     "component": "calendar"
+    }
+   ],
+   "fallback": "بس أتأكد منك: الإقامة لك ولزوجتك فقط؟ وإذا كان معكم أحد، اكتب لي عدد الضيوف."
+  },
+  "dates": {
+   "ok": [
+    {
+     "text": "توقيت جميل. هذا ملخص الإقامة:",
+     "component": "summary1"
+    },
+    "إذا الملخص مناسب، نكمل لترتيب الوصول."
+   ],
+   "other": [
+    {
+     "text": "للتواريخ من {in} إلى {out} أحتاج تحديث السعر قبل التأكيد، فلا أقدر أثبّت المبلغ المعروض عليها. إذا تحب نكمل الآن على 23 إلى 25 أكتوبر 2026 وسعرها جاهز عندي.",
+     "quick": [
+      {
+       "id": "dates_supported",
+       "label": "اختيار 23 إلى 25 أكتوبر 2026",
+       "primary": true
+      }
+     ]
+    }
+   ],
+   "invalid": "المغادرة يجب أن تكون بعد الوصول.",
+   "fallback": "حدّد يوم الوصول ثم يوم المغادرة في التقويم، وأكمل لك."
+  },
+  "approve1": {
+   "ok": [
+    {
+     "text": "كيف بتوصلون للبحر الأحمر؟",
+     "component": "modes"
+    }
+   ],
+   "fallback": {
+    "text": "إذا ملخص الإقامة مناسب نكمل لترتيب الوصول، وإذا تحب تراجع التفاصيل فهي فوق.",
+    "quick": [
+     {
+      "id": "approve1_ok",
+      "label": "مناسب، نكمل",
+      "primary": true
+     }
+    ]
+   }
+  },
+  "mode": {
+   "ok": [
+    {
+     "text": "حدد مطار الوصول ومطار المغادرة. تفاصيل الرحلات اختيارية.",
+     "component": "airports"
+    }
+   ],
+   "other": [
+    {
+     "text": "هذه الرحلة مُعدّة للوصول بالطائرة، مع تنقلات خاصة من المطار إلى {{Shebara}} وبالعكس. نكمل عليها؟",
+     "quick": [
+      {
+       "id": "mode_plane",
+       "label": "نعم، بالطائرة",
+       "primary": true
+      }
+     ]
+    }
+   ],
+   "fallback": "اختر طريقة الوصول من الخيارات فوق."
+  },
+  "airports": {
+   "ok": [
+    {
+     "text": "سجّلت المطارات. هذه تنقلاتكم من المطار إلى {{Shebara}} وبالعكس:",
+     "component": "transportTrip"
+    },
+    {
+     "text": "وهذا الملخص بعد إضافة التنقلات:",
+     "component": "summary2"
+    },
+    "إذا كل شيء واضح، نعتمد ونكمل."
+   ],
+   "other": [
+    {
+     "text": "لهذه المطارات أحتاج تحديث خيارات التنقل وأسعارها قبل المتابعة. إذا تحب نكمل الآن، الوصول على {{Yanbu Airport}} والمغادرة من {{Red Sea International Airport - RSIA}} وترتيبها جاهز عندي.",
+     "quick": [
+      {
+       "id": "airports_supported",
+       "label": "نكمل على مطار ينبع ومطار البحر الأحمر الدولي",
+       "primary": true
+      }
+     ]
+    }
+   ],
+   "fallback": "اختر مطار الوصول ومطار المغادرة في النموذج ثم اعتمدها."
+  },
+  "approve2": {
+   "ok": [
+    {
+     "text": "وهذه تجارب ممكن تستكشفونها خلال الإقامة. تقدرون تقررون الآن أو عند الوصول:",
+     "component": "activities"
+    },
+    {
+     "quick": [
+      {
+       "id": "activities_defer",
+       "label": "نختار عند الوصول",
+       "primary": true
+      }
+     ]
+    }
+   ],
+   "fallback": {
+    "text": "إذا الملخص بعد التنقلات مناسب، نعتمد ونكمل.",
+    "quick": [
+     {
+      "id": "approve2_ok",
+      "label": "اعتمد ونكمل",
+      "primary": true
+     }
+    ]
+   }
+  },
+  "activities": {
+   "ok": [
+    "ولا يهمك. ما أضفت أي تجربة، والإجمالي كما هو. فريق المنتجع يساعدكم تختارون ما يناسبكم عند الوصول، حسب التوفر.",
+    {
+     "text": "نحتاج بياناتك وبيانات زوجتك يا {name} عشان نكمل الحجز. إذا سبق وسجّلت معنا، تقدر تدخل ببريدك الإلكتروني ونسترجع بياناتك المحفوظة، أو تكمل كضيف جديد.",
+     "component": "accountChoice"
+    }
+   ],
+   "add": [
+    {
+     "text": "بكل سرور. أقدر أرتب لكم التجارب مع فريق المنتجع بعد ما نثبّت الحجز. نكمل الحجز الآن ونرجع للتجارب؟",
+     "quick": [
+      {
+       "id": "activities_defer",
+       "label": "نعم، نكمل الحجز",
+       "primary": true
+      }
+     ]
+    }
+   ],
+   "fallback": {
+    "text": "تحبون تقررون التجارب الآن، ولا نختارها عند الوصول؟",
+    "quick": [
+     {
+      "id": "activities_defer",
+      "label": "نختار عند الوصول",
+      "primary": true
+     }
+    ]
+   }
+  },
+  "voice": {
+   "ack": "رتّبت لك البيانات اللي ذكرتها يا {name}، وتلقاها في النموذج تحت. باقي {missing}؛ راجع البيانات وأكمل الناقص عشان نتابع الحجز.",
+   "ackComplete": "رتّبت لك البيانات اللي ذكرتها يا {name}، وتلقاها في النموذج تحت. راجعها، وإذا كل شيء صحيح اعتمدها ونتابع الحجز.",
+   "other": [
+    "وصلتني رسالتك الصوتية. عشان أضمن لك الدقة، اكتب لي ما تحتاجه هنا أو استخدم الخيارات في البطاقة، وأكمل لك على طول."
+   ],
+   "fallback": "خذ راحتك يا {name}، وأكمل بياناتك وبيانات زوجتك في النموذج فوق، وأنا أكمل لك على طول."
+  },
+  "account": {
+   "guest": [
+    {
+     "text": "حيّاك. أدخل بياناتك وبيانات زوجتك هنا، ونكمل الحجز على طول.",
+     "component": "guestForm"
+    }
+   ],
+   "login": [
+    {
+     "text": "أبشر. اكتب بريدك الإلكتروني اللي سجّلت فيه، ونرسل لك رمز تحقق من 6 أرقام. بعد التحقق نسترجع بياناتك المحفوظة.",
+     "component": "signIn"
+    }
+   ],
+   "askRequests": "أهلًا بعودتك، تم التحقق من بريدك واسترجعت بياناتك المحفوظة. هل عندكم أي طلب خاص تحبون نضيفه لإقامتكم يا {name}؟ وإذا ما عندكم طلبات، نكمل بدونها.",
+   "requestsClarify": "أبشر، ما الطلب الذي تحبون نضيفه؟ وإذا ما عندكم طلب، أخبرني «لا» ونكمل.",
+   "readyWithRequest": "تمام يا {name}، جهّزت لك النموذج ببياناتك المحفوظة وأضفت طلبكم، والطلبات حسب التوفر. راجع البيانات وعدّل ما تحتاجه، ثم اعتمدها ونتابع الحجز.",
+   "readyNoRequest": "تمام يا {name}، جهّزت لك النموذج ببياناتك المحفوظة. راجع البيانات وعدّل ما تحتاجه، ثم اعتمدها ونتابع الحجز.",
+   "stillMissing": "باقي {missing}؛ أكمله قبل الاعتماد.",
+   "notFound": "تم التحقق من بريدك، لكن ما لقيت بيانات محفوظة مرتبطة فيه. تقدر تكمل كضيف جديد: أدخل بياناتك وبيانات زوجتك في النموذج تحت ونتابع الحجز.",
+   "profileError": "تم التحقق من بريدك، لكن تعذّر استرجاع بياناتك الآن. تقدر تدخل بياناتك في النموذج تحت ونتابع الحجز.",
+   "fallback": "اختر من البطاقة: «لدي حساب سابق» أو «متابعة كضيف جديد».",
+   "loginFallback": "اكتب بريدك في البطاقة واضغط إرسال الرمز. وإذا تحب تكمل كضيف جديد، أخبرني."
+  },
+  "compare": {
+   "ok": [
+    {
+     "text": "سؤال في محلّه يا {name}. هذه أهم الفروق بين المنتجعين، معيارًا بمعيار:",
+     "component": "compare"
+    },
+    "بما إنك تخطط لإجازة مع زوجتك، أرشّح لك {{Shebara}}: جزيرة يحيط بها البحر، فيها فلل بمسبح خاص فوق الماء وعلى الشاطئ، والشعاب قريبة من الشاطئ، وأجواؤها تناسب الاسترخاء. ويتميّز {{Desert Rock}} بطابع جبلي ومغامرات لمن يحب ذلك في رحلة أخرى. والقرار لكم:",
+    {
+     "component": "comparePick"
+    }
+   ]
+  },
+  "guest": {
+   "ok": [
+    {
+     "text": "شكرًا لك يا {name}. راجع التفاصيل، وتقدر تعدّل بياناتكم من هنا. إذا كل شيء صحيح، أكّد الموافقة على الشروط ونكمل للتحقق من البريد.",
+     "component": "review"
+    }
+   ],
+   "fallback": "راجع البيانات في النموذج فوق، وأضف بريدك الإلكتروني، ثم اعتمد البيانات وأكمل لك."
+  },
+  "review": {
+   "ok": [
+    {
+     "text": "تمام. هذا رابط الدفع الآمن على موقع {{Visit Red Sea}} لإتمام الحجز، والإجمالي {{SAR 33,793.90}} شامل الضرائب:",
+     "component": "payment"
+    }
+   ],
+   "verifyNew": [
+    {
+     "text": "غيّرت البريد الإلكتروني، فنؤكد العنوان الجديد قبل الدفع. اضغط إرسال الرمز، وبيوصلك رمز من 6 أرقام على {{{email}}}.",
+     "component": "verify"
+    }
+   ],
+   "updated": [
+    {
+     "text": "حُفظت التعديلات يا {name}. هذه المراجعة بعد التعديل، وإذا كل شيء صحيح أكّد الموافقة على الشروط ونكمل.",
+     "component": "review"
+    }
+   ],
+   "terms": {
+    "text": "قبل ما نكمل، أحتاج موافقتك على الشروط والأحكام وسياسة الخصوصية من المربع في المراجعة.",
+    "quick": [
+     {
+      "id": "review_confirm",
+      "label": "وافقت، نكمل",
+      "primary": true
+     }
+    ]
+   },
+   "fallback": {
+    "text": "إذا البيانات صحيحة، أكّد الموافقة على الشروط ونكمل. وإذا تحب تعديل شيء، اضغط «تعديل البيانات» في المراجعة.",
+    "quick": [
+     {
+      "id": "review_confirm",
+      "label": "البيانات صحيحة، نكمل",
+      "primary": true
+     }
+    ]
+   }
+  },
+  "verify": {
+   "ok": [
+    {
+     "text": "تم التحقق. هذا رابط الدفع الآمن على موقع {{Visit Red Sea}} لإتمام الحجز، والإجمالي {{SAR 33,793.90}} شامل الضرائب:",
+     "component": "payment"
+    }
+   ],
+   "fallback": "أدخل رمز التحقق الذي وصلك على بريدك في البطاقة فوق، وإذا ما وصلك اطلب إرساله من جديد."
+  },
+  "payment": {
+   "unverified": [
+    "رجعت من صفحة الدفع يا {name}. هذه النسخة التجريبية ما تستلم نتيجة الدفع من {{Visit Red Sea}}، فما أقدر أؤكد حالة الدفع من هنا؛ تأكيد الحجز يصلك من الموقع مباشرة.",
+    {
+     "text": "هذا ملخص رحلتك كما رتبناها، وتقدر تحمّله بصيغة {{PDF}}:",
+     "component": "confirmation"
+    },
+    "نتمنى لك ول{wife} إقامة هادئة في {{Shebara}}. حاضرين لأي تفاصيل تحتاجونها."
+   ],
+   "fallback": "أكمل الدفع من الرابط في البطاقة فوق، وأنا أكمل لك هنا مباشرة."
+  },
+  "navigate": {
+   "lead": "خلني أوريك المنتجعات على الصفحة نفسها. أصغّر المحادثة لحظة، وتقدر تختار من البطاقات أو ترجع لي من الشريط تحت.",
+   "miniBar": "اختر منتجعًا من البطاقات، ثم ارجع إلى المحادثة",
+   "miniBarNew": "وصلتك رسالة جديدة في المحادثة"
+  },
+  "live": {
+   "unavailable": "تعذر الاتصال بالمساعد الآن. حاول مرة أخرى بعد لحظات، وما راح تفقد مكانك في الحجز.",
+   "notConfigured": "اتصال المساعد غير مهيّأ على هذا الخادم بعد (مفتاح الاتصال أو معرّف الوكيل غير موجود).",
+   "expired": "انتهت هذه الجلسة. ابدأ محادثة جديدة من القائمة لنكمل.",
+   "voiceUnavailable": "وصلتني رسالتك الصوتية، لكن التفريغ الصوتي غير مهيّأ في هذه النسخة، فما أقدر أستخرج بياناتك منها. تقدر تكتب البيانات في النموذج ونكمل على طول."
+  },
+  "done": {
+   "ok": [
+    "إذا احتجت أي شيء قبل الرحلة أو خلالها، أنا موجود."
+   ]
+  },
+  "customer": {
+   "resort": "نختار {{{resort}}}.",
+   "villa": "أختار {{{villa}}} على {{Villa Flat Rate}}.",
+   "dates": "الوصول {in} والمغادرة {out}، {nightsWord}.",
+   "mode": "{modeWord}.",
+   "airports": "الوصول على {{{arrival}}} والمغادرة من {{{departure}}}.",
+   "guest": "اعتمدت بياناتي وبيانات زوجتي.",
+   "guestSolo": "اعتمدت بياناتي.",
+   "guestEdit": "عدّلت البيانات وحفظتها.",
+   "verify": "أدخلت الرمز."
+  },
+  "words": {
+   "fieldNames": {
+    "title": "اللقب",
+    "firstName": "اسمك الأول",
+    "familyName": "اسم العائلة",
+    "email": "بريدك الإلكتروني",
+    "mobile": "رقم جوالك"
+   },
+   "formSuperseded": "حلّ محل هذا النموذج نموذج محدّث أدناه.",
+   "nights": {
+    "1": "ليلة واحدة",
+    "2": "ليلتان",
+    "many": "{n} ليالٍ",
+    "lots": "{n} ليلة"
+   },
+   "modes": {
+    "By Plane": "بالطائرة",
+    "By Private Jet": "بطائرة خاصة",
+    "By Car": "بالسيارة",
+    "By Yacht": "باليخت"
+   },
+   "wifeDefault": "زوجتك",
+   "voiceLabel": "رسالة صوتية"
+  },
+  "scenario": {
+   "name": "محمد",
+   "voice": {
+    "title": "السيد",
+    "familyName": "باز",
+    "mobileCode": "+966",
+    "mobile": "508416627",
+    "guest2First": "نورة",
+    "guest2Family": "الحربي",
+    "requests": "تسجيل وصول متأخر إن أمكن",
+    "transcript": "أنا محمد باز. رقم جوالي 508416627. زوجتي نورة الحربي. وإذا أمكن، نبغى تسجيل وصول متأخر."
+   },
+   "emailTyped": "muhammed.baz@clouding.ai"
+  },
+  "menu": {
+   "newConversation": "بدء محادثة جديدة"
+  }
+ }
+}

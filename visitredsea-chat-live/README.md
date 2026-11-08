@@ -1,0 +1,53 @@
+# Visit Red Sea concierge, live edition: the V2 chat driven by a Claude Managed Agent
+
+This folder is **V2 (`../visitredsea-chat-mockup-v2`, Round 6 of 25 October 2026) with the scripted engine replaced by a live Claude agent**, plus the page hand-off (scroll to the resort cards and spotlight) from V1. The look, the Empathy Studio components, the Saudi Arabic wording, the booking data and the e-mail verification are the V2 ones. V2 itself is untouched and remains the scripted reference and the rollback.
+
+Default port **8100** (V1 keeps 8080, V2 8090). Run it with `start.cmd`, or `python server.py 8100`. The page must be served by `server.py` over http. Connecting it to Claude: [docs/CONSOLE_SETUP.md](docs/CONSOLE_SETUP.md).
+
+## How it works
+
+- **The agent** (Claude Managed Agent "RSG Concierge (Clouding)", model `claude-sonnet-5-5` by default) reads each typed message with a context block (stage, booking state without personal data, the tools allowed now, what the guest just did on the cards) and calls **one application tool** per message, or answers a question from the approved facts. Its system prompt is `agent/system_prompt.md`; the facts appended to it and the tool definitions (`agent/tools.json`, 18 custom tools) are the same files `tools/console_setup.py` pushes to the agent. The agent's own sandbox tools are disabled.
+- **The backend** (`server.py` + `agent/`) owns the booking state and the valid transitions (`agent/state.py`, a port of the old `stageSpec`: only the quoted route is priced, the terms gate, `needsOtp`), executes the tools (`agent/tools.py`), keeps one remote session per chat (`agent/chat.py`), runs the OTP and saved-profile endpoints unchanged, and reads the approved data from `agent/data.json`, dumped from `data/*.js` by `node tools/dump_data.mjs` (the server refuses to start when the dump is older than the data files).
+- **The page** (`js/chat.js`) sends a typed line as `POST /api/chat/turn {kind:"text"}` and a card button, form or OTP result as `{kind:"event"}`; events are handled deterministically, with no model call, exactly as the old engine did. The reply is an ordered list of the approved items from `data/script.js` (text, component, quick replies) plus the new state; `deliver()` paces them and the `C.*` builders render the same components as V2. A `navigate_resorts` action minimises the chat to the bar, scrolls the page to the resort cards, runs `js/spotlight.js` (V1), and is acknowledged with `POST /api/chat/action-result` so the agent gets the real outcome (or the failure).
+- **Guards.** Every turn carries a `turnId`; a repeat returns the same reply. One turn at a time per session (409). A page action not acknowledged within 20 s, or overtaken by a new message, is closed with an error result. The agent never receives the OTP code, the verification session token, e-mail addresses, phone numbers or the saved profile; the `verify` and `signedIn` events carry only the server-issued session token, which `server.py` checks itself. Without a key or agent id the chat says the connection is not configured; there is no silent fallback to the scripted engine. A keyword stand-in exists for tests only (`LIVE_AGENT_TEST_DOUBLE=1`, loud banner).
+
+## What changed against V2 (Round 1, 8 November 2026)
+
+- `js/chat.js`: the local `stageSpec`, keyword matching, `extraction()` and the walkthrough are gone; `customer()`/`act()` talk to the server; `applySnapshot()` replaces the local state with the server's (client-only: OTP challenge, terms checkbox, payment click); V1's `revealChoose/endChoose/minimize/restore/scrollToCards` and the page cards' assistant-added اختر are back, driven by the agent's action. The chat panel's scroll position is kept across minimise/restore.
+- `index.html`: `#chat-minibar` and `js/spotlight.js` (from V1).
+- `server.py`: `/api/chat/status|session|turn|action-result`; `.env` may now carry `ANTHROPIC_*` and `LIVE_AGENT_*`; chat bodies up to 32 KB; default port 8100.
+- `data/script.js`: `payment.ok` (the scripted "payment verified" continuation) is replaced by `payment.unverified`: after the checkout tab the concierge says this demo receives no payment-provider result and hands over the trip summary and the PDF; `done.ok` no longer says the booking is arranged; new `navigate.*` (page hand-off) and `live.*` (connection states, voice not configured) lines.
+- **Voice**: the recorder is unchanged, but no transcription service is configured, so a voice message gets «التفريغ الصوتي غير مهيّأ…» and the manual form stays; the prepared `scenario.voice` values are never filled in. Empathy Studio will supply transcription later (owner's decision, 8 Nov 2026); the hook is the `voice` event in `agent/tools.py`.
+- Removed from this build: `?walkthrough=1`, `tools/responsive-preview.html?recorded=1` (they drove the local engine; use V2 for the recorded document), `RSG_Full_Conversation_V2.pdf`, the V2 `reports/` captures.
+- New: `agent/` (data.py, state.py, tools.py, tools.json, provider.py, chat.py, system_prompt.md, data.json), `tools/dump_data.mjs`, `tools/console_setup.py`, `tools/drive_live.mjs`, `requirements.txt`, `docs/CONSOLE_SETUP.md`.
+
+## Testing
+
+Never test against the owner's running instances (8080/8090/8100). Start a test instance with the mail sink:
+
+```bat
+set LIVE_AGENT_TEST_DOUBLE=1
+set OTP_SMTP_HOST=127.0.0.1& set OTP_SMTP_PORT=2525& set OTP_SMTP_SECURITY=none& set OTP_SMTP_USER=sink& set OTP_SMTP_PASSWORD=sink& set OTP_SMTP_FROM=sink@localhost
+set PROFILE_STORE=%TEMP%\profiles.test.json
+python tools\local_smtp_sink.py 2525
+python server.py 8101
+node tools\drive_live.mjs http://127.0.0.1:8101
+```
+
+`drive_live.mjs` checks the protocol (39 checks: session, typed turn, page action ack/failure/late/duplicate, idempotent `turnId`, 404/400/409, every card event through the journey, the terms gate, a forged `verify` event, the honest payment return). Browser behaviour (scroll, spotlight, components, PDF) is checked by playing the route in the browser; the record of the 8 November run is in the section below. With a configured agent, run the same driver with `--live`: the agent chooses the tools, so only stage progress and protocol rules are asserted.
+
+### Verified on 8 November 2026
+
+- **Test double, real browser (built-in browser, 1366×800, server 8101 + mail sink):** name → browse request → chat minimised, page scrolled to the cards, spotlight running, اختر on the cards, bar text → اختر Shebara → spotlight and status cleared, chat restored at its reading position, Shebara details + villas; side question kept the stage; unpriced villa reply + quick reply; priced villa; party; calendar 23–25 Oct with the «اعتُمدت التواريخ» tag; stay summary; typed approval; modes; airports picker; legs + updated summary; defer quick reply; «لدي حساب سابق»: e-mail, real code through the sink, verified, request question, answer, full prefilled form (7 saved markers, no voice markers), review with the request; confirm without terms → gate + quick reply; تعديل البيانات → updated review with the request; terms + confirm → payment card (no second code for the verified e-mail); payment click opened the exact checkout URL; return → «رجعت من صفحة الدفع…», confirmation card with the request, closing line «ولنورة»; PDF built (236 KB). New conversation cleared the page state. Compare branch: comparison carousel (5 cards, thumbnails), recommendation, selection carousel → Shebara.
+- **Test double, protocol driver:** 39/39.
+- **Live Claude (Managed Agent `agent_01D3yFvZ2ZTDBwxa8i5g8YN3`, environment `env_014yGcQKoVVA6nP1zVTQz5yN`, model `claude-sonnet-5-5`, server 8102 + mail sink, same day):**
+  - Protocol driver with `--live`: 39/39.
+  - Real browser, full route: «هلا، أنا محمد» → name; «ودي أتصفح المنتجعات عندكم على الصفحة» (not the keyword the double needs) → `navigate_to_resorts`, chat minimised, page scrolled, spotlight on, ack returned, the agent added one sentence naming what is on the page; اختر Shebara on the page → cleanup and details + villas; «كم تبعد الجزيرة عن البر؟ وهل الغوص قريب؟» answered from the facts (25 km, reef 30 to 40 m) without moving the stage; «أبي فيلا شاطئية بغرفتين» → the approved "need to confirm the price" reply + quick reply; «أنا وزوجتي بس» → calendar; «تمام؟ وش بعد؟» treated as a question (summary kept live), «ممتاز، نكمل» approved; «بنجي بالطيارة»; «نوصل مطار ينبع ونطلع من مطار البحر الأحمر الدولي» → legs + updated summary; «كل شي واضح، اعتمد»; «نقرر التجارب عند الوصول»; «عندي حساب عندكم من قبل» → sign-in card, real code through the sink, profile retrieved, «إيه، نبغى تسجيل وصول متأخر لو أمكن» → the agent recorded «تسجيل وصول متأخر», full prefilled form (7 saved markers); «البيانات صحيحة نكمل» without the terms → gate; with the terms → payment card, no second code; checkout URL opened; return → «رجعت من صفحة الدفع…», confirmation with the request, PDF (235 KB).
+  - API runs: the compare branch from «محتارة بين Shebara وDesert Rock»; a follow-up «وش الفرق في الوصول لكل واحد؟» answered from `RESORT_COMPARE`; «احنا ثلاثة، أنا وزوجي وطفلنا» → party reply (no quote for 3 guests), then «لي ولزوجي بس» → calendar; «لا، مو مناسب، أبي أغير التواريخ» at the approval step → no approval, honest "only 23 to 25 Oct is priced" answer; «أبي أضيف تجربة التجديف» → `experience_interest`; «أول مرة أحجز، ضيفة جديدة» → guest form, no code; a voice message → "transcription not configured"; «كم سعرها لليلة الواحدة؟» → no nightly rate invented; a failed page action (`cards_missing`) → the in-chat suggestions.
+  - Latency: 2 to 10 s per typed turn (model + stream), card events are instant.
+  - Guards added after the first live runs, all in `agent/chat.py`: once a tool round has advanced the journey, further tool calls in the same guest turn are refused (`turn_complete`) and the agent's extra sentences are dropped, because Sonnet 5.5 tended to repeat the approved question or call a second tool (compare then suggestions, `select_villa` twice); identical text+component items are never appended twice; placeholder stubs ("(no text)", a one-word echo) are dropped. Disallowed tools return only an error result to the agent, never a reply to the guest.
+  - Known limitation of the approved wording: the recommendation line says «مع زوجتك» even when the guest is a woman who wrote «زوجي» (the sentence is approved copy from `data/script.js`, not generated).
+
+## Evidence rules
+
+Unchanged from V1/V2: prices, names, URLs and policies come from `data/*.js`, which cite the research and the customer screenshots. The agent's facts are the same files, dumped verbatim; its prompt forbids anything outside them. The checkout hand-off opens the official URL and nothing in this build claims a payment or reservation result.

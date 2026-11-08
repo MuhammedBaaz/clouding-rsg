@@ -1,0 +1,39 @@
+/* Walkthrough / print layout (index.html?walkthrough=1):
+   the whole scripted conversation laid out as a document, used to
+   produce RSG_Full_Conversation.pdf. Not part of the normal page. */
+@page { size: A4; margin: 14mm 12mm 16mm; }
+body.walkthrough { background: #fff; }
+body.walkthrough .site-header, body.walkthrough main, body.walkthrough .site-footer, body.walkthrough .chat-launcher, body.walkthrough .chat-launcher-label, body.walkthrough .chat-minibar, body.walkthrough .chat-composer, body.walkthrough .rec-box, body.walkthrough .chat-icon, body.walkthrough .menu-wrap { display: none !important; }
+body.walkthrough .chat-panel { position: static; width: 100%; max-width: 760px; height: auto; margin: 0 auto; box-shadow: none; border: 0; border-radius: 0; overflow: visible; display: block; }
+body.walkthrough .chat-head { border-radius: 12px; break-after: avoid; }
+body.walkthrough .chat-scroll { overflow: visible; height: auto; padding: 22px 0 0; background: #fff; }
+body.walkthrough .msg, body.walkthrough .rich .cardbox, body.walkthrough .bsum, body.walkthrough .pay, body.walkthrough .confirm, body.walkthrough .rates, body.walkthrough .modes, body.walkthrough .acts .act, body.walkthrough .villas .vrow, body.walkthrough .trans .leg, body.walkthrough .trans .airports, body.walkthrough .gform .grid, body.walkthrough .review .r, body.walkthrough .chead, body.walkthrough .wt-note { break-inside: avoid; page-break-inside: avoid; }
+body.walkthrough .msg .col { max-width: 78%; }
+body.walkthrough .msg.guest .meta::before { content: "أنت تكتب"; font-family: var(--arabic); font-size: 11px; color: var(--aqua-700); margin-right: 6px; }
+body.walkthrough .msg.agent .meta::before { content: "المساعد"; font-family: var(--arabic); font-size: 11px; color: var(--charcoal-500); margin-right: 6px; }
+body.walkthrough .msg .meta .time { display: none; }
+.wt-doc-head { max-width: 760px; margin: 0 auto 18px; font-family: var(--arabic); color: var(--charcoal-900); direction: rtl; text-align: right; }
+.wt-doc-head h1 { font-family: var(--arabic); font-weight: 600; font-size: 26px; margin: 0 0 6px; }
+.wt-doc-head p { margin: 0; font-size: 13.5px; color: var(--charcoal-700); line-height: 1.5; }
+.wt-doc-head .legend { display: flex; gap: 18px; margin-top: 12px; font-size: 12.5px; color: var(--charcoal-700); flex-wrap: wrap; }
+.wt-doc-head .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-left: 6px; vertical-align: -1px; }
+.wt-doc-head .legend .a::before { background: #fff; border: 1px solid var(--charcoal-200); }
+.wt-doc-head .legend .c::before { background: var(--aqua-700); }
+.wt-doc-head .legend .n::before { background: #fff4e5; border: 1px solid #f0c48a; }
+.wt-note { direction: rtl; text-align: right; font-family: var(--arabic); margin: 6px 0 16px; padding: 10px 44px 10px 14px; background: #fff4e5; border: 1px solid #f0c48a; border-radius: 10px; font-size: 13px; line-height: 1.5; color: #5a3a00; position: relative; }
+.wt-note::before { content: ""; position: absolute; right: 14px; top: 11px; width: 18px; height: 18px; border-radius: 50%; background: #e08a00; }
+.wt-note::after { content: "!"; position: absolute; right: 20.5px; top: 10px; color: #fff; font-weight: 700; font-size: 13px; }
+.wt-note b { color: #3d2800; }
+.wt-step { direction: rtl; text-align: right; font-family: var(--arabic); font-size: 12px; font-weight: 600; color: var(--aqua-700); margin: 22px 0 8px; padding-top: 14px; border-top: 1px solid var(--charcoal-100); break-after: avoid; }
+body.walkthrough .rich.used .pick, body.walkthrough .rich.used .mode, body.walkthrough .rich.used .calconfirm, body.walkthrough .rich.used .factions { opacity: 1; }
+body.walkthrough .cal .nav { display: none; }
+@media print {
+  body.walkthrough .chat-scroll { background: #fff !important; }
+  body.walkthrough .rich img, body.walkthrough .msg img { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body.walkthrough * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+body.walkthrough .ai-spot { display: none; }
+body.walkthrough .msg.audio .bubble { min-width: 250px; }
+body.walkthrough .rich.used .verify .vactions, body.walkthrough .rich.used .verify .vform, body.walkthrough .rich.used .verify .link { opacity: 1; }
+body.walkthrough .wt-note bdi[dir="rtl"] { display: block; margin-top: 6px; font-size: 14px; line-height: 1.7; color: var(--charcoal-900); }
+body.walkthrough .verify, body.walkthrough .gform .fld { break-inside: avoid; page-break-inside: avoid; }
