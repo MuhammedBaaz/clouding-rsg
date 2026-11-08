@@ -81,7 +81,11 @@ window.BOOKING = {
         price: 1191.40,                                                   // SCREENSHOT 02
         priceBasis: "Total price (all taxes included) | 2 Adults",
         priceBasisAr: "السعر الإجمالي (شامل جميع الضرائب) | شخصان بالغان",
-        upgradeSelector: "Shared Speed Boat + Private Luxury Car"
+        upgradeSelector: "Shared Speed Boat + Private Luxury Car",
+        /* The booking flow's own photo for this leg was collapsed in Screenshot 02 and no speed-boat image is saved.
+           The saved aerial of the same transfer car on the road to The Red Sea illustrates the road part of the leg. */
+        image: "assets/transport/driving-to-the-red-sea.webp",
+        imageAlt: "Aerial view of a Visit Red Sea transfer car on the road to The Red Sea"
       }
     ],
     transfersTotal: 4813.90                                               // SCREENSHOT 02 and COMPUTED

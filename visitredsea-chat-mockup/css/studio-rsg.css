@@ -21,8 +21,26 @@
 .studio-aside .form-error:empty{display:none}
 .studio-aside .form-error svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .studio-aside.pdfstatus{color:#5a7572;font-size:12.5px;min-height:0}
-.msg.agent .col .rich.quick .rc-container{padding:0}
-.rich.quick .rc-buttons-group{justify-content:flex-start}
+/* quick replies sit on the agent side: the end of the RTL row is the left edge */
+.rich.quick .rc-buttons-group{justify-content:flex-end}
 .rich.quick.used .rc-btn:disabled{opacity:.6}
 .rich.quick.used .rc-btn.rc-selected:disabled{opacity:1}
 .walkthrough .rich.studio{break-inside:avoid}
+/* Arabic cards read from the right: titles, prices and descriptions align right whatever direction dir="auto" resolves */
+.rich .rc-container :is(.cc-title,.cc-subtitle,.cc-description,.slp-title,.slp-item-title,.slp-subtitle,.glp-title,.glp-group-heading){text-align:right}
+.rich .rc-container :is(.slp-title,.glp-title,.glp-group-heading){color:#3d4a52}
+/* resort photographs open the official resort page: an RSG layer over the Studio card photo, separate from اختيار */
+.rich .rc-container .cc-media{position:relative}
+.rich .rc-container :is(.cc-media,.bc-header) .cc-media-link{position:absolute;inset:0;z-index:2;display:block}
+.rich .rc-container .cc-media-link:focus-visible{outline:3px solid #8ac7b5;outline-offset:-3px}
+.rich .rc-container .cc-media-ext{position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#ffffffd9;color:#1f4f50;box-shadow:0 1px 4px #0b2a2f33}
+.rich .rc-container .cc-media-ext svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rich .rc-container .cc-media-link:hover .cc-media-ext{background:#fff}
+
+/* comparison: a small linked photo beside each resort's name identifies its entry (js/chat.js compareThumbs) */
+.rich[data-component="compare"] .cc-description ul{list-style:none;padding:0;margin:4px 0 0}
+.rich[data-component="compare"] .cc-description li+li{margin-top:10px}
+.rich[data-component="compare"] .cc-description strong.cmp-name{display:flex;align-items:center;gap:8px;margin:0 0 4px}
+.rich[data-component="compare"] .cmp-thumb{flex:0 0 32px;width:32px;height:32px;border-radius:6px;overflow:hidden;display:block;background:#e7ece9}
+.rich[data-component="compare"] .cmp-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.rich[data-component="compare"] a.cmp-thumb:focus-visible{outline:3px solid #8ac7b5;outline-offset:2px}

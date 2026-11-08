@@ -99,10 +99,11 @@
 @keyframes atelier-spin{to{transform:rotate(360deg)}}
 .rich.used .otp :is(.vsend,.vresend,.vcheck,.vform button){pointer-events:none;filter:saturate(.6);opacity:.78}
 
-/* ---------- quick replies: suggested answers inside the agent message group ---------- */
-.msg.agent .col .rich.quick{width:100%;max-width:100%;margin:6px 0 0;padding:0;align-self:stretch;direction:rtl;text-align:right}
-.msg.agent .col .rich.quick+.meta{margin-top:6px}
-.msg.agent:has(.col>.rich.quick){align-items:flex-start}.msg.agent:has(.col>.rich.quick) .av{margin:8px 0 0}
+/* ---------- quick replies: one row after the complete agent turn, aligned with the agent bubbles (avatar 28px + gap 10px) ---------- */
+.chat-scroll>.rich.quick{margin:-4px 0 16px;padding:0 0 0 38px;direction:rtl}
+/* ---------- a guest form replaced by the prefilled one sent after a voice message ---------- */
+.rich.superseded .component{opacity:.62;filter:saturate(.5)}
+.superseded-note{margin:6px 4px 0;font:12px/1.6 'Fedra Sans AL',Tahoma,Arial,sans-serif;color:#4a5a57;direction:rtl;text-align:right}
 
 @media(max-width:720px){
  .component{padding:14px}.component h3{font-size:21px}

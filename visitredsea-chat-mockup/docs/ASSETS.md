@@ -95,7 +95,7 @@ From https://www.visitredsea.com/en/resorts/shebara, accommodation section, fold
 | File | Subject | Origin | Note |
 |---|---|---|---|
 | getting-to-and-around-5.webp | Visit Red Sea destination car on a desert road, used on the arrival transfer card | visitredsea.com "Getting to and around" content, …/before-you-visit/getting-to-and-around/getting_to_and_around5.png | **Not the booking flow's own photo.** The flow shows a different teal car image (visible in Screenshot 02) whose asset URL is only reachable inside a booking session, which was not opened. Replace if the original is supplied |
-| driving-to-the-red-sea.webp | Road to The Red Sea (aerial) | …/before-you-visit/getting-to-and-around/driving_to_the_red_sea.jpg | Not displayed |
+| driving-to-the-red-sea.webp | Road to The Red Sea (aerial), with the same teal transfer car | …/before-you-visit/getting-to-and-around/driving_to_the_red_sea.jpg | Departure transfer card (Shared Speed Boat + Private Luxury Car); it shows the road part of that leg. **Missing:** a verified photo of the shared speed boat, and the booking flow's own photo for the departure leg (collapsed in Screenshot 02). Replace if supplied |
 
 ## Not sourced
 

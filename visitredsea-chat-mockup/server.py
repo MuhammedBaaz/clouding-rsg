@@ -20,6 +20,24 @@ environment variables (never in the page, never in this file):
     OTP_SMTP_SECURITY    starttls (default) | ssl | none
     OTP_ALLOWED_RECIPIENTS  comma-separated list; default muhammed.baz@clouding.ai
 
+Saved guest profiles (returning customers) are read only after a code was
+verified: /api/otp/verify returns a short-lived session bound to that
+e-mail, and /api/profile answers only for a valid session. Profiles live in
+the application's own JSON store, which is never served to the browser.
+This is an application-stored profile, not an integration with an RSG
+customer database.
+
+    PROFILE_STORE        path to the store (default: private/profiles.json)
+                         {"profiles": {"name@domain": {"title": "...", "firstName": "...",
+                          "familyName": "...", "mobileCode": "+966", "mobile": "...",
+                          "guest2First": "...", "guest2Family": "..."}}}
+
+At start the server inserts the prepared accounts listed in
+private/profiles.seed.json (the approved demo account) once: an address
+already in the store, or seeded before, is never overwritten or re-added.
+Special requests are not part of a saved profile: a "requests" value in an
+older record is ignored and never returned.
+
 Until OTP_SMTP_HOST, OTP_SMTP_USER and OTP_SMTP_PASSWORD are set the API
 answers 503 "email_not_configured" and the page says so. There is no
 console fallback.
@@ -38,6 +56,7 @@ import time
 from email.message import EmailMessage
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import unquote
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -54,7 +73,7 @@ def load_dotenv(path):
                 k = k.strip(); v = v.strip()
                 if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
                     v = v[1:-1]
-                if k.startswith("OTP_") and k not in os.environ:
+                if (k.startswith("OTP_") or k == "PROFILE_STORE") and k not in os.environ:
                     os.environ[k] = v
     except OSError:
         pass
@@ -65,6 +84,12 @@ CODE_TTL = 300          # seconds a code stays valid
 MAX_ATTEMPTS = 5        # wrong entries before the challenge is locked
 RESEND_COOLDOWN = 30    # seconds between two requests for the same address
 MAX_BODY = 4096
+SESSION_TTL = 1800      # seconds a verified session can read its saved profile
+PROFILE_FIELDS = ("title", "firstName", "familyName", "mobileCode", "mobile", "guest2First", "guest2Family")   # never "requests"
+SEED_FILE = os.path.join(ROOT, "private", "profiles.seed.json")
+PROFILE_STORE = os.environ.get("PROFILE_STORE", "").strip() or os.path.join(ROOT, "private", "profiles.json")
+if not os.path.isabs(PROFILE_STORE):
+    PROFILE_STORE = os.path.join(ROOT, PROFILE_STORE)
 
 CONFIG = {
     "host": os.environ.get("OTP_SMTP_HOST", "").strip(),
@@ -144,6 +169,89 @@ def verify_challenge(cid, email, code):
             return "ok", 0
         left = MAX_ATTEMPTS - ch["attempts"]
         return ("locked" if left <= 0 else "wrong"), left
+
+
+# ---------------------------------------------------------------- verified sessions and saved profiles
+_sessions = {}        # token -> dict(email, expires)
+
+
+def open_session(email):
+    now = time.time()
+    token = secrets.token_urlsafe(24)
+    with _lock:
+        for t in [t for t, v in _sessions.items() if v["expires"] < now]:
+            _sessions.pop(t, None)
+        _sessions[token] = {"email": email, "expires": now + SESSION_TTL}
+    return token
+
+
+def session_email(token):
+    with _lock:
+        v = _sessions.get(token or "")
+        if not v or v["expires"] < time.time():
+            return None
+        return v["email"]
+
+
+def _email_key(k):
+    return str(k).strip().lower()
+
+
+def seed_profiles():
+    """One-time, insert-only seed of the prepared accounts into the store. Returns the addresses added."""
+    try:
+        with open(SEED_FILE, encoding="utf-8-sig") as fh:
+            seed = json.load(fh).get("profiles", {})
+    except FileNotFoundError:
+        return []
+    except (OSError, ValueError, AttributeError) as e:
+        sys.stderr.write("profile seed unreadable: %s\n" % type(e).__name__)
+        return []
+    try:
+        with open(PROFILE_STORE, encoding="utf-8-sig") as fh:
+            data = json.load(fh)
+    except FileNotFoundError:
+        data = {}
+    except (OSError, ValueError) as e:
+        sys.stderr.write("profile store unreadable, not seeded: %s\n" % type(e).__name__)
+        return []
+    if not isinstance(data, dict):
+        return []
+    profiles = data.setdefault("profiles", {})
+    seeded = data.setdefault("_seeded", [])
+    present = {_email_key(k) for k in profiles} | {_email_key(k) for k in seeded}
+    added = []
+    for k, rec in (seed.items() if isinstance(seed, dict) else []):
+        key = _email_key(k)
+        if not key or key in present or not isinstance(rec, dict):
+            continue
+        profiles[key] = {f: str(rec[f]).strip() for f in PROFILE_FIELDS if isinstance(rec.get(f), (str, int)) and str(rec[f]).strip()}
+        seeded.append(key); added.append(key)
+    if added:
+        os.makedirs(os.path.dirname(PROFILE_STORE), exist_ok=True)
+        tmp = PROFILE_STORE + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, ensure_ascii=False, indent=1)
+        os.replace(tmp, PROFILE_STORE)
+    return added
+
+
+def load_profile(email):
+    """(store_available, profile_or_None). Only whitelisted, non-empty text fields leave the server."""
+    try:
+        with open(PROFILE_STORE, encoding="utf-8-sig") as fh:          # tolerates a BOM (Notepad)
+            data = json.load(fh)
+    except FileNotFoundError:
+        return False, None
+    except (OSError, ValueError) as e:
+        sys.stderr.write("profile store unreadable: %s\n" % type(e).__name__)
+        return False, None
+    profiles = data.get("profiles", {}) if isinstance(data, dict) else {}
+    raw = {_email_key(k): v for k, v in profiles.items()}.get(_email_key(email)) if isinstance(profiles, dict) else None
+    if not isinstance(raw, dict):
+        return True, None
+    clean = {k: str(raw[k]).strip() for k in PROFILE_FIELDS if isinstance(raw.get(k), (str, int)) and str(raw[k]).strip()}
+    return True, (clean or None)
 
 
 # ---------------------------------------------------------------- e-mail
@@ -237,13 +345,26 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header("Cache-Control", "no-cache")
         super().end_headers()
 
+    def _private(self):
+        """Never serve secrets or server-side data: dot-files (.env), private/ (profile store), server code."""
+        segs = [p for p in unquote(self.path.split("?")[0].split("#")[0]).replace("\\", "/").split("/") if p]
+        return any(p.startswith(".") for p in segs) or (segs and segs[0].lower() == "private") or (segs and segs[-1].lower().endswith(".py"))
+
+    def do_HEAD(self):
+        if self._private():
+            return self.send_error(404)
+        return super().do_HEAD()
+
     def do_GET(self):
         path = self.path.split("?")[0]
         if path == "/api/otp/status":
             return self._json(200, {"service": "otp", "configured": configured(), "ttlSec": CODE_TTL, "resendAfterSec": RESEND_COOLDOWN,
-                                    "smtpHost": bool(CONFIG["host"]), "smtpUser": bool(CONFIG["user"]), "smtpPassword": bool(CONFIG["password"]), "sender": bool(CONFIG["sender"])})
+                                    "smtpHost": bool(CONFIG["host"]), "smtpUser": bool(CONFIG["user"]), "smtpPassword": bool(CONFIG["password"]), "sender": bool(CONFIG["sender"]),
+                                    "profileStore": os.path.isfile(PROFILE_STORE)})
         if path.startswith("/api/"):
             return self._json(404, {"error": "not_found"})
+        if self._private():
+            return self.send_error(404)
         return super().do_GET()
 
     def do_POST(self):
@@ -252,7 +373,18 @@ class Handler(SimpleHTTPRequestHandler):
             return self.otp_request()
         if path == "/api/otp/verify":
             return self.otp_verify()
+        if path == "/api/profile":
+            return self.profile()
         self._json(404, {"error": "not_found"})
+
+    def profile(self):
+        """Saved details for the e-mail of a verified session only; an e-mail address alone is never enough."""
+        data = self._read_json()
+        email = session_email(str((data or {}).get("session", ""))[:64]) if isinstance(data, dict) else None
+        if not email:
+            return self._json(401, {"error": "not_authenticated"})
+        store, prof = load_profile(email)
+        return self._json(200, {"found": bool(prof), "profile": prof, "store": store})
 
     def otp_request(self):
         data = self._read_json()
@@ -289,7 +421,7 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {"error": "invalid_code_format"})
         result, left = verify_challenge(cid, email, code)
         if result == "ok":
-            return self._json(200, {"verified": True})
+            return self._json(200, {"verified": True, "session": open_session(email)})
         status = {"wrong": 400, "expired": 410, "locked": 423, "consumed": 410, "invalid_challenge": 404}[result]
         return self._json(status, {"error": result, "attemptsLeft": left})
 
@@ -300,6 +432,10 @@ def main():
     print("Concierge page and verification API: http://127.0.0.1:%d/" % port)
     print("E-mail sending: %s" % ("configured (%s via %s)" % (CONFIG["sender"], CONFIG["host"]) if configured() else "NOT configured. Set OTP_SMTP_* in the environment or in .env (see .env.example)."))
     print("Allowed recipients: %s" % ", ".join(CONFIG["allowed"]))
+    added = seed_profiles()
+    if added:
+        print("Saved profiles: prepared account(s) added to the store: %s" % ", ".join(added))
+    print("Saved profiles: %s" % ("store %s" % PROFILE_STORE if os.path.isfile(PROFILE_STORE) else "no store (returning customers get 'no saved profile')"))
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

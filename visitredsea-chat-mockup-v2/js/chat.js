@@ -53,7 +53,7 @@
     };
     return esc(text).replace(/\{\{\{(\w+)\}\}\}/g, function (_, k) { return '<bdi dir="ltr">' + esc(vars[k]) + "</bdi>"; })
       .replace(/\{\{(.+?)\}\}/g, '<bdi dir="ltr">$1</bdi>')
-      .replace(/\{(\w+)\}/g, function (_, k) { return k in vars ? "<bdi>" + esc(vars[k]) + "</bdi>" : _; });
+      .replace(/\{(\w+)\}/g, function (_, k) { if (!(k in vars)) return _; var v = esc(vars[k]); return /[A-Za-z0-9]/.test(vars[k]) ? "<bdi>" + v + "</bdi>" : v; });   /* an Arabic value stays in the Arabic run so an attached prefix joins it (ول + نورة = ولنورة); only Latin or digits are isolated */
   }
   function nightsWord(n) {
     var w = S.words.nights; if (!n) return "";
@@ -91,7 +91,7 @@
   var state;
   function freshState() {
     return { stage: "name", name: "", resortName: "", resort: null, villaName: "", rateName: "", adults: 2, children: 0,
-      checkIn: "", checkOut: "", checkInLabel: "", checkOutLabel: "", nights: 0, mode: "", arrivalAirport: "", departureAirport: "", flight: {}, voice: null, voiceData: null, guest: null, otp: null, verified: false, termsAccepted: false, paymentClickedAt: 0, paid: false };
+      checkIn: "", checkOut: "", checkInLabel: "", checkOutLabel: "", nights: 0, mode: "", arrivalAirport: "", departureAirport: "", flight: {}, voice: null, voiceData: null, formSeed: null, guest: null, otp: null, verifiedEmail: "", authMode: "", loginEmail: "", profile: null, termsAccepted: false, paymentClickedAt: 0, paid: false };
   }
 
   /* ---------- DOM ---------- */
@@ -128,13 +128,6 @@
     return msg;
   }
   function addComponent(el) { scroll.appendChild(el); return el; }
-  /* Quick replies live inside the agent message they answer: after its bubble, before its time label */
-  function attachQuick(el) {
-    var msgs = scroll.querySelectorAll(".msg.agent:not(.typing)"), msg = msgs[msgs.length - 1];
-    if (!msg) { scroll.appendChild(el); return el; }
-    var col = msg.querySelector(".col"), meta = col.querySelector(".meta");
-    col.insertBefore(el, meta || null); return el;
-  }
   /* Minimal player: play/pause button, progress bar, time label. Returns a stop() for cleanup. */
   function wirePlayer(url, seconds, btn, bar, timeEl) {
     var au = new Audio(url), dur = seconds || 0;
@@ -180,6 +173,27 @@
   var studioIcons = new EmpathyStudio.IconResolver({ baseUrl: "studio/icons" }), studioRegistry = EmpathyStudio.createRegistry(studioIcons);
   function ICON(n) { return "studio/icons/" + n + ".svg"; }
   function iso(s) { return "\u2066" + s + "\u2069"; }   /* LTR isolate: the Confirmation Card sets row text with textContent inside the RTL host */
+  /* Mixed-direction text inside Arabic content. English runs (names, products, airports, amounts with their
+     currency, e-mail, URLs) become Unicode isolates; a leading RLM keeps an RTL base on the SDK nodes that use
+     dir="auto", so a line that opens with an English name or a number still reads right to left. */
+  var LATIN_RUN = /[A-Za-z][A-Za-z0-9@_&.,'’+\-–→\/ ]*[A-Za-z0-9]|[A-Za-z]/g;
+  function isoLatin(s) { return String(s == null ? "" : s).replace(LATIN_RUN, function (m) { return iso(m); }); }
+  function rtl(s) { s = String(s == null ? "" : s); if (!/[\u0600-\u06FF]/.test(s)) return s; s = isoLatin(s); var lead = s.match(/^(\s*[-*] )?(\*\*)?/)[0]; return lead + "\u200F" + s.slice(lead.length); }   /* the RLM goes after a leading list marker (and inside a leading bold label, which the SDK lays out as a block), so the Markdown still parses */
+  /* a route: one LTR phrase when both ends are English, otherwise the Arabic arrow pointing to the destination */
+  function routeText(a, b) { var n = B.transport.airportsAr || {}; a = n[a] || a; b = n[b] || b; var latin = function (x) { return !/[\u0600-\u06FF]/.test(x); }; return latin(a) && latin(b) ? iso(a + " → " + b) : a + " ← " + b; }
+  /* text fields of a Studio payload that carry Arabic sentences, with their schema length limits (0 = none) */
+  var BIDI_FIELDS = { description: 0, subtitle: 30, instructions: 150, primary_card_subtitle: 150, secondary_card_subtitle: 150, tertiary_card_subtitle: 150 };
+  function bidiPayload(o, type) {
+    if (Array.isArray(o)) { o.forEach(function (x) { bidiPayload(x, type); }); return; }
+    if (!o || typeof o !== "object") return;
+    Object.keys(o).forEach(function (k) {
+      var v = o[k];
+      if (typeof v === "string" && Object.prototype.hasOwnProperty.call(BIDI_FIELDS, k)) {
+        var r = rtl(v), max = type === "confirmation_card" && k === "subtitle" ? 0 : BIDI_FIELDS[k];
+        if (!max || Array.from(r).length <= max) o[k] = r;                  /* never exceed a schema limit: an over-long field keeps its plain text */
+      } else if (v && typeof v === "object") bidiPayload(v, type);
+    });
+  }
   function clip(s, n) { s = String(s == null ? "" : s); var a = Array.from(s); return a.length <= n ? s : a.slice(0, n - 1).join("") + "…"; }
   function bullets(list) { return (list || []).map(function (x) { return "- " + x; }).join("\n"); }
   function sCard(o) { return Object.assign({ image_url: "", badge_title: "", badge_position: "top-left", main_title: "", subtitle: "", description: "", primary_button_label: "", primary_button_payload: "", secondary_button_label: "", secondary_button_payload: "", tertiary_button_label: "", tertiary_button_payload: "", lock_after_selection: true }, o); }
@@ -187,6 +201,7 @@
   function sItem(o) { return Object.assign({ title: "", subtitle: "", icon: "", badge: "", payload: "" }, o); }
   /* One Studio component in a .rich row. onSelect(value, index, cardIndex) runs while the row is live (or always, with keep) and never during a reply */
   function studio(kind, type, payload, onSelect, keep) {
+    bidiPayload(payload, type);
     var errs = EmpathyStudio.validate(type, payload);
     if (errs.length) console.warn("Empathy Studio payload check (" + kind + "):", errs);
     var c = h("div", { "class": "rich studio", "data-component": kind }), host = h("div", { "class": "rc-container", dir: "rtl" });
@@ -201,10 +216,17 @@
   function stayLine(st) { return st.checkInLabel + " – " + st.checkOutLabel + " · " + nightsWord(st.nights); }
   function villaTitle() { return B.villa.nameAr || B.villa.name; }
   function transfersLine() { var l = B.transport.legs; return "الوصول: " + (l[0].productAr || l[0].product) + "\nالمغادرة: " + (l[1].productAr || l[1].product); }
-  function airportsLine(st) { var n = B.transport.airportsAr || {}; return (n[st.arrivalAirport] || st.arrivalAirport) + " → " + (n[st.departureAirport] || st.departureAirport); }
+  function airportsLine(st) { return routeText(st.arrivalAirport, st.departureAirport); }
   function guestsLine(st, joiner) { var g = st.guest, second = (g.guest2First + " " + g.guest2Family).trim(); return g.title + " " + g.firstName + " " + g.familyName + (second ? joiner + second : ""); }
+  /* a special request that does not fit the card's 150-character instructions line is shown in full right under the card */
+  function requestNote(c, st) {
+    var req = st.guest && st.guest.requests; if (!req) return;
+    var ins = c.querySelector(".bc-instructions"), shown = ins ? ins.textContent.replace(/[\u200e\u200f\u2066-\u2069]/g, "") : "";
+    if (shown.indexOf(req) >= 0) return;
+    aside(c, "<p><strong>طلب إضافي:</strong> " + esc(req) + " · حسب التوفر</p>", "request-note");
+  }
   /* the instructions row is limited to 150 characters: the request line is included only when it fits */
-  function withRequest(base, st) { var r = st.guest && st.guest.requests ? base + " · " + st.guest.requests + " (حسب التوفر)" : base; return Array.from(r).length <= 150 ? r : base; }
+  function withRequest(base, st) { var r = st.guest && st.guest.requests ? base + " · " + st.guest.requests + " (حسب التوفر)" : base; return Array.from(rtl(r)).length <= 150 ? r : base; }
 
   /* ---------- rich components (Arabic, RTL; independent left-side agent placement) ---------- */
   var C = {};
@@ -238,12 +260,37 @@
   var GROUP_AR = { "The Red Sea": "البحر الأحمر", "AMAALA": "أمالا", "Private island": "Red Sea Global" };
   var VILLA_URL = B.resort.detailsUrl;      /* no dedicated villa pages are evidenced; the official Shebara page lists the villas */
 
+  /* resort cards: the setting as the badge, the destination as the subtitle, a one-line description and
+     grouped highlights from the sourced profiles in data/resorts.js (a resort without a profile keeps its facts) */
+  function resortCard(r, extra) {
+    var facts = ["**الموقع:** " + (r.locationAr || r.placeAr || r.place), "**الإقامة:** " + (r.stayAr || r.factsAr || r.facts) + (r.status === "Enquiry only" ? " · بالطلب فقط" : "")];
+    if (r.highlightsAr && r.highlightsAr.length) facts.push("**أبرز المرافق:** " + r.highlightsAr.join("، "));
+    return sCard(Object.assign({ image_url: r.image, badge_title: clip(r.settingAr || GROUP_AR[r.group] || r.group, 15), main_title: clip(r.name, 60), subtitle: clip(GROUP_AR[r.group] || r.group, 30), description: (r.aboutAr ? r.aboutAr + "\n\n" : "") + bullets(facts) }, extra || {}));
+  }
+  function hostOf(u) { return String(u).replace(/^https?:\/\/(www\.)?/, "").split("/")[0]; }
+  /* Resort photographs open that resort's own official page in a new tab. The Studio card has no link slot, so the
+     link is an RSG layer over the rendered photo: it is separate from اختيار and never selects or advances anything. */
+  /* the same link on a Confirmation Card header that shows a resort photograph (stay summaries, final confirmation) */
+  function linkHeaderImage(c, r) {
+    var hd = c.querySelector(".bc-header"); if (!hd || !r || !r.url) return;
+    var label = "صفحة " + r.name + " الرسمية على " + hostOf(r.url) + "، تفتح في تبويب جديد";
+    hd.appendChild(h("a", { "class": "cc-media-link", href: r.url, target: "_blank", rel: "noopener noreferrer", "aria-label": label, title: label, html: '<span class="cc-media-ext" aria-hidden="true">' + Q.ext + "</span>" }));
+  }
+  function linkResortImages(c, list) {
+    c.querySelectorAll(".cc-card").forEach(function (card, i) {
+      var r = list[i], media = card.querySelector(".cc-media"); if (!r || !r.url || !media) return;
+      var label = "صفحة " + r.name + " الرسمية على " + hostOf(r.url) + "، تفتح في تبويب جديد";
+      media.appendChild(h("a", { "class": "cc-media-link", href: r.url, target: "_blank", rel: "noopener noreferrer", "aria-label": label, title: label, html: '<span class="cc-media-ext" aria-hidden="true">' + Q.ext + "</span>" }));
+    });
+  }
+
   /* 1 resort suggestions: a Studio carousel of three cards; استكشف المزيد stays an RSG link beside it */
   C.resortPick = function () {
     var picks = SUGGESTED.map(function (n) { return ALL_RESORTS.filter(function (x) { return x.name === n; })[0]; }).filter(Boolean);
     var c = studio("resorts", "carousel", { cards: picks.map(function (r) {
-      return sCard({ image_url: r.image, main_title: clip(r.name, 60), subtitle: clip(r.placeAr || r.place, 30), description: r.factsAr || r.facts, primary_button_label: "اختيار", primary_button_payload: S.customer.resort.replace("{{{resort}}}", r.name) });
+      return resortCard(r, { primary_button_label: "اختيار", primary_button_payload: S.customer.resort.replace("{{{resort}}}", r.name) });
     }) }, function (value, index, cardIndex) { var r = picks[cardIndex]; if (r) act({ type: "resort", name: r.name }, null); });
+    linkResortImages(c, picks);
     aside(c, externalLink("https://www.visitredsea.com/en/resorts", "استكشف المزيد", "link"));
     return c;
   };
@@ -251,7 +298,8 @@
   /* 2 selected resort: Studio information card (a single-card carousel); the official page link stays an RSG link */
   C.resortDetails = function (st) {
     var r = st.resort;
-    var c = studio("detail", "carousel", { cards: [sCard({ image_url: r.image, badge_title: clip(GROUP_AR[r.group] || r.group, 15), main_title: clip(r.name, 60), subtitle: clip(r.placeAr || r.place, 30), description: (r.factsAr || r.facts) + (r.status === "Enquiry only" ? " · بالطلب فقط" : "") })] });
+    var c = studio("detail", "carousel", { cards: [resortCard(r)] });
+    linkResortImages(c, [r]);
     if (r.url) aside(c, externalLink(r.url, "التفاصيل", "link"));
     return c;
   };
@@ -270,18 +318,53 @@
     return c;
   };
 
+  /* Shebara or Desert Rock: one Studio information card per criterion (a carousel without buttons), each naming
+     what Shebara offers, what Desert Rock offers and the difference that matters to the guest
+     (data/resorts.js, RESORT_COMPARE). The recommendation is a separate message, the choice a separate carousel. */
+  var COMPARE = ["Shebara", "Desert Rock"];
+  function byName(n) { return ALL_RESORTS.filter(function (x) { return x.name === n; })[0]; }
+  C.compare = function () {
+    var rows = window.RESORT_COMPARE || [];
+    var c = studio("compare", "carousel", { cards: rows.map(function (x, i) {
+      var desc = "- **Shebara:** " + x.shebara + "\n- **Desert Rock:** " + x.desertRock + (x.diff ? "\n\n**" + x.diffLabel + ":** " + x.diff : "");
+      return sCard({ badge_title: (i + 1) + " من " + rows.length, main_title: clip(x.title, 60), subtitle: clip(x.question, 30), description: desc });
+    }) });
+    compareThumbs(c);
+    return c;
+  };
+  /* each resort's entry in the comparison is identified by a small photo of that resort (the same image and official
+     page as the selection carousel). A Studio carousel card carries one image per card, so this is an RSG hook. */
+  function compareThumbs(c) {
+    var list = COMPARE.map(byName);
+    c.querySelectorAll(".cc-description li strong").forEach(function (s) {
+      var name = s.textContent.replace(/[^A-Za-z ]/g, "").trim(), r = list.filter(function (x) { return x.name === name; })[0];
+      if (!r || !r.image) return;
+      var label = "صفحة " + r.name + " الرسمية على " + hostOf(r.url || "") + "، تفتح في تبويب جديد";
+      var t = r.url ? h("a", { "class": "cmp-thumb", href: r.url, target: "_blank", rel: "noopener noreferrer", "aria-label": label, title: label }) : h("span", { "class": "cmp-thumb" });
+      t.appendChild(h("img", { src: r.image, alt: "", loading: "lazy" }));
+      s.classList.add("cmp-name"); s.insertBefore(t, s.firstChild);
+    });
+  }
+  C.comparePick = function () {
+    var list = COMPARE.map(byName);
+    var c = studio("resortsCompare", "carousel", { cards: list.map(function (r) {
+      return sCard({ image_url: r.image, badge_title: clip(r.settingAr || "", 15), main_title: clip(r.name, 60), subtitle: clip(GROUP_AR[r.group] || r.group, 30), description: r.aboutAr || r.factsAr || r.facts, primary_button_label: "اختيار", primary_button_payload: S.customer.resort.replace("{{{resort}}}", r.name) });
+    }) }, function (value, index, cardIndex) { var r = list[cardIndex]; if (r) act({ type: "resort", name: r.name }, null); });
+    linkResortImages(c, list);
+    return c;
+  };
+
   /* 4 calendar: one range surface, Sunday-first Gregorian, Western digits */
   C.calendar = function () {
-    var c = comp("calendar", "", "calendar"), box = c.firstChild, cur = { y: 2026, m: 9 }, sel = { a: "", b: "" }, invalid = false;
-    var minMonth = 2026 * 12 + 9, maxMonth = 2027 * 12 + 2, today = new Date().toISOString().slice(0, 10);
+    var c = comp("calendar", "", "calendar"), box = c.firstChild, cur = { y: +B.stay.checkIn.slice(0, 4), m: +B.stay.checkIn.slice(5, 7) - 1 }, sel = { a: "", b: "" }, invalid = false;
     function iso(y, m, d) { return y + "-" + ("0" + (m + 1)).slice(-2) + "-" + ("0" + d).slice(-2); }
     function render() {
-      var first = new Date(Date.UTC(cur.y, cur.m, 1)).getUTCDay(), days = new Date(Date.UTC(cur.y, cur.m + 1, 0)).getUTCDate(), idx = cur.y * 12 + cur.m;
-      var html = '<div class="cal-top"><div class="cal-month"><button type="button" class="prev" aria-label="الشهر السابق"' + (idx <= minMonth ? " disabled" : "") + ">" + Q.chevR + "</button><strong>" + AR_MONTH.format(new Date(Date.UTC(cur.y, cur.m, 1))) + '</strong><button type="button" class="next" aria-label="الشهر التالي"' + (idx >= maxMonth ? " disabled" : "") + ">" + Q.chevL + '</button></div><div class="weekdays">' + ["ح", "ن", "ث", "ر", "خ", "ج", "س"].map(function (x) { return "<span>" + x + "</span>"; }).join("") + '</div><div class="days">';
+      var first = new Date(Date.UTC(cur.y, cur.m, 1)).getUTCDay(), days = new Date(Date.UTC(cur.y, cur.m + 1, 0)).getUTCDate();
+      var html = '<div class="cal-top"><div class="cal-month"><button type="button" class="prev" aria-label="الشهر السابق">' + Q.chevR + "</button><strong>" + AR_MONTH.format(new Date(Date.UTC(cur.y, cur.m, 1))) + '</strong><button type="button" class="next" aria-label="الشهر التالي">' + Q.chevL + '</button></div><div class="weekdays">' + ["ح", "ن", "ث", "ر", "خ", "ج", "س"].map(function (x) { return "<span>" + x + "</span>"; }).join("") + '</div><div class="days">';
       for (var i = 0; i < first; i++) html += '<span class="blank"></span>';
       for (var d = 1; d <= days; d++) {
-        var k = iso(cur.y, cur.m, d), cls = k === sel.a || k === sel.b ? "endpoint" : (sel.a && sel.b && k > sel.a && k < sel.b) ? "middle" : (k < today ? "past" : "");
-        html += '<button type="button" data-d="' + k + '" class="' + cls + '" aria-label="' + d + " " + AR_MONTH.format(new Date(Date.UTC(cur.y, cur.m, 1))) + (k === sel.a ? "، الوصول" : k === sel.b ? "، المغادرة" : "") + '" aria-pressed="' + (k === sel.a || k === sel.b) + '"' + (k < today ? " disabled" : "") + "><span>" + d + "</span></button>";
+        var k = iso(cur.y, cur.m, d), cls = k === sel.a || k === sel.b ? "endpoint" : (sel.a && sel.b && k > sel.a && k < sel.b) ? "middle" : "";
+        html += '<button type="button" data-d="' + k + '" class="' + cls + '" aria-label="' + d + " " + AR_MONTH.format(new Date(Date.UTC(cur.y, cur.m, 1))) + (k === sel.a ? "، الوصول" : k === sel.b ? "، المغادرة" : "") + '" aria-pressed="' + (k === sel.a || k === sel.b) + '"><span>' + d + "</span></button>";
       }
       var n = sel.a && sel.b ? daysBetween(sel.a, sel.b) : 0;
       var msg = invalid ? '<p class="error">' + Q.alert + "المغادرة يجب أن تكون بعد الوصول.</p>" : !sel.a ? "<p>اختر يوم الوصول ثم يوم المغادرة.</p>" : !sel.b ? "<p>الوصول " + compactDateRange(sel.a) + " · اختر يوم المغادرة.</p>" : "<p>" + compactDateRange(sel.a, sel.b) + " · " + nightsWord(n) + " · " + adultsWord(state.adults) + "</p>";
@@ -322,7 +405,9 @@
       secondary_card_title: "الضيوف", secondary_card_subtitle: adultsWord(st.adults), secondary_card_icon: ICON("users"),
       tertiary_card_title: "إجمالي الإقامة", tertiary_card_subtitle: money(B.rate.total) + " · " + B.rate.taxNoteAr, tertiary_card_icon: ICON("credit-card"),
       instructions: B.occupancyNoteAr, primary_button_label: "مناسب، نكمل", primary_button_payload: "مناسب، نكمل", primary_button_icon: "check" });
-    return studio("summary", "confirmation_card", p, function (value) { act({ type: "approve" }, value); });
+    var c = studio("summary", "confirmation_card", p, function (value) { act({ type: "approve" }, value); });
+    linkHeaderImage(c, { name: B.resort.name, url: B.resort.detailsUrl });   /* the header is a Shebara photograph */
+    return c;
   }
   C.summary1 = function (st) { return summary(st, false); };
   C.summary2 = function (st) { return summary(st, true); };
@@ -349,15 +434,17 @@
       });
   };
 
-  /* transfer legs: two Studio information cards */
+  /* transfer legs: two Studio information cards, each with its photograph, route, details and price basis */
   C.transportTrip = function () {
     return studio("transport", "carousel", { cards: B.transport.legs.map(function (l, i) {
-      var lines = ["**" + l.from + " → " + l.to + "**"];
-      if (l.duration) lines.push("- " + (l.durationAr || l.duration));
-      (l.capacityAr || l.capacity || []).forEach(function (x) { lines.push("- " + x); });
-      if (l.needed) lines.push("- " + (l.neededAr || l.needed));
-      if (l.priceBasisAr || l.priceBasis) lines.push("\n" + (l.priceBasisAr || l.priceBasis));
-      return sCard({ image_url: l.image || "", badge_title: i ? "المغادرة" : "الوصول", main_title: clip(l.productAr || l.product, 60), subtitle: money(l.price), description: lines.join("\n") });
+      var list = [];
+      if (l.duration) list.push(l.durationAr || l.duration);
+      (l.capacityAr || l.capacity || []).forEach(function (x) { list.push(x); });
+      if (l.needed) list.push(l.neededAr || l.needed);
+      var blocks = ["**" + routeText(l.from, l.to) + "**"];
+      if (list.length) blocks.push(bullets(list));
+      if (l.priceBasisAr || l.priceBasis) blocks.push(l.priceBasisAr || l.priceBasis);
+      return sCard({ image_url: l.image || "", badge_title: i ? "المغادرة" : "الوصول", main_title: clip(l.productAr || l.product, 60), subtitle: money(l.price), description: blocks.join("\n\n") });
     }) });
   };
 
@@ -371,40 +458,91 @@
 
   /* 10 one coordinated guest and wife form (initial, voice-populated, edit) */
   var MARK_VOICE = '<span class="field-marker" role="img" aria-label="قيمة مستخلصة من الرسالة الصوتية" title="قيمة مستخلصة من الرسالة الصوتية">' + Q.spark + "</span>";
+  var MARK_SAVED = '<span class="field-marker saved" role="img" aria-label="من بياناتك المحفوظة" title="من بياناتك المحفوظة">' + Q.user + "</span>";
   var MARK_CHAT = '<span class="field-marker chat" role="img" aria-label="محفوظ من المحادثة" title="محفوظ من المحادثة">' + Q.chat + "</span>";
   function watchMark(l) {
     var ctl = l.querySelector("input, select, textarea"); if (!ctl) return;
     function clear() { var m = l.querySelector(".field-marker"); if (m) m.remove(); l.classList.remove("ai"); ctl.removeEventListener("input", clear); ctl.removeEventListener("change", clear); }
     ctl.addEventListener("input", clear); ctl.addEventListener("change", clear);
   }
-  function fillPendingForm(vd) {
-    var forms = scroll.querySelectorAll(".rich:not(.used) form.guest-form"), form = forms[forms.length - 1]; if (!form) return false;
-    ["title", "familyName", "mobileCode", "mobile", "guest2First", "guest2Family", "requests"].forEach(function (k) {
-      var ctl = form.elements[k]; if (!ctl || !vd[k]) return;
-      ctl.value = vd[k];
-      var l = ctl.closest(".field"); if (!l || l.querySelector(".field-marker")) return;
-      l.querySelector(".field-label").insertAdjacentHTML("beforeend", MARK_VOICE); l.classList.add("ai"); watchMark(l);
+  /* After a voice message a NEW guest form is sent, already filled; the open one is retired (kept in the
+     history, inactive, with a short note) so only one form is active for this step. */
+  var formSeq = 0, SEED_KEYS = ["title", "firstName", "familyName", "email", "mobileCode", "mobile", "guest2First", "guest2Family", "requests"];
+  function retireGuestForms() {
+    scroll.querySelectorAll(".rich:not(.used) form.guest-form:not(.edit)").forEach(function (f) {
+      var r = f.closest(".rich"); consume(r); r.classList.add("superseded");
+      r.appendChild(h("p", { "class": "superseded-note", lang: "ar", dir: "rtl", text: S.words.formSuperseded }));
     });
-    form.elements.email.focus();
-    return true;
   }
+  /* values for that form: what the customer already typed in the open form, the first name known from the
+     conversation, then the extracted values; nothing else is added */
+  function voiceSeed(st) {
+    var seed = {}, forms = scroll.querySelectorAll(".rich:not(.used) form.guest-form:not(.edit)"), f = forms[forms.length - 1];
+    if (f) { SEED_KEYS.forEach(function (k) { var c = f.elements[k]; if (c && String(c.value).trim()) seed[k] = String(c.value).trim(); }); if (f.elements.marketing && f.elements.marketing.checked) seed.marketing = true; }
+    if (!seed.firstName && st.name) seed.firstName = st.name;
+    Object.keys(st.voiceData || {}).forEach(function (k) { if (st.voiceData[k]) seed[k] = st.voiceData[k]; });
+    return seed;
+  }
+  function arList(a) { return a.length < 2 ? a.join("") : a.slice(0, -1).join("، ") + " و" + a[a.length - 1]; }
+  /* the acknowledgement names exactly the required fields that are still empty */
+  function missingNames(seed) { return ["title", "firstName", "familyName", "email", "mobile"].filter(function (k) { return !seed[k]; }).map(function (k) { return S.words.fieldNames[k]; }); }
+  function voiceReply(st) {
+    var need = missingNames(st.formSeed);
+    return [{ text: need.length ? S.voice.ack.replace("{missing}", arList(need)) : S.voice.ackComplete, component: "guestForm" }];
+  }
+  function voiceTurn(st, M) { st.voice = { seconds: M.seconds || 0 }; st.voiceData = extraction(); st.formSeed = voiceSeed(st); return { ok: true, next: "guest", reply: voiceReply(st) }; }
+  /* returning customer: the form holds only what the server released for the verified e-mail, plus the first name
+     known from this conversation; nothing is assumed (a wife's details appear only if the profile has them) */
+  var PROFILE_KEYS = ["title", "firstName", "familyName", "mobileCode", "mobile", "guest2First", "guest2Family"];   /* special requests are never restored from a profile */
+  function profileSeed(st) {
+    var seed = {}, p = st.profile || {};
+    PROFILE_KEYS.forEach(function (k) { if (p[k]) seed[k] = p[k]; });
+    if (!seed.firstName && st.name) seed.firstName = st.name;
+    seed.email = st.verifiedEmail;
+    return seed;
+  }
+  function signedInTurn(st, M) {
+    st.verifiedEmail = String(M.email || "").toLowerCase(); st.profile = M.profile || null; st.voiceData = null; st.formSeed = profileSeed(st);
+    var text;
+    if (st.profile) return { ok: true, next: "requests", reply: [{ text: S.account.askRequests }] };   /* ask first; the complete form follows the answer */
+    text = M.status === "error" ? S.account.profileError : S.account.notFound;
+    return { ok: true, next: "guest", reply: [{ text: text, component: "guestForm" }] };
+  }
+  /* verification status (verifiedEmail) is separate from the requirement: a code is needed only for an account
+     holder whose booking e-mail is not the address verified in this conversation; a new guest never needs one */
+  function needsOtp(st) { return st.authMode === "account" && (!st.guest || String(st.guest.email).toLowerCase() !== st.verifiedEmail); }
+  /* Special requests are asked for, never assumed: a refusal leaves the field empty, an unclear answer gets one
+     short clarification, anything else is the customer's own request (honoured subject to availability). */
+  var YES_ONLY = ["نعم", "ايه", "اي", "ايوه", "اكيد", "yes", "ok", "اوكي", "تمام", "طيب", "ممكن", "عندي", "عندنا", "فيه", "في", "طلب", "طلبات", "خاص", "واحد"];
+  var DECLINE = ["ما عندنا", "ما عندي", "ماعندنا", "ماعندي", "مافي", "ما في", "ولا شي", "ولا شيء", "بدون", "لا شكرا", "no thanks", "nothing", "none", "مو لازم", "ما نحتاج", "مانحتاج", "لا يوجد", "لا توجد", "كذا تمام", "كذا زين"];
+  function requestAnswer(raw) {
+    var t = norm(raw), toks = t.split(" ").filter(Boolean);
+    if (!toks.length || has(t, ["مدري", "ما ادري", "مادري", "ما اعرف", "وش تقترح", "وش تنصح", "وش عندكم"])) return null;
+    var asks = has(t, ["ابي", "ابغى", "نبي", "نبغى", "نحتاج", "ودي", "ودنا", "ياليت", "اتمنى", "نتمنى", "بس", "لكن", "لو"]);
+    if (!asks && (toks[0] === "لا" || toks[0] === "no" || has(t, DECLINE)) && toks.length <= 6) return "";
+    if (toks.every(function (w) { return YES_ONLY.indexOf(w) >= 0; })) return null;     /* "نعم" or "عندي طلب" without saying what it is */
+    var cleaned = String(raw).trim().replace(/^(نعم|ايه|إيه|أيوه|ايوه|أكيد|اكيد|طيب)[\s،,:.!-]+/, "").trim();
+    return cleaned || null;
+  }
+  function asksCompare(t) { return has(t, ["شباره", "شيباره", "shebara"]) && has(t, ["ديزرت", "ديزيرت", "desert rock", "desertrock"]); }
   C.guestForm = function (st, opts) {
-    var edit = !!(opts && opts.edit), vd = edit ? st.guest : (st.voiceData || null), gf = B.guestForm;
+    var edit = !!(opts && opts.edit), vd = edit ? st.guest : (st.formSeed || {}), ex = edit ? {} : (st.formSeed ? st.voiceData || {} : {}), pf = edit ? {} : (st.profile || {}), gf = B.guestForm, first = edit ? vd.firstName : (vd.firstName || st.name), id = ++formSeq;
+    if (!edit) retireGuestForms();
     function val(k) { return vd && vd[k] ? esc(vd[k]) : ""; }
-    function mark(k) { return edit ? "" : (k === "firstName" ? (st.name ? MARK_CHAT : "") : (vd && vd[k] ? MARK_VOICE : "")); }
+    function mark(k) { return edit ? "" : (k === "firstName" ? (pf.firstName && pf.firstName === first ? MARK_SAVED : st.name && first === st.name ? MARK_CHAT : "") : (ex[k] && ex[k] === vd[k] ? MARK_VOICE : pf[k] && pf[k] === vd[k] ? MARK_SAVED : "")); }   /* voice-extracted and saved-profile values carry different markers */
     function fld(label, name, attrs, k, cls) { return '<label class="field' + (cls ? " " + cls : "") + (mark(k) ? " ai" : "") + '"><span class="field-label">' + label + mark(k) + "</span><input name=\"" + name + '" value="' + val(k) + '" ' + attrs + "></label>"; }
     var c = comp("guest", "", "guest-form"), box = c.firstChild; box.classList.add("guest-form");
-    var form = h("form", { "class": "guest-form", novalidate: "", html:
+    var form = h("form", { "class": "guest-form" + (edit ? " edit" : ""), "data-form-id": String(id), novalidate: "", html:
       "<header><h3>" + (edit ? "تعديل بيانات الضيفين" : "بيانات الضيفين") + "</h3>" + (edit ? Q.pencil : Q.user) + "</header>" +
       '<div class="guest-name-grid"><label class="field' + (mark("title") ? " ai" : "") + '"><span class="field-label">اللقب' + mark("title") + '</span><select name="title" required><option value="">اختر</option>' + gf.titles.map(function (x) { return "<option" + (vd && vd.title === x ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("") + "</select></label>" +
-      '<label class="field' + (mark("firstName") ? " ai" : "") + '"><span class="field-label">الاسم الأول' + mark("firstName") + '</span><input name="firstName" value="' + esc(edit ? vd.firstName : st.name) + '" autocomplete="given-name" required></label>' +
+      '<label class="field' + (mark("firstName") ? " ai" : "") + '"><span class="field-label">الاسم الأول' + mark("firstName") + '</span><input name="firstName" value="' + esc(first) + '" autocomplete="given-name" required></label>' +
       fld("اسم العائلة", "familyName", 'autocomplete="family-name" required', "familyName") + "</div>" +
-      '<div style="margin-top:10px"><label class="field"><span class="field-label">البريد الإلكتروني</span><input name="email" type="email" dir="ltr" autocomplete="email" inputmode="email" required' + (edit ? ' value="' + esc(vd.email) + '"' : "") + "></label></div>" +
+      '<div style="margin-top:10px"><label class="field"><span class="field-label">البريد الإلكتروني</span><input name="email" type="email" dir="ltr" autocomplete="email" inputmode="email" required' + (vd.email ? ' value="' + esc(vd.email) + '"' : "") + "></label></div>" +
       '<div class="phone-grid" style="margin-top:10px"><label class="field' + (mark("mobileCode") ? " ai" : "") + '"><span class="field-label">رمز الدولة' + mark("mobileCode") + '</span><select name="mobileCode" dir="ltr">' + gf.countryCodes.map(function (x) { return "<option" + (x === ((vd && vd.mobileCode) || gf.defaultCountryCode) ? " selected" : "") + ">" + esc(x) + "</option>"; }).join("") + "</select></label>" +
       fld("الجوال", "mobile", 'type="tel" dir="ltr" inputmode="tel" autocomplete="tel-national" required', "mobile") + "</div>" +
       '<div class="subheading">بيانات الزوجة <span class="muted">· اختياري</span></div><div class="form-grid">' + fld("الاسم الأول", "guest2First", 'autocomplete="off"', "guest2First") + fld("اسم العائلة", "guest2Family", 'autocomplete="off"', "guest2Family") + "</div>" +
       '<div style="margin-top:10px"><label class="field' + (mark("requests") ? " ai" : "") + '"><span class="field-label">طلب إضافي <span class="muted">· اختياري</span>' + mark("requests") + '</span><textarea name="requests" maxlength="200">' + val("requests") + '</textarea></label></div><p class="muted" style="margin-top:3px">يُنظر في الطلب حسب الإمكانية.</p>' +
-      '<label class="check-label"><input type="checkbox" name="marketing"' + (edit && vd.marketing ? " checked" : "") + "><span>أرغب في تلقي أخبار وعروض البحر الأحمر.</span></label>" +
+      '<label class="check-label"><input type="checkbox" name="marketing"' + (vd.marketing ? " checked" : "") + "><span>أرغب في تلقي أخبار وعروض البحر الأحمر.</span></label>" +
       '<p class="legal">اطّلع على <a href="' + esc(B.legal.termsUrl) + '" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a> و<a href="' + esc(B.legal.privacyUrl) + '" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>.</p>' +
       '<div class="form-error error" role="alert"></div>' + (edit ? '<div class="row"><button type="submit" class="primary full">حفظ التعديلات</button><button type="button" class="secondary cancel">إلغاء</button></div>' : '<button type="submit" class="primary full">اعتماد البيانات</button>') });
     form.querySelectorAll(".field.ai").forEach(watchMark);
@@ -443,6 +581,7 @@
       if (index === 1) { if (scroll.querySelector(".rich:not(.used) form.guest-form")) return; noteUnread(addComponent(C.guestForm(st, { edit: true }))); return; }
       act({ type: "confirm" }, value);
     });
+    requestNote(c, st);
     var a = aside(c, '<label class="consent"><input type="checkbox" name="terms"' + (st.termsAccepted ? " checked" : "") + '><span>قرأت ووافقت على <a href="' + esc(B.legal.termsUrl) + '" target="_blank" rel="noopener noreferrer">الشروط والأحكام</a> و<a href="' + esc(B.legal.privacyUrl) + '" target="_blank" rel="noopener noreferrer">سياسة الخصوصية</a>.</span></label>' + (g.marketing ? "<p>مشترك في أخبار وعروض البحر الأحمر</p>" : "") + '<div class="form-error error" role="alert"></div>', "review-terms");
     a.querySelector("[name=terms]").addEventListener("change", function (e) { st.termsAccepted = e.target.checked; a.querySelector(".form-error").textContent = ""; });
     return c;
@@ -451,8 +590,12 @@
 
   /* 13 e-mail verification: all states come from server.py; nothing is accepted locally */
   var FILE_ORIGIN = location.protocol === "file:";
-  C.verify = function (st) {
-    var email = st.guest.email, masked = email.replace(/^(.{2}).*(@.*)$/, "$1••••$2");
+  /* opts.signin: the returning-customer sign-in. The customer types (and may correct) the e-mail; only after the
+     server verifies the code does it release the saved profile, through a session bound to that e-mail. */
+  C.verify = function (st, opts) {
+    var signin = !!(opts && opts.signin);
+    function mask(e) { return String(e || "").replace(/^(.{2}).*(@.*)$/, "$1••••$2"); }
+    var email = signin ? (st.loginEmail || "") : st.guest.email, masked = mask(email);
     var c = comp("otp", "", "otp"), box = c.firstChild;
     var inflight = false, cooldown = 0, cdTimer = null;
     var MSG = {
@@ -472,10 +615,12 @@
     }
     function view(stateName, extra) {
       var initial = stateName === "initial" || stateName === "sending" || stateName === "failure" || stateName === "blocked";
-      var html = "<header><h3>تأكيد بريدك الإلكتروني</h3>" + Q.mail + '</header><p class="muted">' + (stateName === "verified" ? "بريدك جاهز للمتابعة." : initial ? "نرسل لك رمزًا لتأكيد البريد." : "أدخل الرمز المرسل إلى بريدك.") + '</p><div class="otp-email"><bdi>' + esc(initial ? email : masked) + "</bdi></div>";
+      var editing = signin && (stateName === "initial" || stateName === "failure");
+      var html = "<header><h3>" + (signin ? "الدخول بحسابك" : "تأكيد بريدك الإلكتروني") + "</h3>" + Q.mail + '</header><p class="muted">' + (stateName === "verified" ? (signin ? "تم التحقق، ونسترجع بياناتك المحفوظة." : "بريدك جاهز للمتابعة.") : initial ? (signin ? "اكتب بريدك المسجّل، ونرسل لك رمزًا من 6 أرقام." : "نرسل لك رمزًا لتأكيد البريد.") : "أدخل الرمز المرسل إلى بريدك.") + "</p>" +
+        (editing ? '<label class="field vemail" style="margin:10px 0 12px"><span class="field-label">البريد الإلكتروني</span><input name="loginEmail" type="email" dir="ltr" autocomplete="email" inputmode="email" value="' + esc(email) + '"></label>' : '<div class="otp-email"><bdi>' + esc(initial ? email : masked) + "</bdi></div>");
       if (stateName === "verified") html += '<div class="status-message success">' + Q.circleCheck + "تم التحقق من البريد</div>";
       else if (initial) html += (extra ? '<p class="error" style="margin-bottom:10px">' + Q.alert + esc(extra) + "</p>" : "") + '<button type="button" class="primary full vsend"' + (stateName === "sending" || stateName === "blocked" ? " disabled" : "") + ">" + (stateName === "sending" ? Q.loader + " جارٍ الإرسال…" : stateName === "failure" ? "إعادة المحاولة" : stateName === "blocked" ? "إرسال الرمز" : "إرسال الرمز") + "</button>" + (stateName === "blocked" ? '<div class="row between" style="margin-top:6px"><span class="muted"></span><button type="button" class="text-action vcheck">تحقق مرة أخرى</button></div>' : "");
-      else html += '<form class="vform" novalidate><div class="otp-boxes' + (stateName === "invalid" || stateName === "expired" ? " invalid" : "") + '">' + [0, 1, 2, 3, 4, 5].map(function (i) { return '<input maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم ' + (i + 1) + ' من رمز التحقق" autocomplete="' + (i === 0 ? "one-time-code" : "off") + '" placeholder="–">'; }).join("") + '</div><div class="otp-note" role="alert">' + (extra ? '<p class="error">' + Q.alert + esc(extra) + "</p>" : "") + '</div><button type="submit" class="primary full">تحقق</button></form><div class="row between" style="margin-top:6px"><span class="muted">لم يصلك الرمز؟</span><button type="button" class="text-action vresend"' + (cooldown > 0 ? " disabled" : "") + ">" + (cooldown > 0 ? "إعادة الإرسال بعد 00:" + ("0" + cooldown).slice(-2) : "إعادة الإرسال") + "</button></div>";
+      else html += '<form class="vform" novalidate><div class="otp-boxes' + (stateName === "invalid" || stateName === "expired" ? " invalid" : "") + '">' + [0, 1, 2, 3, 4, 5].map(function (i) { return '<input maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="الرقم ' + (i + 1) + ' من رمز التحقق" autocomplete="' + (i === 0 ? "one-time-code" : "off") + '" placeholder="–">'; }).join("") + '</div><div class="otp-note" role="alert">' + (extra ? '<p class="error">' + Q.alert + esc(extra) + "</p>" : "") + '</div><button type="submit" class="primary full">تحقق</button></form><div class="row between" style="margin-top:6px">' + (signin ? '<button type="button" class="text-action vchange">تغيير البريد</button>' : '<span class="muted">لم يصلك الرمز؟</span>') + '<button type="button" class="text-action vresend"' + (cooldown > 0 ? " disabled" : "") + ">" + (cooldown > 0 ? "إعادة الإرسال بعد 00:" + ("0" + cooldown).slice(-2) : "إعادة الإرسال") + "</button></div>";
       box.innerHTML = html; wire(stateName);
     }
     function startCooldown(sec) {
@@ -504,9 +649,24 @@
         view("failure", MSG[e] || MSG.send_failed);
       });
     }
+    function startSignin() {
+      var inp = box.querySelector(".vemail input"), v = inp ? inp.value.trim().toLowerCase() : "";
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { email = v; view("failure", "أدخل بريدًا إلكترونيًا صحيحًا."); var i2 = box.querySelector(".vemail input"); if (i2) i2.focus(); return; }
+      email = v; st.loginEmail = v; masked = mask(v); request();
+    }
+    /* returning customer: the profile is requested with the session the server issued for this verified e-mail */
+    function signedIn(session) {
+      api("POST", "/api/profile", { session: session }).then(function (r) {
+        var ok = r.kind === "json" && r.ok;
+        if (!ok) console.warn("profile", r.kind, r.status); else if (!r.body.store) console.warn("profile store: not connected");
+        act({ type: "signedIn", email: email, profile: ok && r.body.found ? r.body.profile : null, status: !ok ? "error" : r.body.found ? "found" : "none" }, null);
+      });
+    }
     function wire(stateName) {
       var sendB = box.querySelector(".vsend"), check = box.querySelector(".vcheck"), resend = box.querySelector(".vresend"), form = box.querySelector(".vform");
-      if (sendB) sendB.addEventListener("click", request);
+      if (sendB) sendB.addEventListener("click", signin ? startSignin : request);
+      var change = box.querySelector(".vchange");                        /* correct the address: the new one is verified from scratch */
+      if (change) change.addEventListener("click", function () { if (inflight || c.classList.contains("used")) return; st.otp = null; clearInterval(cdTimer); cooldown = 0; view("initial"); var i = box.querySelector(".vemail input"); if (i) i.focus(); });
       if (check) check.addEventListener("click", probe);
       if (resend) resend.addEventListener("click", request);
       if (form) {
@@ -523,7 +683,7 @@
           inflight = true; form.querySelector("button[type=submit]").disabled = true;
           api("POST", "/api/otp/verify", { challengeId: st.otp.challengeId, email: email, code: code }).then(function (r) {
             inflight = false;
-            if (r.kind === "json" && r.ok && r.body.verified) { clearInterval(cdTimer); view("verified"); act({ type: "verify" }, null); return; }
+            if (r.kind === "json" && r.ok && r.body.verified) { clearInterval(cdTimer); view("verified"); if (signin) signedIn(r.body.session); else act({ type: "verify" }, null); return; }
             var e = r.kind === "json" ? r.body.error : r.kind;
             console.warn("otp verify", r.status, e);
             if (e === "wrong") view("invalid", "الرمز غير صحيح. راجعه وحاول مرة أخرى." + (r.body.attemptsLeft ? " تبقّت " + r.body.attemptsLeft + " محاولات." : ""));
@@ -537,6 +697,15 @@
     probe();
     return c;
   };
+
+  /* Guest details: a returning customer signs in with the e-mail (verified first), a new guest continues without a code */
+  C.accountChoice = function () {
+    var items = [{ title: "لدي حساب سابق", subtitle: "الدخول ببريدك الإلكتروني واسترجاع بياناتك المحفوظة", icon: "lock", mode: "account" },
+                 { title: "متابعة كضيف جديد", subtitle: "إدخال بياناتك وبيانات زوجتك للحجز", icon: "user", mode: "guest" }];
+    return studio("account", "selection_list_picker", { main_title: "كيف تحب نكمل؟", lock_after_selection: true, items: items.map(function (x) { return sItem({ title: x.title, subtitle: x.subtitle, icon: x.icon, payload: x.title }); }) },
+      function (value, index) { var x = items[index]; if (x) act({ type: "account", mode: x.mode }, x.title); });
+  };
+  C.signIn = function (st) { return C.verify(st, { signin: true }); };
 
   /* 14 payment hand-off: Studio Confirmation Card. Its button sends the payload as the customer line; the adapter
      opens the official checkout in a new tab, starts the five-second timer and shows the quiet waiting state. */
@@ -572,7 +741,9 @@
         window.BookingPdf.make(st, B).then(function (blob) { window.BookingPdf.download(blob, B.resort.name + "_Booking_Summary_" + st.checkIn + ".pdf"); status.textContent = "تم التحميل."; pdfBusy = false; })
           .catch(function () { status.textContent = "تعذر تجهيز الملف. حاول مرة أخرى."; pdfBusy = false; });
       }, true);
+    requestNote(c, st);
     status = aside(c, "", "pdfstatus"); status.setAttribute("aria-live", "polite");
+    linkHeaderImage(c, { name: B.resort.name, url: B.resort.detailsUrl });
     c.querySelector(".bc-btn--primary").setAttribute("data-keep", "");
     return c;
   };
@@ -583,7 +754,7 @@
      is being delivered or the stage has moved on. An accepted press consumes the group, posts exactly one
      customer message and runs the normal act() → stageSpec() transition. */
   C.quick = function (st, choices) {
-    var c = h("div", { "class": "rich quick", "data-stage": st.stage, role: "group", "aria-label": "خيارات للمتابعة" }), host = h("div", { "class": "rc-container", dir: "rtl" });
+    var c = h("div", { "class": "rich quick", "data-stage": st.stage, role: "group", "aria-label": "ردود مقترحة" }), host = h("div", { "class": "rc-container", dir: "rtl" });
     scroll.querySelectorAll(".rich.quick:not(.used)").forEach(consume);          /* only the latest group stays live */
     var rendered = EmpathyStudio.renderRichMessage([{ type: "buttons", payload: { text: "", buttons: choices.map(function (ch) { return { label: ch.label, value: ch.label }; }) } }], studioRegistry, function (value, index) {
       var ch = choices[index];
@@ -630,9 +801,11 @@
         st.name = raw; return { ok: true, next: "intent", reply: S.name.ok };
       }
       case "intent":
+        if (asksCompare(t)) return { ok: true, next: "resort", reply: S.compare.ok };   /* undecided between Shebara and Desert Rock: compare in the chat */
         if (has(t, ["منتجع", "منتجعات", "اجازه", "اجازة", "رحله", "رحلة", "resort", "resorts", "اقامه", "اقامة", "نبي نروح", "فندق", "فنادق", "اشوف", "استكشف"])) return { ok: true, next: "resort", reply: S.intent.ok };
         return { ok: false, reply: S.intent.fallback };
       case "resort": {
+        if (M.type !== "resort" && asksCompare(t)) return { ok: false, reply: S.compare.ok };
         var r = M.type === "resort" ? ALL_RESORTS.filter(function (x) { return x.name === M.name; })[0] : matchResort(t);
         if (!r) return { ok: false, reply: S.resort.fallback };
         st.resort = r; st.resortName = r.name;
@@ -676,27 +849,47 @@
       }
       case "approve2": if (M.type === "approve" || approves(t)) return { ok: true, next: "activities", reply: S.approve2.ok }; return { ok: false, reply: S.approve2.fallback };
       case "activities":
-        if (M.type === "defer" || has(t, ["بعد ما نوصل", "بعدين", "لاحقا", "نقرر", "مو الحين", "مب الحين", "لا", "خلنا", "later", "no", "مو ضروري", "بعد الوصول", "عند الوصول"])) return { ok: true, next: "voice", reply: S.activities.ok };
+        if (M.type === "defer" || has(t, ["بعد ما نوصل", "بعدين", "لاحقا", "نقرر", "مو الحين", "مب الحين", "لا", "خلنا", "later", "no", "مو ضروري", "بعد الوصول", "عند الوصول"])) return { ok: true, next: "account", reply: S.activities.ok };
         if (has(t, ["اضف", "ضيف", "ابغى", "ابي", "نعم", "yes"])) return { ok: false, reply: S.activities.add };
         return { ok: false, reply: S.activities.fallback };
+      case "account": {                                                 /* returning customer or new guest */
+        var how = M.type === "account" ? M.mode : M.type === "voice" ? "guest" : has(t, ["حساب", "سجلت", "مسجل", "دخول", "ادخل"]) ? "account" : has(t, ["ضيف", "جديد", "اول مره"]) ? "guest" : "";
+        if (!how) return { ok: false, reply: S.account.fallback };
+        st.authMode = how;
+        if (how === "account") return { ok: true, next: "login", reply: S.account.login };
+        if (M.type === "voice") return voiceTurn(st, M);
+        return { ok: true, next: "voice", reply: S.account.guest };
+      }
+      case "login":
+        if (M.type === "signedIn") return signedInTurn(st, M);              /* only after server.py verified the code and released the profile */
+        if (has(t, ["ضيف", "جديد"])) { st.authMode = "guest"; return { ok: true, next: "voice", reply: S.account.guest }; }
+        return { ok: false, reply: S.account.loginFallback };
+      case "requests": {                                                /* returning customer: an optional request, then the complete form */
+        var req = requestAnswer(text);
+        if (req === null) return { ok: false, reply: S.account.requestsClarify };
+        st.formSeed = profileSeed(st); if (req) st.formSeed.requests = req;
+        var stillNeed = missingNames(st.formSeed);
+        var ready = (req ? S.account.readyWithRequest : S.account.readyNoRequest) + (stillNeed.length ? " " + S.account.stillMissing.replace("{missing}", arList(stillNeed)) : "");
+        return { ok: true, next: "guest", reply: [{ text: ready, component: "guestForm" }] };
+      }
       case "voice":
       case "guest":
-        if (M.type === "voice") { st.voice = { seconds: M.seconds || 0 }; st.voiceData = extraction(); return { ok: true, next: "guest", reply: S.voice.ok, after: function () { if (!fillPendingForm(st.voiceData)) noteUnread(addComponent(C.guestForm(st))); } }; }
+        if (M.type === "voice") return voiceTurn(st, M);
         if (M.type === "guest") { st.guest = M.data; return { ok: true, next: "review", reply: S.guest.ok }; }
         return { ok: false, reply: S.voice.fallback };
       case "review":
         if (M.type === "guestEdit") {                                       /* saved from تعديل البيانات */
           var emailChanged = !st.guest || st.guest.email !== M.data.email;
-          st.guest = M.data; if (emailChanged) { st.otp = null; st.verified = false; }
+          st.guest = M.data; if (emailChanged) st.otp = null;   /* a changed account e-mail is verified again before payment (needsOtp) */
           st.termsAccepted = false; return { ok: true, next: "review", reply: S.review.updated };
         }
         if (M.type === "confirm" || approves(t)) {
           if (!st.termsAccepted) return { ok: false, reply: S.review.terms, after: termsError };   /* consent is never inferred from continuation */
-          return { ok: true, next: "verify", reply: S.review.ok };
+          return needsOtp(st) ? { ok: true, next: "verify", reply: S.review.verifyNew } : { ok: true, next: "payment", reply: S.review.ok };
         }
         return { ok: false, reply: S.review.fallback };
       case "verify":
-        if (M.type === "verify") { st.verified = true; return { ok: true, next: "payment", reply: S.verify.ok }; }   /* only after server.py confirmed the code */
+        if (M.type === "verify") { st.verifiedEmail = String(st.guest.email).toLowerCase(); return { ok: true, next: "payment", reply: S.verify.ok }; }   /* only after server.py confirmed the code */
         return { ok: false, reply: S.verify.fallback };
       case "payment":
         return { ok: false, reply: S.payment.fallback };                      /* the continuation comes from the payment timer, not from a typed message */
@@ -741,15 +934,18 @@
     return jitter(4500, 7000);
   }
   function deliver(items, done, opts) {
-    var i = 0, first = true, quick = !!(opts && opts.quickFirst);
+    var i = 0, first = true, quick = !!(opts && opts.quickFirst), pendingQuick = null;
     setTypingStatus(true);
-    function finish() { setTypingStatus(false); done(); }
+    function finish() {                                 /* quick replies come after the whole turn: every message and component */
+      if (pendingQuick) noteUnread(addComponent(C.quick(state, pendingQuick)));
+      setTypingStatus(false); done();
+    }
     function nextItem() {
       if (i >= items.length) { finish(); return; }
       var it = items[i++]; if (typeof it === "string") it = { text: it };
-      if (!it.text) {                                   /* component or quick replies attached to the previous message */
+      if (!it.text) {                                   /* a component attached to the previous message */
         if (it.component && C[it.component]) noteUnread(addComponent(C[it.component](state)));
-        if (it.quick) noteUnread(attachQuick(C.quick(state, it.quick)));
+        if (it.quick) pendingQuick = it.quick;
         nextItem(); return;
       }
       var gap = reduced ? 0 : (first ? (quick ? 150 : jitter(350, 700)) : jitter(900, 1800));
@@ -761,10 +957,9 @@
           hideTyping();
           var el = addMsg("agent", fill(it.text, state));
           var comp = it.component && C[it.component] ? addComponent(C[it.component](state)) : null;
-          var qk = it.quick ? attachQuick(C.quick(state, it.quick)) : null;
+          if (it.quick) pendingQuick = it.quick;
           if (isFirst) revealFirstReply(el); else noteUnread(el);
           if (comp) noteUnread(comp);
-          if (qk) noteUnread(qk);
           nextItem();
         }, typing);
       }, gap);
@@ -791,7 +986,7 @@
     if (meta.type === "airports") text = meta.text || S.customer.airports.replace("{{{arrival}}}", "{{" + meta.arrival + "}}").replace("{{{departure}}}", "{{" + meta.departure + "}}");
     if (meta.type === "guest") text = meta.data.guest2First || meta.data.guest2Family ? S.customer.guest : S.customer.guestSolo;
     if (meta.type === "guestEdit") text = S.customer.guestEdit;
-    if (meta.type === "verify") text = S.customer.verify;
+    if (meta.type === "verify" || meta.type === "signedIn") text = S.customer.verify;
     if (meta.type === "voice") text = S.words.voiceLabel;
     if (meta.type === "resort") text = S.customer.resort.replace("{{{resort}}}", "{{" + meta.name + "}}");
     /* mark the component the action came from as used, except selectors that may legitimately be reused after an "other" reply */
@@ -945,7 +1140,7 @@
     if (rec.stopPlayer) { rec.stopPlayer(); rec.stopPlayer = null; }
     rec.blob = null; rec.chunks = []; rec.seconds = 0; rec.levels = []; timeEl.textContent = "0:00"; preview.querySelector(".pbar i").style.width = "0%";
     voiceUi("idle");
-    if (state.stage === "voice") act({ type: "voice", url: url, seconds: seconds }, null);
+    if (["voice", "guest", "account"].indexOf(state.stage) >= 0) act({ type: "voice", url: url, seconds: seconds }, null);
     else customer(S.words.voiceLabel, { type: "voiceOther", url: url, seconds: seconds });
   }
   micBtn.addEventListener("click", function () { if (rec.state === "rec") voiceStop(); else voiceStart(); });
@@ -1042,7 +1237,9 @@
       note("<b>رد سريع.</b> <b>نختار عند الوصول</b> يؤجل التجارب؛ لا تُضاف تجربة ولا يتغير الإجمالي.");
       step("9 · التجارب");
       await chip("activities_defer"); await sleep(50);
-      note("<b>الخيار لك.</b> يظهر نموذج بيانات الضيفين مع الطلب، واسمك الأول فيه مسبقًا. يمكنك تعبئته مباشرة، أو إرسال بياناتك برسالة صوتية: اضغط زر <b>الميكروفون</b> المجاور لزر الإرسال واسمح باستخدام الميكروفون. يتحول حقل الكتابة إلى مسجّل بموجة حيّة ووقت منقضٍ وزري إيقاف وإلغاء؛ بعد الإيقاف تستمع للمعاينة ثم تضغط <b>إرسال</b>. تظهر رسالتك على اليمين كفقاعة صوتية، ثم تُعبّأ حقول النموذج نفسه.");
+      note("<b>حساب سابق أو ضيف جديد.</b> يعرض المساعد خيارين: <b>لدي حساب سابق</b> يطلب بريدك ويرسل إليه رمز تحقق، وبعد التحقق يسترجع بياناتك المحفوظة إن وُجدت؛ و<b>متابعة كضيف جديد</b> لتعبئة البيانات دون رمز تحقق. هنا نختار <b>متابعة كضيف جديد</b>.");
+      last('.rich[data-component="account"]').querySelectorAll(".slp-item")[1].click(); await idle(); await sleep(50);
+      note("<b>الخيار لك.</b> يظهر نموذج بيانات الضيفين مع الطلب، واسمك الأول فيه مسبقًا. يمكنك تعبئته مباشرة، أو إرسال بياناتك برسالة صوتية: اضغط زر <b>الميكروفون</b> المجاور لزر الإرسال واسمح باستخدام الميكروفون. يتحول حقل الكتابة إلى مسجّل بموجة حيّة ووقت منقضٍ وزري إيقاف وإلغاء؛ بعد الإيقاف تستمع للمعاينة ثم تضغط <b>إرسال</b>. تظهر رسالتك على اليمين كفقاعة صوتية، ثم يرسل المساعد نموذجًا جديدًا معبّأً بما ذكرته، ويذكر ما بقي ناقصًا؛ النموذج السابق يبقى في المحادثة غير نشط.");
       step("10 · رسالة صوتية ببياناتك");
       note("<b>ما يقوله التسجيل</b> (المحتوى المُعدّ لهذه الرحلة؛ البريد الإلكتروني لا يُذكر عمدًا): <bdi dir=\"rtl\" lang=\"ar\">" + esc(VD.transcript) + "</bdi>");
       act({ type: "voice", url: null, seconds: 0, size: 0 }, null); await idle(); await sleep(50);
@@ -1050,15 +1247,13 @@
       step("11 · مراجعة البيانات المستخرجة وإضافة البريد الإلكتروني");
       var gf = last("form.guest-form"); gf.elements.email.value = W.emailTyped; gf.querySelector("button[type=submit]").click(); await idle(); await sleep(50);
       step("12 · المراجعة النهائية، التعديل، والموافقة على الشروط");
-      note("<b>إجراء على البطاقة.</b> زر <b>تعديل البيانات</b> على بطاقة المراجعة يفتح نموذج البيانات معبّأً بما اعتمدته، لتصحيح بياناتك أو بيانات زوجتك أو التواصل أو الطلب الإضافي؛ <b>حفظ التعديلات</b> يحدّث المراجعة وكل ما يليها، و<b>إلغاء</b> يغلق النموذج دون تغيير. تغيير البريد الإلكتروني يلغي أي تحقق سابق. هنا نحفظ دون تغيير.");
+      note("<b>إجراء على البطاقة.</b> زر <b>تعديل البيانات</b> على بطاقة المراجعة يفتح نموذج البيانات معبّأً بما اعتمدته، لتصحيح بياناتك أو بيانات زوجتك أو التواصل أو الطلب الإضافي؛ <b>حفظ التعديلات</b> يحدّث المراجعة وكل ما يليها، و<b>إلغاء</b> يغلق النموذج دون تغيير. للضيف الجديد لا يُطلب رمز تحقق؛ صاحب الحساب الذي يغيّر بريده يتحقق من العنوان الجديد قبل الدفع. هنا نحفظ دون تغيير.");
       last('.rich[data-component="review"] .bc-btn--secondary').click();
       for (var k = 0; k < 40 && !scroll.querySelector(".rich:not(.used) form.guest-form"); k++) await sleep(50);
       var ef = scroll.querySelector(".rich:not(.used) form.guest-form"); if (ef) { ef.querySelector("button[type=submit]").click(); await idle(); } await sleep(50);
       note("<b>الموافقة وزر البطاقة.</b> حدّد مربع <b>قرأت ووافقت على الشروط والأحكام وسياسة الخصوصية</b> تحت بطاقة المراجعة، ثم اضغط <b>البيانات صحيحة، نكمل</b> على البطاقة. بدون تحديد المربع يطلب المساعد الموافقة أولًا ولا يكمل.");
       var tbox = last('.rich[data-component="review"] [name=terms]'); tbox.checked = true; tbox.dispatchEvent(new Event("change", { bubbles: true }));
       await cardButton("review", ".bc-btn--primary"); await sleep(50);
-      note("<b>إجراء على البطاقة.</b> اضغط <b>إرسال الرمز</b>. يرسل الخادم رمزًا من 6 أرقام بالبريد الإلكتروني إلى العنوان الذي كتبته؛ لا يُعرض الرمز على الشاشة أبدًا. افتح بريدك، وأدخل الأرقام الستة في الخانات، ثم اضغط <b>تحقق</b>. يبقى الرمز صالحًا 5 دقائق، و<b>إعادة الإرسال</b> يصدر رمزًا بديلًا بعد فترة الانتظار.");
-      act({ type: "verify" }, null); await idle(); await sleep(50);
       note("<b>إجراء على البطاقة.</b> زر <b>المتابعة للدفع</b> يفتح صفحة الدفع الرسمية في تبويب جديد، وتظهر حالة انتظار هادئة «لحظات ونكمل معك». بعد نحو خمس ثوانٍ يكمل المساعد هنا من تلقاء نفسه؛ لا تحتاج أن تكتب شيئًا، ولا يُعرض هذا الانتظار كتحقق من عملية الدفع.");
       step("13 · الاستكمال التلقائي بعد الضغط على الدفع");
       paymentContinue(); await idle(); await sleep(50);

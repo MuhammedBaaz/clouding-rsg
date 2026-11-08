@@ -33,7 +33,7 @@ body.chat-open .chat-launcher, body.chat-open .chat-launcher-label { display: no
 .chat-menu-list button { width: 100%; text-align: left; background: none; border: 0; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--charcoal-900); cursor: pointer; }
 .chat-menu-list button:hover { background: var(--aqua-50); }
 
-.chat-scroll { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 18px 18px 24px; scrollbar-width: thin; scrollbar-color: var(--charcoal-200) transparent; position: relative; background: linear-gradient(rgba(250,250,247,0.38), rgba(250,250,247,0.38)), url("../assets/resorts/shebara.webp") center 30% / cover no-repeat; background-attachment: local, local; }
+.chat-scroll { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 18px 18px 24px; scrollbar-width: thin; scrollbar-color: var(--charcoal-200) transparent; position: relative; background: var(--sand-100); }   /* one calm solid surface: photographs belong inside the components */
 
 /* ---------- Messages (Arabic, RTL) ---------- */
 .msg { direction: ltr; display: flex; align-items: flex-end; gap: 10px; margin-bottom: 14px; max-width: 100%; }   /* layout is LTR; only the bubble text is RTL */
@@ -403,9 +403,11 @@ body.chat-min .chat-launcher, body.chat-min .chat-launcher-label { display: none
 /* ---------- Mobile ---------- */
 @media (max-width: 720px) {
   .chat-panel { right: 0; bottom: 0; left: 0; width: auto; height: 100dvh; border-radius: 0; border: 0; }
+  /* the full-screen chat owns the phone viewport: a wider host-page row (the footer links) must not widen the layout viewport and clip the panel; the minimised resort-choice state keeps the page scrollable */
+  html:has(body.chat-open:not(.chat-min)), body.chat-open:not(.chat-min) { overflow: hidden; }
   .chat-head { padding: 14px 14px 12px; }
   .chat-scroll { padding: 14px 12px 20px; }
-  .msg .bubble { max-width: 92%; }
+  .msg .col { max-width: 92%; }      /* the cap belongs on the column: a % cap on the bubble inside its own shrink-to-fit column broke short lines mid-word */
   .catalog .grid { grid-template-columns: 1fr 1fr; }
   .catalog .rc { height: 160px; }
   .rates { grid-template-columns: 1fr; }
