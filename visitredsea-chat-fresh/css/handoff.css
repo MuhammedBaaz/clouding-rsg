@@ -1,0 +1,129 @@
+/* Launchers for the two WhatsApp mockups, and the ERP-to-WhatsApp handoff scene (js/handoff.js), 11 Nov 2026.
+   The phone itself is the shared iPhone in css/whatsapp.css; this file adds the stage around it: the booking panel,
+   the recipient chip, the transfer path and the PDF token. Site tokens (--charcoal-*, --aqua-*, --arabic) come from
+   css/site.css. One small radius (8px), borders and spacing rather than cards inside cards, no gradients. */
+
+/* ------------------------------------------------------------------ launchers (bottom-left corner; the chat widget keeps the bottom-right) */
+.mk-launchers {
+  position: fixed; z-index: 999990; bottom: 23px; left: 24px;             /* same row as the widget launcher (56px at bottom 15) */
+  display: flex; gap: 8px; direction: rtl;
+}
+.mk-btn {
+  height: 40px; padding: 0 14px; display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid rgba(255, 255, 255, .16); border-radius: 8px; background: var(--charcoal-900); color: #fff;
+  font: 500 13.5px/1 var(--arabic); white-space: nowrap; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(4, 37, 60, .26); transition: background .15s, transform .15s;
+}
+.mk-btn svg { flex: none; color: var(--aqua-200); }
+.mk-btn:hover { background: var(--charcoal-800); }
+.mk-btn:active { transform: translateY(1px); }
+.mk-btn:focus-visible { outline: 2px solid var(--aqua-400); outline-offset: 2px; }
+@media (max-width: 600px) {
+  /* phones: stack the two buttons in the bottom-left corner, left-aligned (flex-end in RTL) */
+  .mk-launchers { flex-direction: column; align-items: flex-end; gap: 6px; left: 16px; bottom: 15px; }
+  .mk-btn { height: 36px; padding: 0 12px; font-size: 13px; }
+}
+
+/* ------------------------------------------------------------------ overlay + stage */
+.hs-overlay .wa-scrim { position: fixed; }
+.hs-overlay .wa-close { position: fixed; z-index: 6; }
+.hs-overlay.is-stacked { display: block; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.hs-stage { position: relative; z-index: 1; display: flex; align-items: center; gap: var(--hs-gap, 96px); }
+.hs-overlay.is-stacked .hs-stage { flex-direction: column; width: max-content; max-width: 100%; margin: 0 auto; padding: 58px var(--wa-pad) 28px; box-sizing: border-box; }
+.hs-phonecol { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+/* recipient chip above Faisal's phone */
+.hs-recipient {
+  display: flex; align-items: center; gap: 10px; height: 42px; padding: 0 12px 0 6px;
+  border: 1px solid rgba(255, 255, 255, .2); border-radius: 8px; color: #fff; font-family: var(--arabic);
+}
+.hs-recipient img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255, 255, 255, .85); }
+.hs-recipient-text { display: grid; line-height: 1.2; }
+.hs-recipient-text b { font-weight: 600; font-size: 14px; }
+.hs-recipient-text small { font-size: 11.5px; color: rgba(255, 255, 255, .72); }
+.hs-recipient-tag { margin-inline-start: 6px; padding: 3px 7px; border-radius: 6px; background: rgba(255, 255, 255, .12); font-size: 11px; color: var(--aqua-200); }
+
+/* ------------------------------------------------------------------ booking panel */
+.hs-erp {
+  width: var(--hs-erp-w, 440px); max-height: calc(100dvh - 2 * var(--wa-pad, 28px)); overflow: auto; box-sizing: border-box;
+  background: #fff; color: var(--charcoal-900); border-radius: 8px; font-family: var(--arabic); font-size: 13px; line-height: 1.45;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, .38);
+  scrollbar-width: thin;
+}
+.hs-overlay.is-stacked .hs-erp { max-height: none; overflow: visible; }
+.hs-erp-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; background: var(--sand-50); border-bottom: 1px solid var(--charcoal-100); border-radius: 8px 8px 0 0; }
+.hs-erp-app { font-weight: 600; color: var(--aqua-900); }
+.hs-erp-crumb { color: var(--charcoal-700); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* stage bar: three segments, current in teal, done in pale teal */
+.hs-steps { list-style: none; margin: 0; padding: 12px 16px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.hs-steps li { padding: 6px 8px; border-radius: 6px; background: var(--charcoal-50); color: var(--charcoal-500); font-size: 11.5px; text-align: center; transition: background .35s, color .35s; }
+.hs-steps li.is-done { background: var(--aqua-50); color: var(--aqua-900); }
+.hs-steps li.is-current { background: var(--aqua-700); color: #fff; font-weight: 600; }
+
+.hs-erp-body { padding: 14px 16px 16px; display: grid; gap: 12px; }
+.hs-guest { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.hs-guest-name { font-size: 17px; font-weight: 600; }
+.hs-badge { padding: 3px 8px; border-radius: 6px; background: var(--aqua-50); border: 1px solid var(--aqua-200); color: var(--aqua-900); font-size: 11.5px; font-weight: 600; }
+.hs-guest-phone { flex-basis: 100%; color: var(--charcoal-700); font-size: 12.5px; unicode-bidi: isolate; text-align: right; }
+
+.hs-fields { display: grid; grid-template-columns: 74px 1fr; margin: 0; border-top: 1px solid var(--charcoal-50); }
+.hs-fields dt, .hs-fields dd { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--charcoal-50); }
+.hs-fields dt { color: var(--charcoal-500); font-size: 12px; }
+.hs-fields dd { font-weight: 500; white-space: pre-line; }
+
+/* assignment: dashed while waiting, Faisal's photo and name once assigned */
+.hs-assign { display: grid; gap: 6px; }
+.hs-assign-label { color: var(--charcoal-500); font-size: 12px; }
+.hs-assignee { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; padding: 8px 10px; border: 1px dashed var(--charcoal-200); border-radius: 8px; transition: border-color .35s, background .35s; }
+.hs-avatar { position: relative; width: 40px; height: 40px; border-radius: 50%; background: var(--charcoal-50); display: grid; place-items: center; color: var(--charcoal-500); overflow: hidden; }
+.hs-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(.8); transition: opacity .4s ease, transform .5s cubic-bezier(.2, .8, .2, 1.2); }
+.hs-assignee-text { display: grid; line-height: 1.25; opacity: 0; transform: translateX(6px); transition: opacity .4s .1s, transform .4s .1s; }
+.hs-assignee-text b { font-size: 14px; }
+.hs-assignee-text small { color: var(--charcoal-700); font-size: 12px; }
+.hs-avatar { grid-column: 1; grid-row: 1; }
+.hs-assignee-text { grid-column: 2; grid-row: 1; }
+.hs-assign-time { grid-column: 3; grid-row: 1; }
+.hs-assign-pending { grid-column: 2 / 4; grid-row: 1; color: var(--charcoal-500); font-size: 12.5px; transition: opacity .25s; }
+.hs-assign-time { color: var(--aqua-700); font-size: 12px; font-weight: 600; opacity: 0; transition: opacity .4s .2s; }
+.hs-erp:not([data-stage="new"]) .hs-assignee { border-style: solid; border-color: var(--aqua-200); background: var(--aqua-50); }
+.hs-erp:not([data-stage="new"]) .hs-avatar img { opacity: 1; transform: none; }
+.hs-erp:not([data-stage="new"]) .hs-avatar-empty { visibility: hidden; }
+.hs-erp:not([data-stage="new"]) .hs-assignee-text { opacity: 1; transform: none; }
+.hs-erp:not([data-stage="new"]) .hs-assign-pending { opacity: 0; }
+.hs-erp:not([data-stage="new"]) .hs-assign-time { opacity: 1; }
+
+/* attachment row: the PDF chip (source of the transfer) and the send action */
+.hs-attach { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.hs-file { flex: 1 1 210px; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--charcoal-100); border-radius: 8px; color: inherit; text-decoration: none; transition: border-color .25s, background .25s; }
+.hs-file:hover { background: var(--charcoal-25); }
+.hs-file:focus-visible { outline: 2px solid var(--aqua-500); outline-offset: 1px; }
+.hs-file.is-sending { border-color: var(--aqua-500); background: var(--aqua-50); }
+.hs-file-icon { flex: none; display: inline-grid; }
+.hs-file-icon svg { width: 26px; height: 31px; }
+.hs-file-info { display: grid; min-width: 0; }
+.hs-file-name { font-weight: 600; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hs-file-meta { color: var(--charcoal-500); font-size: 11px; unicode-bidi: isolate; text-align: right; }
+.hs-send { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 8px; background: var(--aqua-700); color: #fff; font-size: 12.5px; font-weight: 600; transition: background .3s, transform .15s; }
+.hs-erp[data-stage="sending"] .hs-send { background: var(--aqua-900); transform: scale(.97); }
+.hs-erp[data-stage="sent"] .hs-send { background: var(--green-bg, #e9f7ef); color: var(--green, #047857); }
+
+/* activity log */
+.hs-log { list-style: none; margin: 0; padding: 10px 0 0; border-top: 1px solid var(--charcoal-50); display: grid; gap: 4px; }
+.hs-log li { display: flex; gap: 8px; font-size: 12px; color: var(--charcoal-700); opacity: 0; transform: translateY(4px); transition: opacity .35s, transform .35s; }
+.hs-log li.is-on { opacity: 1; transform: none; }
+.hs-log-time { color: var(--charcoal-500); min-width: 48px; }
+
+/* ------------------------------------------------------------------ transfer */
+.hs-flow { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; overflow: visible; }
+.hs-strand { fill: none; stroke: var(--aqua-200); stroke-width: 1.2; stroke-linecap: round; opacity: .55; }
+.hs-strand.is-main { stroke: var(--aqua-400); stroke-width: 2; opacity: .95; }
+.hs-token { position: absolute; left: 0; top: 0; z-index: 4; width: 34px; height: 40px; pointer-events: none; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .35)); will-change: transform; }
+.hs-ping { position: absolute; z-index: 4; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--aqua-400); pointer-events: none; transform: translate(-50%, -50%); }
+
+/* stacked: phone column below the panel */
+.hs-overlay.is-stacked .hs-erp { width: var(--hs-erp-w); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hs-steps li, .hs-assignee, .hs-avatar img, .hs-assignee-text, .hs-assign-time, .hs-assign-pending, .hs-log li, .hs-file, .hs-send, .mk-btn { transition: none; }
+}

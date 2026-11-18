@@ -49,6 +49,7 @@ class Session(object):
         self.results = collections.OrderedDict()
         self.recent_events = []           # short notes for the agent's context block
         self.client = {}                  # client-held flags sent with each turn (termsAccepted)
+        self.channel = "website"          # "website" (own chat UI) or "studio_widget" (Empathy Studio bridge); told to the agent
 
     def remember(self, key, resp):
         self.results[key] = resp
@@ -85,7 +86,8 @@ def get_session(sid):
 
 
 def status():
-    return dict(PROVIDER.status(), sessions=len(_sessions))
+    extra = {"budget": PROVIDER.budget_status()} if hasattr(PROVIDER, "budget_status") else {}
+    return dict(PROVIDER.status(), sessions=len(_sessions), **extra)
 
 
 # ---------------------------------------------------------------- helpers
@@ -98,7 +100,15 @@ def _context(sess):
                        "specialRequest": g.get("requests", "")} if g else None
     public["profileRetrieved"] = bool(st.get("profile"))
     public["verifiedEmailOnFile"] = bool(st.get("verifiedEmail"))
-    ctx = {"stage": st["stage"], "state": public, "allowed_now": TOOLS.allowed_tools(st), "recent_events": sess.recent_events[-6:]}
+    if st["stage"] in ("guest", "requests", "review", "payment"):          # what the chat-collected details still need
+        gs = T.guest_status(st)
+        public["guestDetails"] = {"saved": gs["saved"], "missing": gs["missing"]}
+        if st.get("guest"):
+            public["loyaltyBalance"] = T.loyalty_balance(st)              # demo points from earlier bookings (0 = none)
+            public["redeem"] = st.get("redeem")
+            public["payableTotal"] = str(T.payable_total(st))
+    ctx = {"channel": getattr(sess, "channel", "website"), "stage": st["stage"], "state": public, "allowed_now": TOOLS.allowed_tools(st),
+           "recent_events": sess.recent_events[-6:]}
     return "<context>\n" + json.dumps(ctx, ensure_ascii=False) + "\n</context>\n"
 
 
@@ -173,6 +183,15 @@ def _agent_loop(sess, turn_id, events, items, consume, allow_action):
         try:
             rr = PROVIDER.run(sess.remote_id, events)
         except ProviderError as e:
+            import sys
+            sys.stderr.write("provider error: %s %s\n" % (e.reason, str(e.detail)[:400]))
+            if e.reason in ("provider", "timeout") and sess.remote_id:
+                # The Managed Agents session emitted session.error (seen 4x on 9 Nov as unknown_error) or stalled. Such a
+                # session is not listed afterwards and its next turns failed too, so it is dropped: the next guest message
+                # opens a fresh remote session, and the <context> block (stage + state) restores where the booking stands.
+                sys.stderr.write("remote session %s dropped after %s; a new one opens on the next message\n" % (sess.remote_id, e.reason))
+                sess.remote_id = None
+                sess.recent_events.append("connection reset: continue from the stage in the context")
             items.append(_error_item(e.reason))
             return _response(sess, turn_id, items, consume, error="provider_unavailable", after=after, extra={"reason": e.reason})
         except Exception as e:                                       # a bug in the provider must not drop the connection
@@ -196,6 +215,7 @@ def _agent_loop(sess, turn_id, events, items, consume, allow_action):
                 return _response(sess, turn_id, items, consume, error="provider_unavailable", after=after, extra={"reason": rr.status})
             return _response(sess, turn_id, items, consume, after=after)
         results = []
+        advanced = False                                 # set by a tool that moved the journey on (Result.ok)
         for tu in rr.tool_uses:
             if quiet:                                        # the step is done; a second tool in the same turn would repeat a card
                 res = T.Result(False, None, {"error": "turn_complete", "note": "the application already replied for this message; end your turn without text"})
@@ -212,11 +232,14 @@ def _agent_loop(sess, turn_id, events, items, consume, allow_action):
                 return _response(sess, turn_id, items, consume or res.ok, action=action)
             _extend(items, TOOLS.filter_quick(res.items, sess.state))
             consume = consume or res.ok
+            advanced = advanced or res.ok
             results.append(tool_result(tu.id, res.result, is_error="error" in res.result))
             sess.recent_events.append("tool %s -> %s" % (tu.name, "ok" if res.ok else res.result.get("error", "not advanced")))
             after = getattr(res, "after", None) or after
-        # every result in this round carried the application's own reply (no error): the agent's extra words would repeat it
-        quiet = quiet or (bool(results) and all("error" not in json.loads(r["content"][0]["text"]) for r in results))
+        # a tool in this round advanced the journey (the application's reply already asks the next question): further tools
+        # and the agent's extra words would repeat it. Tools that only re-show the step (show_current_step, ok:false
+        # notes) never set this, so a stray call left over from the agent's previous turn cannot block the real one.
+        quiet = quiet or advanced
         events = results
     items.append(_error_item("too_many_steps"))
     return _response(sess, turn_id, items, consume, error="provider_unavailable", after=after, extra={"reason": "too_many_steps"})
@@ -242,6 +265,8 @@ def text_turn(sess, turn_id, text, client):
         if not sess.remote_id:
             try:
                 sess.remote_id = PROVIDER.open_session("RSG concierge " + sess.sid[:8])
+                import sys
+                sys.stderr.write("%s remote session %s for %s\n" % (time.strftime("%H:%M:%S"), sess.remote_id, sess.sid[:8]))
             except ProviderError as e:
                 resp = _response(sess, turn_id, [_error_item(e.reason)], False, error="provider_unavailable", extra={"reason": e.reason})
                 sess.remember(turn_id, resp)
@@ -288,6 +313,8 @@ def action_result(sess, action_id, ok, payload):
         sess.closed_actions.add(action_id)
         if ok:
             result = {"ok": True, "visible": [str(x)[:80] for x in (payload.get("visible") or [])][:12]}
+            if payload.get("note"):                               # the bridge says what the page did NOT confirm
+                result["note"] = str(payload["note"])[:200]
         else:
             result = {"error": str(payload.get("reason") or "failed")[:40]}
         sess.recent_events.append("page action %s -> %s" % (p["kind"], "shown" if ok else result["error"]))

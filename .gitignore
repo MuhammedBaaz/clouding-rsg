@@ -16,3 +16,6 @@ desktop.ini
 # Scratch output and Office lock files
 reports/tmp/
 ~$*
+
+# Not committed (18 Nov 2026): saved copy of the Clouding control-plane admin page (an authenticated session capture)
+/Control Plane Admin*

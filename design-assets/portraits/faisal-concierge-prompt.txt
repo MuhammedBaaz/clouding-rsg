@@ -1,0 +1,7 @@
+Use case: photorealistic-natural
+Asset type: one high-resolution square profile photograph for a concierge avatar
+Subject: Faisal, a fictional Saudi personal concierge at Shebara, in his mid-30s. He looks polished, approachable, and quietly confident. Direct eye contact, a small genuine smile, and a neatly groomed beard. He wears a crisp white thobe and a neatly arranged plain white ghutra held by a black agal.
+Scene: an understated Shebara-inspired Red Sea coast, softly out of focus, with muted turquoise water and warm sand tones. No distinct buildings, objects, or people in the background.
+Lighting and optics: eye-level portrait in soft coastal daylight, natural skin texture and sharp eyes, gentle tonal separation between the white clothing and the backdrop. Photorealistic photography with restrained retouching and the warmth of a personal WhatsApp profile photo.
+Composition: square 1:1, head and shoulders, face centered horizontally with eyes slightly above the center. Fit the entire ghutra and agal comfortably inside a centered circular crop, leaving breathing room above the head and around the shoulders. The face is large and expressive enough to read at small avatar size.
+Output: exactly one clean photograph, edge to edge, opaque background. No text, logos, borders, watermarks, interface elements, or visible circle mask.

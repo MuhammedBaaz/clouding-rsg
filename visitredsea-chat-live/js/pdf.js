@@ -94,15 +94,22 @@ window.BookingPdf = (function () {
     });
     y = ty + 27 * MM; text("التنقلات لـ2 بالغين، شاملة الضرائب. لم تُضف تفاصيل رحلات جوية.", R, y, "22px " + sans, MUTED); y += 8 * MM;
 
-    /* totals */
-    var th = 36 * MM; ctx.fillStyle = "#eef1ef"; ctx.beginPath(); ctx.roundRect(L, y, CW, th, 2 * MM); ctx.fill();
+    /* totals (the amount payable: a loyalty discount, when one was applied, is shown as its own line) */
+    var th = 36 * MM + (d.redeemValue > 0 ? 8 * MM : 0); ctx.fillStyle = "#eef1ef"; ctx.beginPath(); ctx.roundRect(L, y, CW, th, 2 * MM); ctx.fill();
     var px = R - 5 * MM, lx = L + 5 * MM, ry = y + 9 * MM;
     text("الإقامة كاملة · " + d.rateName, px, ry, "23px " + sans, INK); text(money(d.accommodation) + " ر.س", lx, ry, "500 23px " + sans, INK, "ltr"); ry += 8 * MM;
-    text("التنقلات", px, ry, "23px " + sans, INK); text(money(d.transfers) + " ر.س", lx, ry, "500 23px " + sans, INK, "ltr"); ry += 4 * MM;
+    text("التنقلات", px, ry, "23px " + sans, INK); text(money(d.transfers) + " ر.س", lx, ry, "500 23px " + sans, INK, "ltr"); ry += 8 * MM;
+    if (d.redeemValue > 0) { text("خصم نقاط الولاء (" + d.redeemPoints + " نقطة)", px, ry, "23px " + sans, INK); text("− " + money(d.redeemValue) + " ر.س", lx, ry, "500 23px " + sans, INK, "ltr"); ry += 8 * MM; }
+    ry -= 4 * MM;
     ctx.strokeStyle = "#cdd8d6"; ctx.beginPath(); ctx.moveTo(lx, ry); ctx.lineTo(px, ry); ctx.stroke(); ry += 9 * MM;
     text("إجمالي الرحلة", px, ry, "500 27px " + sans, INK); text(money(d.grand) + " ر.س", lx, ry, "500 48px " + sans, INK, "ltr"); ry += 6 * MM;
     text("شامل جميع الضرائب", lx, ry, "21px " + sans, MUTED, "ltr");
     y += th + 8 * MM;
+    /* loyalty points recorded for this booking (from the saved award, never recomputed here; no running balance) */
+    if (d.loyalty) {
+      text("نقاط الولاء", R, y, "500 24px " + sans, LABEL); y += 7 * MM;
+      text("المكتسبة من هذا الحجز: " + d.loyalty.earned.toLocaleString("en-US") + " نقطة" + (d.loyalty.redeemed > 0 ? " · المستخدمة في هذا الحجز: " + d.loyalty.redeemed.toLocaleString("en-US") + " نقطة" : ""), R, y, "23px " + sans, INK); y += 8 * MM;
+    }
 
     /* footer */
     ctx.strokeStyle = RULE; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(R, y); ctx.stroke(); y += 7 * MM;
@@ -144,7 +151,10 @@ window.BookingPdf = (function () {
       mainGuest: [g.title, g.firstName, g.familyName].filter(Boolean).join(" "), secondGuest: [g.guest2First, g.guest2Family].filter(Boolean).join(" "),
       email: g.email || "", mobile: (g.mobileCode || "") + " " + (g.mobile || ""), requests: g.requests || "",
       legs: B.transport.legs.map(function (l, i) { return { label: i ? "المغادرة" : "الوصول", route: i ? B.resort.name + " ← " + (names[l.to] || l.to) : (names[l.from] || l.from) + " ← " + B.resort.name, product: l.productAr || l.product, price: l.price }; }),
-      accommodation: B.rate.total, transfers: B.transport.transfersTotal, grand: B.grandTotal
+      accommodation: B.rate.total, transfers: B.transport.transfersTotal,
+      redeemPoints: state.redeem ? Number(state.redeem.points) || 0 : 0, redeemValue: state.redeem ? Number(state.redeem.valueSar) || 0 : 0,
+      grand: state.payableTotal != null ? Number(state.payableTotal) : B.grandTotal,
+      loyalty: state.loyalty && state.loyalty.earned != null ? { earned: Number(state.loyalty.earned), redeemed: Number(state.loyalty.redeemed) || 0 } : null
     };
     var fontsReady = document.fonts ? Promise.all([document.fonts.load('600 56px "Fedra Serif Arabic AR"'), document.fonts.load('24px "Fedra Sans AL"'), document.fonts.load('500 25px "Fedra Sans AL"'), document.fonts.load('56px "Fedra Serif Display"')]) : Promise.resolve();
     function img(src) { return loadImage(src).catch(function () { return null; }); }

@@ -2,109 +2,357 @@
   {
     "type": "custom",
     "name": "set_guest_name",
-    "description": "Record the name the guest wants to be called by. Use when the guest introduces themself at the start (stage name). Pass the name exactly as written, without greeting words.",
-    "input_schema": { "type": "object", "properties": { "name": { "type": "string", "description": "The guest's first name as they wrote it, e.g. محمد" } }, "required": ["name"], "additionalProperties": false }
+    "description": "Save the name the guest wants to be called by. One job, stage name only. Call it only when the message contains a name: for «أنا محمد» or «اسمي محمد» pass name=\"محمد\", never the whole message. Do not call it for a greeting without a name («السلام عليكم») and never guess a name; ask the guest what they would like to be called instead. Result {ok:true, name} means the application saved the name and has already asked the next question: add nothing. Result {error:\"invalid_name\"} means nothing was saved: do not advance, ask the guest for the name again.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Only the name, as the guest wrote it, e.g. محمد (no greeting, no «أنا»/«اسمي»)"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "show_resort_suggestions",
     "description": "Show the three suggested resorts (Shebara, Desert Rock, Six Senses Southern Dunes) as cards inside the chat. Use when the guest says what kind of holiday they want or asks for suggestions (stages intent, resort). The reply text and the cards are added by the application; do not describe the resorts again.",
-    "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "navigate_to_resorts",
-    "description": "Scroll the host web page to its resort cards section and highlight the cards (the chat is minimised meanwhile). Use ONLY when the guest explicitly asks to browse or look at the resorts on the page/site, or to see more resorts than the three suggestions. The browser performs the action and the result comes back as the tool result; wait for it before continuing. Stages intent, resort.",
-    "input_schema": { "type": "object", "properties": { "target": { "type": "string", "description": "\"all\" to show every card, or one resort id to focus on it: shebara, desert-rock, six-senses-southern-dunes-the-red-sea, the-st-regis-red-sea-resort, nujuma-a-ritz-carlton-reserve, turtle-bay-hotel, the-red-sea-edition, intercontinental-the-red-sea-resort, sls-the-red-sea, miraval-the-red-sea, four-seasons-resort-and-residences-red-sea-at-shura-island" } }, "required": ["target"], "additionalProperties": false }
+    "description": "Ask the host web page to scroll to its resort cards and highlight them. Use ONLY when the guest explicitly asks to browse or look at the resorts on the page/site, or to see more resorts than the three suggestions. The page performs the action and reports back as the tool result: {ok:true, visible:[card names]} when the cards are shown, or {error} (cards_missing, no_ack, interrupted, not_on_page, unknown_target) when they are not; wait for it, describe only what it reports, and after an error call show_resort_suggestions. Stages intent, resort.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "type": "string",
+          "description": "\"all\" to show every card, or one resort id to focus on it: shebara, desert-rock, six-senses-southern-dunes-the-red-sea, the-st-regis-red-sea-resort, nujuma-a-ritz-carlton-reserve, turtle-bay-hotel, the-red-sea-edition, intercontinental-the-red-sea-resort, sls-the-red-sea, miraval-the-red-sea, four-seasons-resort-and-residences-red-sea-at-shura-island"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "show_resort_comparison",
     "description": "Show the Shebara versus Desert Rock comparison (five criterion cards), then the approved recommendation message, then the two-resort selection carousel. Use when the guest is undecided between Shebara and Desert Rock or asks how they differ (stages intent, resort). Do not write your own recommendation or repeat the facts; the application sends the approved text.",
-    "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "select_resort",
-    "description": "Record the resort the guest chose by typing its name (stage resort). Only Shebara continues to the villas; any other resort gets its details card and an offer to continue with Shebara (handled by the application).",
-    "input_schema": { "type": "object", "properties": { "resort": { "type": "string", "description": "Official English resort name, e.g. Shebara, Desert Rock, Six Senses Southern Dunes, The Red Sea, Nujuma, a Ritz-Carlton Reserve" } }, "required": ["resort"], "additionalProperties": false }
+    "description": "Record the resort the guest chose by typing its name (stage resort). Call it for a choice, not for a question about a resort. Only Shebara continues to the villas (ok:true); any other known resort returns ok:false after the application shows its details card and offers to continue with Shebara; an unknown name returns error unknown_resort with the known names.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "resort": {
+          "type": "string",
+          "description": "Official English resort name, e.g. Shebara, Desert Rock, Six Senses Southern Dunes, The Red Sea, Nujuma, a Ritz-Carlton Reserve"
+        }
+      },
+      "required": [
+        "resort"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "select_villa",
-    "description": "Record the villa the guest chose by typing (stage villa). Only One Bedroom Overwater Villa has a confirmed price; other villas get the 'need to confirm the price' reply from the application.",
-    "input_schema": { "type": "object", "properties": { "villa": { "type": "string", "description": "Official villa name, e.g. One Bedroom Overwater Villa, Two Bedroom Beach Villa" } }, "required": ["villa"], "additionalProperties": false }
+    "description": "Record the villa the guest chose by typing (stage villa). Pass the official English name (the Arabic name from the cards is also accepted). Only One Bedroom Overwater Villa has a confirmed price (ok:true); the other seven return ok:false with the 'need to confirm the price' reply from the application; an unknown name returns error unknown_villa.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "villa": {
+          "type": "string",
+          "description": "Official villa name, e.g. One Bedroom Overwater Villa, Two Bedroom Beach Villa"
+        }
+      },
+      "required": [
+        "villa"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "set_party",
-    "description": "Record how many guests travel (stage party). The quoted rate is for 2 adults and no children; 'me and my wife', 'just the two of us' means adults=2, children=0.",
-    "input_schema": { "type": "object", "properties": { "adults": { "type": "integer", "minimum": 1 }, "children": { "type": "integer", "minimum": 0 } }, "required": ["adults", "children"], "additionalProperties": false }
+    "description": "Record how many guests travel (stage party). 'me and my wife', 'just the two of us' means adults=2, children=0. Only adults=2, children=0 advances (the quoted rate is for 2 adults); any other party returns ok:false and the application's reply says a new quote is needed. Do not guess a number the guest did not give.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "adults": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "children": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "adults",
+        "children"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "set_dates",
-    "description": "Record check-in and check-out typed by the guest (stage dates). Dates are ISO yyyy-mm-dd; the month is October 2026 unless the guest says otherwise. Only 2026-10-23 to 2026-10-25 has a confirmed price; other ranges get the 'need to update the price' reply.",
-    "input_schema": { "type": "object", "properties": { "check_in": { "type": "string", "description": "yyyy-mm-dd" }, "check_out": { "type": "string", "description": "yyyy-mm-dd" } }, "required": ["check_in", "check_out"], "additionalProperties": false }
+    "description": "Record check-in and check-out typed by the guest (stage dates). Dates are ISO yyyy-mm-dd, built only from what the guest wrote: if the month or the year is missing or ambiguous, do not call this tool, ask for it instead. Only 2026-10-23 to 2026-10-25 has a confirmed price; other ranges return ok:false with the 'need to update the price' reply, and check-out must be after check-in.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "check_in": {
+          "type": "string",
+          "description": "yyyy-mm-dd"
+        },
+        "check_out": {
+          "type": "string",
+          "description": "yyyy-mm-dd"
+        }
+      },
+      "required": [
+        "check_in",
+        "check_out"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "approve_stay",
     "description": "The guest approved the stay summary in words (stage approve1): 'تمام', 'مناسب', 'نكمل'. Never call it on a question or a refusal.",
-    "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "set_transfer_mode",
     "description": "Record how the guests arrive (stage mode). Transfers are prepared for By Plane only; other modes get the application's reply offering the plane.",
-    "input_schema": { "type": "object", "properties": { "mode": { "type": "string", "enum": ["By Plane", "By Private Jet", "By Car", "By Yacht"] } }, "required": ["mode"], "additionalProperties": false }
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "By Plane",
+            "By Private Jet",
+            "By Car",
+            "By Yacht"
+          ]
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "set_airports",
-    "description": "Record the arrival and departure airports typed by the guest (stage airports). Known airports: Yanbu Airport (مطار ينبع), Red Sea International Airport - RSIA (مطار البحر الأحمر الدولي), Al Wajh Domestic Airport (مطار الوجه). Transfers are priced for Yanbu arrival and RSIA departure only.",
-    "input_schema": { "type": "object", "properties": { "arrival": { "type": "string" }, "departure": { "type": "string" } }, "required": ["arrival", "departure"], "additionalProperties": false }
+    "description": "Record the arrival and departure airports typed by the guest (stage airports). Known airports: Yanbu Airport (مطار ينبع), Red Sea International Airport - RSIA (مطار البحر الأحمر الدولي), Al Wajh Domestic Airport (مطار الوجه). Call it only when the guest named both airports; with one airport, ask for the other. Transfers are priced for Yanbu arrival and RSIA departure only; other pairs return ok:false with the application's reply.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "arrival": {
+          "type": "string"
+        },
+        "departure": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "arrival",
+        "departure"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "approve_transfers",
     "description": "The guest approved the updated summary with transfers in words (stage approve2).",
-    "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "defer_experiences",
     "description": "The guest prefers to decide experiences later or at the resort, or does not want to add any (stage activities). Moves on to the guest details step.",
-    "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "experience_interest",
     "description": "The guest wants to add an experience now (stage activities). The application explains experiences are arranged with the resort team after booking and offers to continue; nothing is added.",
-    "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "choose_account_mode",
-    "description": "The guest said in words whether they have an account (sign in with e-mail and code to retrieve saved details) or continue as a new guest (stage account; from stage login only 'guest' is allowed, to switch).",
-    "input_schema": { "type": "object", "properties": { "mode": { "type": "string", "enum": ["account", "guest"] } }, "required": ["mode"], "additionalProperties": false }
+    "description": "The guest said in words whether they have an account (sign in with e-mail and code to retrieve saved details) or continue as a new guest (stage account; from stage login only 'guest' is allowed, to switch). In the studio_widget channel 'account' cannot retrieve a profile (no code entry there): the application says so and collects the details in the chat; never say a profile was retrieved or an e-mail verified.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "account",
+            "guest"
+          ]
+        }
+      },
+      "required": [
+        "mode"
+      ],
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "record_special_request",
-    "description": "Stage requests (returning guest, after sign-in): record the special request the guest asked for THIS stay, or none=true when they decline ('لا', 'ما عندنا'). If the answer is unclear (e.g. just 'نعم'), do not call this; ask what the request is.",
-    "input_schema": { "type": "object", "properties": { "request": { "type": "string", "description": "The request in the guest's words, e.g. تسجيل وصول متأخر; empty when none" }, "none": { "type": "boolean", "description": "true when the guest has no request" } }, "required": ["request", "none"], "additionalProperties": false }
+    "description": "Stage requests: record the special request the guest asked for THIS stay, or none=true when they decline ('لا', 'ما عندنا'). Used for a returning guest after sign-in (website) and for a guest whose details were typed in the chat (widget): with ok:true the application shows the review itself. If the answer is unclear (e.g. just 'نعم'), do not call this; ask what the request is. Never invent a request.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "type": "string",
+          "description": "The request in the guest's words, e.g. تسجيل وصول متأخر; empty when none"
+        },
+        "none": {
+          "type": "boolean",
+          "description": "true when the guest has no request"
+        }
+      },
+      "required": [
+        "request",
+        "none"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "type": "custom",
+    "name": "set_guest_details",
+    "description": "Save the guest details typed in the chat (stages guest and requests: first entry; review and payment: a correction). Pass ONLY the fields the guest actually wrote in this message, exactly as written; never guess, never fill a field from an earlier booking, never pass card numbers, passwords or codes. The application validates and merges them: result {ok:false, missing:[...], rejected:[...]} means it has already asked for the missing or invalid fields (add nothing); {ok:false, titleQuestion:true} means the first name is not clearly masculine or feminine and it has already asked which title the guest prefers (add nothing; pass the answer as title); {ok:true, stage:'requests'} means all required fields are saved and it has asked about a special request; {ok:true, stage:'review'} means the review was updated after a correction. Fields the guest must give: first_name, family_name, email, mobile. The title is never asked for: the application infers السيد or السيدة from the first name; pass title only when the guest states, corrects or answers it. Optional: mobile_code, companion_first_name, companion_family_name.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "only when the guest said it: السيد / السيدة (or another title they asked for, e.g. الأستاذ); never inferred by you"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "family_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "description": "as written, e.g. name@example.com"
+        },
+        "mobile_code": {
+          "type": "string",
+          "description": "country code if the guest gave one, e.g. +966"
+        },
+        "mobile": {
+          "type": "string",
+          "description": "the mobile number as written"
+        },
+        "companion_first_name": {
+          "type": "string",
+          "description": "the accompanying guest's first name, only if given"
+        },
+        "companion_family_name": {
+          "type": "string",
+          "description": "the accompanying guest's family name, only if given"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "type": "custom",
+    "name": "redeem_points",
+    "description": "Stage review, studio_widget channel: the guest decided how many saved loyalty points to use on this booking (state.loyaltyBalance shows what they have; the application offered it). Pass the number they said; pass 0 when they decline. Never calculate the value or the new total yourself: the result and the application's reply carry them. {ok:false, maxPoints} means they asked for more than allowed and the application already asked again.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "points": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "points"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "type": "custom",
+    "name": "cancel_checkout",
+    "description": "Stage payment: the guest wants to stop or change something before paying ('لا تكمل', 'وقف', 'أبي أعدّل'). Returns to the review and cancels the pending completion. Never call it on a question about the link.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "confirm_review",
-    "description": "The guest confirmed in words that the review is correct (stage review). The application checks the terms checkbox and continues to verification or payment.",
-    "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    "description": "The guest confirmed in words that the review is correct (stage review). The application continues to verification or payment. On the website it first checks the terms checkbox under the review card (without it: ok:false, and the application sends the reminder itself); the widget has no terms step.",
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   },
   {
     "type": "custom",
     "name": "show_current_step",
     "description": "Re-send the card or question of the current step. Use when the guest asks where they are, asks to see the calendar/cards/form again, or after a side question when they want to continue. Any stage.",
-    "input_schema": { "type": "object", "properties": {}, "additionalProperties": false }
+    "input_schema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    }
   }
 ]

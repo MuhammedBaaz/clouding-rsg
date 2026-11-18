@@ -1,0 +1,3 @@
+/* Fresh RSG site: page-only additions. The approved page styles are css/site.css (unchanged copy).
+   The Studio widget brings its own styles inside its shadow root and is positioned bottom-right by the SDK. */
+.rcard .explore { text-decoration: none; }

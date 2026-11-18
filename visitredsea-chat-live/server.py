@@ -45,6 +45,7 @@ console fallback.
 import hashlib
 import hmac
 import json
+import re
 import os
 import secrets
 import smtplib
@@ -73,7 +74,7 @@ def load_dotenv(path):
                 k = k.strip(); v = v.strip()
                 if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"'":
                     v = v[1:-1]
-                if (k.startswith(("OTP_", "ANTHROPIC_", "LIVE_AGENT_")) or k == "PROFILE_STORE") and k not in os.environ:
+                if (k.startswith(("OTP_", "ANTHROPIC_", "LIVE_AGENT_", "STUDIO_")) or k == "PROFILE_STORE") and k not in os.environ:
                     os.environ[k] = v
     except OSError:
         pass
@@ -84,6 +85,7 @@ sys.path.insert(0, ROOT)
 try:
     from agent import chat as CHAT                     # live concierge: approved data, state, tools, agent provider
     from agent.provider import make_provider
+    from agent import studio_bridge as BRIDGE        # Empathy Studio "Custom Agent" contract (POST /studio/sessions...)
 except Exception as _e:                                # a stale data dump or a missing dependency: say so and stop
     sys.stderr.write("live agent backend unavailable: %s\n" % _e)
     raise SystemExit(1)
@@ -92,6 +94,39 @@ MAX_ATTEMPTS = 5        # wrong entries before the challenge is locked
 RESEND_COOLDOWN = 30    # seconds between two requests for the same address
 MAX_BODY = 4096
 CHAT_MAX_BODY = 32768   # a chat turn carries the typed message or a guest form
+
+# Empathy Studio web widget. When STUDIO_CHANNEL_KEY is set, GET /studio-widget.js returns the widget snippet with the
+# channel's browser key (kept in .env, never in the repository); the page then shows Studio's widget instead of the
+# RSG launcher (add ?chat=rsg to the URL to get the RSG chat back). Without the key the script is empty.
+STUDIO = {
+    "key": os.environ.get("STUDIO_CHANNEL_KEY", "").strip(),
+    "sdk": os.environ.get("STUDIO_SDK_URL", "https://cdn.clouding.ai/sdk/web/next/core.min.js").strip(),
+    "sse": os.environ.get("STUDIO_SSE_ENDPOINT", "https://acp-test.clouding.ai/api/v1/chat").strip(),
+    "avatar": os.environ.get("STUDIO_AVATAR_URL", "").strip(),        # default: this origin's VRS mark
+    # Custom Agent bridge: optional shared secret Studio sends as the header X-Bridge-Key (set the same pair in Studio's
+    # "Secret Headers"), and the public origin the card images are served from (default: the request's Host).
+    "bridge_secret": os.environ.get("STUDIO_BRIDGE_SECRET", "").strip(),
+    "page_origin": os.environ.get("STUDIO_PAGE_ORIGIN", "http://127.0.0.1:8100").strip(),   # the site that serves trip.html
+    "asset_origin": os.environ.get("STUDIO_ASSET_ORIGIN", "").strip(),
+}
+
+
+def studio_widget_js():
+    if not STUDIO["key"]:
+        return "/* Empathy Studio widget not configured: set STUDIO_CHANNEL_KEY in .env */\n"
+    cfg = {"transport": {"sseEndpoint": STUDIO["sse"], "apiKey": STUDIO["key"]}, "agent": {"avatarUrl": STUDIO["avatar"]}}
+    return (
+        "(function(){\n"
+        "  var qs = new URLSearchParams(location.search);\n"
+        "  if (qs.get('chat') === 'rsg') return;                      /* keep the RSG chat for this page view */\n"
+        "  document.documentElement.classList.add('studio-widget');\n"
+        "  var cfg = " + json.dumps(cfg, ensure_ascii=False) + ";\n"
+        "  if (!cfg.agent.avatarUrl) cfg.agent.avatarUrl = location.origin + '/assets/logos/vrs-turtle-mark.svg';\n"
+        "  var s = document.createElement('script'); s.src = " + json.dumps(STUDIO["sdk"]) + ";\n"
+        "  s.onload = function () { if (window.ChatWidget && ChatWidget.init) ChatWidget.init(cfg); else console.warn('Empathy Studio SDK loaded without ChatWidget.init'); };\n"
+        "  s.onerror = function () { console.warn('Empathy Studio SDK could not be loaded'); document.documentElement.classList.remove('studio-widget'); };\n"
+        "  document.head.appendChild(s);\n"
+        "})();\n")
 SESSION_TTL = 1800      # seconds a verified session can read its saved profile
 PROFILE_FIELDS = ("title", "firstName", "familyName", "mobileCode", "mobile", "guest2First", "guest2Family")   # never "requests"
 SEED_FILE = os.path.join(ROOT, "private", "profiles.seed.json")
@@ -371,6 +406,17 @@ class Handler(SimpleHTTPRequestHandler):
                                     "profileStore": os.path.isfile(PROFILE_STORE)})
         if path == "/api/chat/status":
             return self._json(200, CHAT.status())
+        if path.startswith("/api/booking/"):
+            return self.booking_record(path)
+        if path == "/studio-widget.js":
+            body = studio_widget_js().encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/javascript; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
         if path.startswith("/api/"):
             return self._json(404, {"error": "not_found"})
         if self._private():
@@ -391,7 +437,40 @@ class Handler(SimpleHTTPRequestHandler):
             return self.chat_turn()
         if path == "/api/chat/action-result":
             return self.chat_action_result()
+        if path == "/studio/sessions" or re.match(r"^/studio/sessions/[^/]+/messages$", path):
+            return self.studio_bridge(path)
         self._json(404, {"error": "not_found"})
+
+    def booking_record(self, path):
+        """GET /api/booking/<id>?t=<token>: the saved completed booking for the trip PDF. Read-only: downloading again
+        changes nothing and credits nothing. The token is derived from the booking id and the server secret."""
+        from urllib.parse import parse_qs, urlparse
+        bid = path.split("/")[3][:40]
+        token = (parse_qs(urlparse(self.path).query).get("t") or [""])[0]
+        if not bid or not hmac.compare_digest(token, BRIDGE.pdf_token(bid)):
+            return self._json(404, {"error": "not_found"})
+        rec = BRIDGE.L.completion(bid)
+        if not rec:
+            return self._json(404, {"error": "not_found"})
+        return self._json(200, {"booking": rec})
+
+    # ---- Empathy Studio "Custom Agent" contract (agent/studio_bridge.py). Base URL in Studio = https://<host>/studio
+    def studio_bridge(self, path):
+        secret = STUDIO.get("bridge_secret", "")
+        if secret and self.headers.get("X-Bridge-Key", "") != secret:
+            return self._json(401, {"error": "unauthorized"})
+        data = self._read_json(CHAT_MAX_BODY)
+        if not isinstance(data, dict):
+            return self._json(400, {"error": "bad_request"})
+        scheme = self.headers.get("X-Forwarded-Proto", "http").split(",")[0].strip() or "http"      # a tunnel/proxy terminates TLS
+        origin = STUDIO.get("asset_origin") or ("%s://%s" % (scheme, self.headers.get("Host", "127.0.0.1:8100")))
+        if path == "/studio/sessions":
+            sid = BRIDGE.start_session(data.get("variables"))
+            sys.stderr.write("%s studio session %s\n" % (time.strftime("%H:%M:%S"), sid[:8]))
+            return self._json(200, {"session_id": sid})
+        sid = path.split("/")[3]
+        status, payload = BRIDGE.handle_message(sid, data.get("message"), sys.modules[__name__], origin)
+        return self._json(status, payload)
 
     # ---- live concierge (agent/chat.py). The handler only parses and routes; state and rules live there.
     def chat_session(self):
@@ -492,6 +571,8 @@ class Handler(SimpleHTTPRequestHandler):
 def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8100
     CHAT.PROVIDER = make_provider()
+    BRIDGE.PAGE_ORIGIN = STUDIO["page_origin"]
+    BRIDGE.TOKEN_SECRET = (STUDIO["bridge_secret"] or secrets.token_hex(16)).encode("utf-8")
     httpd = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     print("Concierge page, live agent and verification API: http://127.0.0.1:%d/" % port)
     ps = CHAT.PROVIDER.status()

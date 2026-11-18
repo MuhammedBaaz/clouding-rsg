@@ -1,24 +1,23 @@
 @echo off
 rem Starts the concierge page and its e-mail verification API from one
 rem local HTTP origin, then opens the browser at that address.
-rem Usage:  start.cmd            (port 8100, or the next free port; V1 keeps 8080, V2 8090)
-rem         start.cmd 8100       (a specific starting port)
+rem Usage:  start.cmd            (port 8100; V1 keeps 8080, V2 8090)
+rem         start.cmd 8101       (an explicitly selected test port)
+rem Studio Web channels allow exact origins, so do not move to another port.
 rem Mail settings and the Claude connection (ANTHROPIC_*) are read by server.py
 rem from the environment or from a .env file next to it (see .env.example).
 rem Nothing is sent on start.
-setlocal EnableDelayedExpansion
+setlocal
 cd /d "%~dp0"
 set "PORT=%~1"
 if "%PORT%"=="" set "PORT=8100"
-set TRIES=0
-:probe
-netstat -ano | findstr /R /C:":%PORT% .*LISTENING" >nul 2>&1
+netstat -ano -p tcp | findstr /R /C:":%PORT% .*LISTENING" >nul 2>&1
 if not errorlevel 1 (
-  echo Port %PORT% is already in use by another program; trying the next one.
-  set /a PORT+=1
-  set /a TRIES+=1
-  if !TRIES! LSS 10 goto probe
-  echo No free port found between 8100 and %PORT%. Close something or pass a port: start.cmd 9000
+  echo Cannot start: port %PORT% is already in use.
+  echo If the live concierge is already running, open http://127.0.0.1:%PORT%/.
+  echo To reload changes, press Ctrl+C in the existing server window and run this file again.
+  echo The Studio widget requires an allowed origin; no other port was started.
+  pause
   exit /b 1
 )
 where python >nul 2>&1

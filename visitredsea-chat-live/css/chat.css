@@ -467,3 +467,6 @@ body.chat-min .chat-launcher, body.chat-min .chat-launcher-label { display: none
 .rich .pill-btn svg { margin-inline-start: 8px; margin-inline-end: 0; }
 .gform .fld input[dir="ltr"], .gform .fld select[dir="ltr"], .verify .vform input { direction: ltr; text-align: left; }
 .verify .vdiag { text-align: left; }
+
+/* Empathy Studio widget active (studio-widget.js): the RSG launcher and panel step aside; ?chat=rsg brings them back */
+html.studio-widget .chat-launcher, html.studio-widget .chat-launcher-label, html.studio-widget .chat-panel, html.studio-widget .chat-minibar { display: none !important; }

@@ -150,7 +150,7 @@ window.SCRIPT = {
      summary and the PDF; nothing here claims the payment or the reservation is confirmed. */
   payment: {
     unverified: [
-      "رجعت من صفحة الدفع يا {name}. هذه النسخة التجريبية ما تستلم نتيجة الدفع من {{Visit Red Sea}}، فما أقدر أؤكد حالة الدفع من هنا؛ تأكيد الحجز يصلك من الموقع مباشرة.",
+      "رجعت من صفحة الدفع يا {name}. تأكيد الدفع وتأكيد الحجز يصلانك من {{Visit Red Sea}} مباشرة.",
       { text: "هذا ملخص رحلتك كما رتبناها، وتقدر تحمّله بصيغة {{PDF}}:", component: "confirmation" },
       "نتمنى لك ول{wife} إقامة هادئة في {{Shebara}}. حاضرين لأي تفاصيل تحتاجونها."
     ],
@@ -169,7 +169,50 @@ window.SCRIPT = {
     unavailable: "تعذر الاتصال بالمساعد الآن. حاول مرة أخرى بعد لحظات، وما راح تفقد مكانك في الحجز.",
     notConfigured: "اتصال المساعد غير مهيّأ على هذا الخادم بعد (مفتاح الاتصال أو معرّف الوكيل غير موجود).",
     expired: "انتهت هذه الجلسة. ابدأ محادثة جديدة من القائمة لنكمل.",
-    voiceUnavailable: "وصلتني رسالتك الصوتية، لكن التفريغ الصوتي غير مهيّأ في هذه النسخة، فما أقدر أستخرج بياناتك منها. تقدر تكتب البيانات في النموذج ونكمل على طول."
+    voiceUnavailable: "وصلتني رسالتك الصوتية، لكن التفريغ الصوتي غير مهيّأ في هذه النسخة، فما أقدر أستخرج بياناتك منها. تقدر تكتب البيانات في النموذج ونكمل على طول.",
+    /* Studio widget path (agent/studio_bridge.py): steps that exist only as website components are named, never faked */
+    /* no terms step in the widget (12 Nov 2026): replaces «أكّد الموافقة على الشروط ونكمل…» in the review lines; the official checkout shows its own terms */
+    reviewNextWidget: "نكمل للدفع",
+    widgetStep: "هذه الخطوة (تسجيل الدخول ببريدك، أو نموذج البيانات، أو التحقق من البريد) تتم في صفحة الحجز الكاملة على الموقع، وليست داخل هذه المحادثة بعد. بياناتك الشخصية ما نستلمها هنا.",
+    datesWidget: "اكتب لي تاريخ الوصول وتاريخ المغادرة بالشهر والسنة، مثل: الوصول 23 أكتوبر 2026 والمغادرة 25 أكتوبر 2026.",
+    editWidget: "تعديل البيانات متاح في صفحة الحجز الكاملة على الموقع.",
+    checkoutWidget: "هذا رابط الدفع الآمن على موقع Visit Red Sea، افتحه لإتمام الحجز. هذه المحادثة ما تستلم نتيجة الدفع، فتأكيد الحجز يصلك من الموقع مباشرة.",
+    pdfLink: "ملف تفاصيل رحلتك جاهز يا {name}: {link}",
+    pdfLinkLabel: "تحميل ملف PDF",
+    checkoutLinkLabel: "المتابعة للدفع",
+    pdfNotReady: "ملف تفاصيل الرحلة يصبح متاحًا بعد اكتمال الحجز.",
+    /* Guest details collected in the chat (widget path, 10 Nov 2026): never card numbers or codes */
+    guestAsk: "تمام يا {name}. عشان أكمل الحجز أحتاج بياناتك: الاسم الأول واسم العائلة، البريد الإلكتروني، ورقم الجوال. وإذا زوجتك معك، اسمها الأول واسم عائلتها. تقدر تكتبها كلها في رسالة واحدة.",
+    /* The title (السيد / السيدة) is taken from the first name when it is clear; only an unclear name gets this one question */
+    titleAsk: "وش اللقب اللي تفضّله في بيانات الحجز، السيد أو السيدة؟",
+    guestMissing: "سجّلت اللي كتبته. باقي {missing}؛ اكتبها وأكمل لك.",
+    guestInvalid: "ما قدرت أعتمد {invalid}، تأكد منها واكتبها من جديد لو سمحت.",
+    askRequests: "هل عندكم أي طلب خاص تحبون نضيفه لإقامتكم يا {name}؟ وإذا ما عندكم طلبات، قول «لا» ونكمل.",
+    signInWidget: "تسجيل الدخول برمز البريد غير متاح في هذه المحادثة، فما أقدر أسترجع بيانات محفوظة هنا. نكمل ببياناتك مباشرة:",
+    editAsk: "اكتب لي البيانات اللي تحب تعدّلها (مثلًا البريد الإلكتروني أو رقم الجوال) وأحدّثها لك في المراجعة.",
+    /* Widget components (11 Nov 2026): the website renders a calendar and a guest form from these blocks */
+    calendarTitle: "متى تحبون يكون الوصول والمغادرة؟",
+    calendarSubmit: "اعتماد التواريخ",
+    formLead: "تمام يا {name}. عشان أكمل الحجز، عبّي بياناتك في النموذج، وإذا زوجتك معك أضف اسمها.",
+    formLeadEdit: "تمام يا {name}، عدّل اللي تحتاجه في النموذج ثم اعتمده، وأحدّث لك المراجعة.",
+    formLeadFix: "راجع الحقل المحدد في النموذج واعتمد البيانات من جديد.",
+    formTitle: "بيانات الحجز",
+    formSubmit: "اعتماد البيانات",
+    /* Loyalty points (agent/loyalty.py; configurable rules) */
+    redeemOffer: "عندك رصيد {balance} نقطة ولاء من حجوزاتك السابقة، تساوي {value}. تحب تستخدمها في هذا الحجز قبل الدفع؟",
+    redeemApplied: "تم. استخدمت {points} نقطة بقيمة {value}، فالإجمالي للدفع {payable}. إذا البيانات صحيحة، أكّد الموافقة على الشروط ونكمل.",
+    redeemCleared: "تمام، ما استخدمنا النقاط، والإجمالي {payable}. إذا البيانات صحيحة، أكّد الموافقة على الشروط ونكمل.",
+    redeemTooMany: "أقصى ما تقدر تستخدمه {max} نقطة ({value}) حسب رصيدك وإجمالي الحجز. كم نقطة تحب تستخدم؟",
+    redeemNone: "ما عندك رصيد نقاط ولاء بعد؛ تكسب نقاطك من هذا الحجز. إذا البيانات صحيحة، أكّد الموافقة على الشروط ونكمل.",
+    /* After the payment link: the application prepares the trip details itself a few seconds later (no card is charged,
+       no reservation is created, no provider result is received, and nothing below claims otherwise) */
+    checkoutLead: "هذا رابط الدفع الآمن على موقع Visit Red Sea، والإجمالي {payable}.",
+    checkoutNote: "وخلال لحظات أجهّز لك تفاصيل رحلتك هنا.",
+    completed: "تفاصيل رحلتك جاهزة يا {name}. تأكيد الدفع وتأكيد الحجز يصلانك من موقع Visit Red Sea مباشرة.",
+    /* Only this booking's award is quoted (never a running balance): {points} is the award with a thousands separator */
+    loyaltyClose: "يا {name}، كسبت من حجزك هذا {points} نقطة ولاء، وتقدر تستخدمها في حجوزاتك الجاية. {redeemedLine}نتمنى لك {companion}إقامة جميلة في {{{resort}}}.",
+    loyaltyRedeemedLine: "واستخدمت {redeemed} نقطة في هذا الحجز. ",
+    cancelled: "تمام، أوقفت خطوة الدفع. هذه مراجعة حجزك؛ إذا تحب تعدّل شيء اكتبه لي، أو أكّد الموافقة على الشروط ونكمل."
   },
 
   done: {

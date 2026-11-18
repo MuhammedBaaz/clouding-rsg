@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RSG components fixture</title>
+<style>
+  body { margin: 0; font: 15px/1.5 "Segoe UI", system-ui, sans-serif; background: #f4f1ea; color: #1b303c; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 20px 80px; }
+  h1 { font-size: 20px; margin: 0 0 6px; } p { margin: 0 0 12px; color: #44555f; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  button { font: inherit; padding: 7px 12px; border: 1px solid #143449; background: #143449; color: #fff; border-radius: 6px; cursor: pointer; }
+  button.alt { background: #fff; color: #143449; }
+  .frames { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  fake-widget { display: block; width: 380px; max-width: 100%; }
+  .readout { font-family: Consolas, monospace; font-size: 12.5px; white-space: pre-wrap; background: #fff; padding: 10px; border-radius: 6px; margin-top: 12px; min-height: 60px; }
+  @media (max-width: 820px) { .frames { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>RSG components fixture</h1>
+  <p>Both renderers mounted inside an open shadow root like the real widget. A fake widget instance captures <code>transport.send</code> and answers like the bridge after a delay. No SDK, no backend, no agent cost.</p>
+  <div class="row">
+    <button id="cal">calendar (priced initial)</button>
+    <button id="cal-empty" class="alt">calendar (no initial)</button>
+    <button id="cal-restore" class="alt">calendar restored from selection</button>
+    <button id="form">form (محمد, title resolved)</button>
+    <button id="form-ask" class="alt">form (نور, title asked)</button>
+    <button id="form-err" class="alt">form with server error</button>
+    <button id="form-reload" class="alt">form after reload (same payload)</button>
+    <button id="reply-slow" class="alt">next reply: none (timeout)</button>
+    <button id="clear" class="alt">clear stored submissions</button>
+  </div>
+  <div class="frames">
+    <fake-widget id="w1"></fake-widget>
+    <div class="readout" id="out">submitted lines appear here</div>
+  </div>
+</main>
+<script>
+  /* fake widget instance with the public surface the renderers use */
+  (function () {
+    var messages = [], replyDelay = 1200, out = document.getElementById("out");
+    window.__rsgStudioInstance = {
+      messages: { get: function () { return messages.slice(); }, add: function (m) { messages.push(Object.assign({ id: String(messages.length + 1) }, m)); } },
+      transport: { send: function (text) {
+        out.textContent = "transport.send (" + text.length + " chars):\n" + text + "\n\n" + out.textContent;
+        if (replyDelay >= 0) setTimeout(function () { messages.push({ id: String(messages.length + 1), sender: "agent", content: "(reply)" }); }, replyDelay);
+      } },
+      session: { get sessionId() { return "fixture-session"; } },
+      registerComponent: function (t, r) { (window.__registered = window.__registered || {})[t] = r; }
+    };
+    window.__setReplyDelay = function (ms) { replyDelay = ms; };
+    customElements.define("fake-widget", class extends HTMLElement {
+      connectedCallback() { this.attachShadow({ mode: "open" }); this.shadowRoot.innerHTML = '<style>:host{--primary-color:#0f766e;--text-color:#1f2937;--border-color:#e5e7eb;--background-color:#fff;--font-family:"Segoe UI",system-ui,sans-serif}.bubble{background:#fff;border-radius:14px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,.12);direction:rtl}</style><div class="bubble"></div>'; }
+      mount(elm) { var b = this.shadowRoot.querySelector(".bubble"); b.innerHTML = ""; b.appendChild(elm); }
+    });
+  })();
+</script>
+<script src="../js/rsg-components.js"></script>
+<script>
+  (function () {
+    var w = document.getElementById("w1"), R = window.RSGComponents;
+    var CAL = { main_title: "متى تحبون يكون الوصول والمغادرة؟", min_date: "2026-10-23", max_date: "2027-10-23", initial_check_in: "2026-10-23", initial_check_out: "2026-10-25", min_nights: 1, max_nights: 30, submit_label: "اعتماد التواريخ", lock_after_selection: true };
+    var FORM = { main_title: "بيانات الحجز", title_value: "السيد", title_ask: false, title_question: "", first_name: "محمد", family_name: "", email: "", mobile_code: "+966", mobile: "", companion_first_name: "", companion_family_name: "", requests: "", error_field: "", error_text: "", submit_label: "اعتماد البيانات", lock_after_selection: true };
+    function onSelect(v, i) { document.getElementById("out").textContent = "onSelect (" + v.length + " chars, index " + i + "):\n" + v + "\n\n" + document.getElementById("out").textContent; }
+    var reg = window.__registered || {};
+    document.getElementById("cal").onclick = function () { w.mount(reg.rsg_date_range(CAL, onSelect)); };
+    document.getElementById("cal-empty").onclick = function () { w.mount(reg.rsg_date_range(Object.assign({}, CAL, { initial_check_in: "", initial_check_out: "" }), onSelect)); };
+    document.getElementById("cal-restore").onclick = function () { w.mount(reg.rsg_date_range(CAL, onSelect, { index: 0, value: R.datesLine("2026-11-20", "2026-11-23") })); };
+    document.getElementById("form").onclick = function () { w.mount(reg.rsg_guest_form(FORM, onSelect)); };
+    document.getElementById("form-ask").onclick = function () { w.mount(reg.rsg_guest_form(Object.assign({}, FORM, { title_value: "", title_ask: true, title_question: "وش اللقب اللي تفضّله في بيانات الحجز، السيد أو السيدة؟", first_name: "نور" }), onSelect)); };
+    document.getElementById("form-err").onclick = function () { w.mount(reg.rsg_guest_form(Object.assign({}, FORM, { family_name: "باز", email: "mohammed.baz.demo@example", mobile: "551234567", error_field: "email", error_text: "ما قدرت أعتمد بريدك الإلكتروني، تأكد منه واكتبه من جديد لو سمحت." }), onSelect)); };
+    document.getElementById("form-reload").onclick = function () { w.mount(reg.rsg_guest_form(FORM, onSelect)); };
+    document.getElementById("reply-slow").onclick = function () { window.__setReplyDelay(-1); this.textContent = "next reply: none (set)"; };
+    document.getElementById("clear").onclick = function () { Object.keys(localStorage).filter(function (k) { return k.indexOf("rsg:form:") === 0; }).forEach(function (k) { localStorage.removeItem(k); }); document.getElementById("out").textContent = "cleared"; };
+    document.getElementById("out").textContent = "registered types: " + Object.keys(reg).join(", ");
+  })();
+</script>
+</body>
+</html>

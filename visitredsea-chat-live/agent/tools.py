@@ -36,6 +36,9 @@ TOOL_STAGES = {
     "experience_interest": ["activities"],
     "choose_account_mode": ["account", "login"],
     "record_special_request": ["requests"],
+    "set_guest_details": ["guest", "requests", "review", "payment"],
+    "redeem_points": ["review"],
+    "cancel_checkout": ["payment"],
     "confirm_review": ["review"],
     "show_current_step": T.STAGES,
 }
@@ -106,6 +109,12 @@ def call_tool(st, name, args, client):
             return T.account_mode(st, args.get("mode"))
         if name == "record_special_request":
             return T.record_request(st, args.get("request"), bool(args.get("none")))
+        if name == "set_guest_details":
+            return T.set_guest_details(st, args)
+        if name == "redeem_points":
+            return T.redeem_points(st, args.get("points"))
+        if name == "cancel_checkout":
+            return T.cancel_checkout(st)
         if name == "confirm_review":
             return T.confirm(st, bool((client or {}).get("termsAccepted")))
         if name == "show_current_step":

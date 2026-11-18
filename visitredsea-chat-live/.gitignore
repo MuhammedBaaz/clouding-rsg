@@ -2,3 +2,10 @@
 __pycache__/
 private/profiles.json
 private/*.tmp
+private/loyalty.json
+private/bridge_secret.txt
+# Local run state, not committed (18 Nov 2026): live tunnel address and log, agent spend ledger, process id files
+pidbridge*.txt
+private/agent_spend.json
+private/base_url.txt
+private/tunnel.log

@@ -18,6 +18,8 @@ import re
 import sys
 import time
 
+from . import budget as BUDGET
+
 STREAM_TIMEOUT = float(os.environ.get("ANTHROPIC_STREAM_TIMEOUT", "120") or 120)   # seconds for one agent run
 
 
@@ -80,16 +82,22 @@ class ManagedAgentsProvider(object):
         return self._client
 
     def open_session(self, title):
+        cap = BUDGET.session_budget(self.client(), self.agent_id)        # what is left of the shared cap, platform-enforced per session
+        if cap is None:
+            raise ProviderError("budget", "shared agent budget reached before opening a session")
         try:
-            s = self.client().beta.sessions.create(agent=self.agent_id, environment_id=self.environment_id, title=title[:80])
+            s = self.client().beta.sessions.create(agent=self.agent_id, environment_id=self.environment_id, title=title[:80], budget=cap)
         except Exception as e:
             raise self._map(e)
+        BUDGET.record(s.id, {"list_cost": {"amount": "0"}}, title)
         return s.id
 
     def run(self, remote_id, events):
         """Send events, then read the stream until the session is idle. Returns RunResult."""
         texts, tool_uses = [], []
         deadline = time.time() + STREAM_TIMEOUT
+        if BUDGET.remaining_cents(self.client(), self.agent_id) <= 0:  # shared cap across every session of this agent
+            raise ProviderError("budget", "shared agent budget reached")
         try:
             with self.client().beta.sessions.events.stream(remote_id, timeout=STREAM_TIMEOUT) as stream:
                 self.client().beta.sessions.events.send(remote_id, events=events)
@@ -104,10 +112,14 @@ class ManagedAgentsProvider(object):
                     elif et == "session.status_idle":
                         sr = _get(ev, "stop_reason")
                         st = _get(sr, "type", "end_turn") if sr is not None else "end_turn"
+                        self._record_spend(remote_id)
+                        if st == "budget_reached":
+                            raise ProviderError("budget", "session budget reached")
                         return RunResult(st, texts, tool_uses if st == "requires_action" else [])
                     elif et == "session.error":
                         err = _get(ev, "error")
-                        raise ProviderError("provider", str(_get(err, "type", "session.error")))
+                        detail = err.model_dump() if hasattr(err, "model_dump") else err
+                        raise ProviderError("provider", json.dumps(detail, ensure_ascii=False, default=str)[:400])
                     if time.time() > deadline:
                         raise ProviderError("timeout", "no idle event within %ds" % STREAM_TIMEOUT)
         except ProviderError:
@@ -115,6 +127,21 @@ class ManagedAgentsProvider(object):
         except Exception as e:
             raise self._map(e)
         raise ProviderError("provider", "stream ended without an idle event")
+
+    def _record_spend(self, remote_id):
+        """Store the platform's cumulative list cost for this session (exact, no price table on our side)."""
+        try:
+            s = self.client().beta.sessions.retrieve(remote_id)
+            BUDGET.record(remote_id, getattr(s, "usage", None), getattr(s, "title", "") or "")
+        except Exception as e:                               # never let bookkeeping break the guest's turn
+            import sys
+            sys.stderr.write("spend record failed for %s: %s\n" % (remote_id, type(e).__name__))
+
+    def budget_status(self):
+        try:
+            return BUDGET.status(self.client() if self.configured() else None, self.agent_id)
+        except Exception as e:
+            return {"error": type(e).__name__}
 
     @staticmethod
     def _map(e):

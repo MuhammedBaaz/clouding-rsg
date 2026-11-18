@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تفاصيل رحلتك | Visit Red Sea</title>
+<link rel="stylesheet" href="css/site.css">
+<style>
+  body { margin: 0; background: #fcfcf9; color: #04253c; font-family: "Fedra Sans AL", Arial, sans-serif; }
+  main { max-width: 640px; margin: 12vh auto; padding: 0 24px; }
+  h1 { font-family: "Fedra Serif Arabic AR", "Fedra Sans AL", serif; font-weight: 600; font-size: 34px; margin: 0 0 12px; }
+  p { font-size: 18px; line-height: 1.7; margin: 0 0 18px; color: #334f5e; }
+  button { font: inherit; font-size: 18px; padding: 12px 22px; border: 1px solid #04253c; background: #04253c; color: #fff; border-radius: 6px; cursor: pointer; }
+  button[disabled] { opacity: .6; cursor: default; }
+  .muted { color: #637779; font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>تفاصيل رحلتك</h1>
+  <p id="status">جارٍ تجهيز الملف…</p>
+  <p><button id="again" type="button" disabled>تنزيل الملف مرة أخرى</button></p>
+  <p class="muted">الملف يُبنى من بيانات حجزك المسجّلة كما أكّدتها في المحادثة. تنزيله مرة أخرى لا يغيّر الحجز ولا النقاط.</p>
+</main>
+<script src="data/booking.js"></script>
+<script src="js/pdf.js"></script>
+<script>
+(function () {
+  "use strict";
+  var q = new URLSearchParams(location.search), b = q.get("b") || "", t = q.get("t") || "";
+  var status = document.getElementById("status"), again = document.getElementById("again"), blob = null, filename = "";
+  /* No cross-tab signal any more: the site's WhatsApp mockups open only from their own launcher buttons (11 Nov 2026). */
+  function fail(msg) { status.textContent = msg; }
+  if (!b || !t) { fail("الرابط غير مكتمل. افتح رابط التنزيل من المحادثة مرة أخرى."); return; }
+  fetch("/api/trip?b=" + encodeURIComponent(b) + "&t=" + encodeURIComponent(t), { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error("not_found"); return r.json(); })
+    .then(function (data) {
+      var rec = data.booking, g = rec.guest || {};
+      /* the PDF generator reads the same state shape the website uses; every value comes from the saved record */
+      var state = {
+        name: g.firstName || "", guest: g, checkIn: rec.checkIn, checkOut: rec.checkOut, nights: rec.nights, adults: rec.adults,
+        payableTotal: rec.payable_total_sar, redeem: rec.redeem && rec.redeem.points ? { points: rec.redeem.points, valueSar: rec.redeem.valueSar } : null,
+        loyalty: { earned: rec.earned_points, redeemed: rec.redeemed_points }
+      };
+      filename = "VisitRedSea-trip-" + (rec.checkIn || "") + ".pdf";
+      return BookingPdf.make(state, window.BOOKING).then(function (pdf) {
+        blob = pdf; BookingPdf.download(blob, filename);
+        status.textContent = "بدأ تنزيل ملف تفاصيل رحلتك. إذا لم يبدأ، اضغط الزر أدناه.";
+        again.disabled = false; again.textContent = "تنزيل الملف";
+      });
+    })
+    .catch(function (e) { fail(e && e.message === "not_found" ? "ما لقينا حجزًا مكتملًا لهذا الرابط. ارجع للمحادثة واطلب الملف من جديد." : "تعذر تجهيز الملف الآن. حاول مرة أخرى بعد لحظات."); });
+  again.addEventListener("click", function () { if (blob) BookingPdf.download(blob, filename); });
+})();
+</script>
+</body>
+</html>

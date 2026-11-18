@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp overlay fixture</title>
+<link rel="stylesheet" href="../css/site.css">
+<link rel="stylesheet" href="../css/whatsapp.css">
+<link rel="stylesheet" href="../css/handoff.css">
+<style>
+  body { margin: 0; font: 15px/1.5 "Segoe UI", system-ui, sans-serif; background: #f4f1ea; color: #1b303c; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 20px 120px; }
+  h1 { font-weight: 600; font-size: 22px; margin: 0 0 6px; }
+  p { margin: 0 0 14px; color: #44555f; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  button { font: inherit; padding: 8px 14px; border: 1px solid #143449; background: #143449; color: #fff; border-radius: 6px; cursor: pointer; }
+  button.alt { background: #fff; color: #143449; }
+  code { background: #fff; padding: 1px 5px; border-radius: 4px; }
+  .readout { font-family: Consolas, monospace; font-size: 13px; color: #334f5e; background: #fff; padding: 10px 12px; border-radius: 6px; white-space: pre-wrap; }
+  .filler { height: 900px; background: repeating-linear-gradient(180deg, transparent 0 60px, rgba(0,0,0,.04) 60px 61px); margin-top: 24px; border-radius: 8px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>WhatsApp overlay fixture</h1>
+  <p>No chat widget, no backend, no agent call. Since 11 Nov the scenes open only from their launchers (bottom-right, as on the site). The fake agent bubble below sits inside an open shadow root like the real widget: clicking its trip link, or the broadcast button, must <b>not</b> open anything.</p>
+  <fake-widget></fake-widget>
+  <div class="row">
+    <button id="sim-click">trip link click (must not open)</button>
+    <button id="sim-bc">trip.html broadcast (must not open)</button>
+    <button id="open-handoff">open handoff scene</button>
+    <button id="open-again" class="alt">open again</button>
+    <button id="close" class="alt">close</button>
+    <button id="reset" class="alt">reset and replay</button>
+    <button id="flip" class="alt">flip outgoing side</button>
+  </div>
+  <div class="readout" id="readout"></div>
+  <p style="margin-top:14px">Switches: <code>?dir=rtl</code> mirrors the whole screen (with <code>?ui=ar</code> for the Arabic chrome strings), <code>?side=start</code> puts outgoing bubbles on the other side.</p>
+  <div class="filler" aria-hidden="true"></div>
+</main>
+<script src="../data/whatsapp-script.js"></script>
+<script>
+  (function () {
+    var q = new URLSearchParams(location.search);
+    if (q.get("dir")) window.WHATSAPP_SCRIPT.dir = q.get("dir");
+    if (q.get("side")) window.WHATSAPP_SCRIPT.outSide = q.get("side");
+    if (q.get("ui")) window.WHATSAPP_SCRIPT.ui = q.get("ui");
+    customElements.define("fake-widget", class extends HTMLElement {
+      connectedCallback() {
+        var r = this.attachShadow({ mode: "open" });
+        r.innerHTML = '<style>.b{max-width:420px;background:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,.12);direction:rtl;font:16px/1.6 "Segoe UI",system-ui,sans-serif}a{color:#143449}</style>' +
+          '<div class="b">ملف تفاصيل رحلتك جاهز يا محمد: <a href="about:blank" target="_blank" rel="noopener noreferrer" data-wa-trigger>تحميل ملف PDF</a></div>';
+        var a = r.querySelector("a");
+        a.addEventListener("click", function (e) { if (!e.isTrusted) e.preventDefault(); });   /* synthetic clicks must not open a tab */
+      }
+    });
+  })();
+</script>
+<script src="../js/whatsapp.js"></script>
+<script src="../data/booking.js"></script>
+<script src="../data/handoff-script.js"></script>
+<script src="../js/handoff.js"></script>
+<script src="../js/mockup-launchers.js"></script>
+<script>
+  (function () {
+    var link = function () { return document.querySelector("fake-widget").shadowRoot.querySelector("a"); };
+    document.getElementById("sim-click").onclick = function () { link().dispatchEvent(new MouseEvent("click", { bubbles: true, composed: true, cancelable: true })); };
+    document.getElementById("sim-bc").onclick = function () { new BroadcastChannel("rsg-trip").postMessage({ type: "rsg-trip", event: "load", b: "RSGD-FIXTURE" }); };
+    document.getElementById("open-handoff").onclick = function () { window.RSGHandoff.open({ source: "fixture" }); };
+    document.getElementById("open-again").onclick = function () { window.RSGWhatsApp.open({ source: "fixture" }); };
+    document.getElementById("close").onclick = function () { window.RSGWhatsApp.close(); };
+    document.getElementById("reset").onclick = function () { window.RSGWhatsApp.reset(); window.RSGWhatsApp.open({ source: "fixture-replay" }); };
+    document.getElementById("flip").onclick = function () { var s = document.querySelector(".wa-screen"); if (s) s.setAttribute("data-out-side", s.getAttribute("data-out-side") === "end" ? "start" : "end"); };
+    var out = document.getElementById("readout");
+    setInterval(function () {
+      var root = document.querySelector(".wa-overlay"), list = document.querySelector(".wa-messages");
+      out.textContent = "viewport " + window.innerWidth + "×" + window.innerHeight + "  |  state " + window.RSGWhatsApp.state() +
+        "  |  overlays " + document.querySelectorAll(".wa-overlay").length + "  |  messages " + (list ? list.querySelectorAll(".wa-msg").length : 0) +
+        "  |  scale " + (root ? getComputedStyle(root).getPropertyValue("--wa-scale").trim() : "-") + "  |  hidden " + document.hidden;
+    }, 400);
+  })();
+</script>
+</body>
+</html>
