@@ -180,10 +180,39 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def booking_proxy(self, method):
+        """/api/booking/state (GET ?v=<visitor id>) and /api/booking/draft (POST): the website views' link to the live
+        backend's local-only /api/studio/* endpoints. The visitor id is the one the Studio widget stores in this browser."""
+        from urllib.parse import parse_qs, urlparse, quote
+        import urllib.request
+        try:
+            if method == "GET":
+                vid = (parse_qs(urlparse(self.path).query).get("v") or [""])[0][:120]
+                req = urllib.request.Request(BACKEND_URL + "/api/studio/state?v=" + quote(vid))
+            else:
+                n = int(self.headers.get("Content-Length") or 0)
+                if n <= 0 or n > 16384:
+                    return self._json(400, {"error": "bad_request"})
+                req = urllib.request.Request(BACKEND_URL + "/api/studio/draft", data=self.rfile.read(n), method="POST",
+                                             headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=10) as r:
+                return self._raw(200, r.read())
+        except urllib.error.HTTPError as e:
+            return self._json(e.code if e.code in (400, 404, 409) else 502, {"error": "backend_%d" % e.code})
+        except Exception:
+            return self._json(502, {"error": "backend_unreachable"})
+
+    def do_POST(self):
+        if self.path.split("?")[0] == "/api/booking/draft":
+            return self.booking_proxy("POST")
+        return self._json(404, {"error": "not_found"})
+
     def do_GET(self):
         path = self.path.split("?")[0]
         if path == "/api/trip":
             return self.trip_record()
+        if path == "/api/booking/state":
+            return self.booking_proxy("GET")
         if path == "/studio-widget.js":
             body = widget_js().encode("utf-8")
             self.send_response(200)

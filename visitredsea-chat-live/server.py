@@ -408,6 +408,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, CHAT.status())
         if path.startswith("/api/booking/"):
             return self.booking_record(path)
+        if path == "/api/studio/state":
+            return self.studio_page_state()
         if path == "/studio-widget.js":
             body = studio_widget_js().encode("utf-8")
             self.send_response(200)
@@ -439,7 +441,34 @@ class Handler(SimpleHTTPRequestHandler):
             return self.chat_action_result()
         if path == "/studio/sessions" or re.match(r"^/studio/sessions/[^/]+/messages$", path):
             return self.studio_bridge(path)
+        if path == "/api/studio/draft":
+            return self.studio_page_draft()
         self._json(404, {"error": "not_found"})
+
+    # ---- website views (visitredsea-chat-fresh/js/booking-views.js through that site's /api/booking/* proxy), 18 Nov 2026.
+    # Local only: the website's server calls these on 127.0.0.1. A request that came through the tunnel carries Cloudflare's
+    # headers and is refused, so the public bridge address never exposes a booking by visitor id.
+    def _local_only(self):
+        if self.client_address[0] not in ("127.0.0.1", "::1"):
+            return False
+        return not any(self.headers.get(h) for h in ("Cf-Connecting-Ip", "Cf-Ray", "X-Forwarded-For", "X-Forwarded-Proto"))
+
+    def studio_page_state(self):
+        from urllib.parse import parse_qs, urlparse
+        if not self._local_only():
+            return self._json(403, {"error": "local_only"})
+        vid = (parse_qs(urlparse(self.path).query).get("v") or [""])[0][:120]
+        state = BRIDGE.page_state(vid) if vid else None
+        return self._json(200, state) if state else self._json(404, {"error": "no_conversation"})
+
+    def studio_page_draft(self):
+        if not self._local_only():
+            return self._json(403, {"error": "local_only"})
+        data = self._read_json(CHAT_MAX_BODY)
+        if not isinstance(data, dict):
+            return self._json(400, {"error": "bad_request"})
+        status = BRIDGE.save_draft(str(data.get("v") or "")[:120], data.get("fields"))
+        return self._json(status, {"ok": status == 200})
 
     def booking_record(self, path):
         """GET /api/booking/<id>?t=<token>: the saved completed booking for the trip PDF. Read-only: downloading again
@@ -464,6 +493,15 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(400, {"error": "bad_request"})
         scheme = self.headers.get("X-Forwarded-Proto", "http").split(",")[0].strip() or "http"      # a tunnel/proxy terminates TLS
         origin = STUDIO.get("asset_origin") or ("%s://%s" % (scheme, self.headers.get("Host", "127.0.0.1:8100")))
+        if os.environ.get("STUDIO_DEBUG_FIELDS", "").strip() == "1":
+            # Phase 0 diagnostic (off by default): which fields Studio sends, values only as short hashes, channel key never
+            def _h(v):
+                return hashlib.sha256(json.dumps(v, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()[:12]
+            shown = {k: ("<present>" if "key" in k.lower() else _h(v)) for k, v in data.items() if k not in ("variables", "message")}
+            var_list = data.get("variables") if isinstance(data.get("variables"), list) else []
+            vars_ = {str(x.get("name")): ("<present>" if "key" in str(x.get("name")).lower() else _h(x.get("value")))
+                     for x in var_list if isinstance(x, dict)}
+            sys.stderr.write("%s studio fields %s top=%s variables=%s\n" % (time.strftime("%H:%M:%S"), path, json.dumps(shown), json.dumps(vars_)))
         if path == "/studio/sessions":
             sid = BRIDGE.start_session(data.get("variables"))
             sys.stderr.write("%s studio session %s\n" % (time.strftime("%H:%M:%S"), sid[:8]))

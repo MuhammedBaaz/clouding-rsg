@@ -19,3 +19,7 @@ reports/tmp/
 
 # Not committed (18 Nov 2026): saved copy of the Clouding control-plane admin page (an authenticated session capture)
 /Control Plane Admin*
+
+# Salesforce CLI cache (org metadata catalog), created by sf commands run inside an app folder
+.sf/
+.sfdx/

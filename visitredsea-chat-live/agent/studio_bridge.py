@@ -40,6 +40,7 @@ S = D.SCRIPT
 B = D.BOOKING
 _lock = threading.Lock()
 _recent = {}          # sid -> (message, reply_json, time): the duplicate-delivery guard the contract asks for
+_by_visitor = {}      # Studio visitor_id -> sid of that visitor's latest conversation (website views, page_state)
 
 AR_DAYS = ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]      # date.weekday(): Monday = 0
 AR_MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"]
@@ -443,6 +444,8 @@ def guest_form_submit(sess, fields, origin):
         items = T._items(r2.items)
         note = "details form submitted and saved; review shown"
     elif r.ok:
+        if requests and isinstance(st.get("guest"), dict):     # a corrected request from the form at the review (website view)
+            st["guest"]["requests"] = str(requests).strip()[:150]
         items = T._items(r.items)
         note = "details form resubmitted; review updated"
     elif r.result.get("error") == "not_allowed_in_stage":
@@ -453,6 +456,7 @@ def guest_form_submit(sess, fields, origin):
         st["_formError"] = {"field": FORM_FIELD.get(bad, bad), "text": " ".join(i.get("text", "") for i in T._items(r.items) if isinstance(i, dict)).strip()}
         items = [{"text": fill(S["live"]["formLeadFix"], st), "component": "guestForm"}]
         note = "details form rejected (%s)" % bad
+    sess.page_form_error = dict(st["_formError"]) if note.startswith("details form rejected") else None   # read by the website view
     sess.recent_events.append("guest action: " + note)
     sess.recent_events = sess.recent_events[-12:]
     return {"items": items, "state": T.snapshot(st)}
@@ -493,6 +497,9 @@ def event_for(text):
         return {"type": "airports", "arrival": B["transport"]["arrivalAirport"], "departure": B["transport"]["departureAirport"], "flight": {}}
     if t in ("نختار عند الوصول", "نعم، نكمل الحجز"):
         return {"type": "defer"}
+    m = re.match(r"^مهتم بتجربة (.+?)\.?$", t)                       # an activity card on the website: interest only, nothing added
+    if m and any(m.group(1).strip() in (a.get("nameAr"), a.get("name")) for a in B.get("activities", [])):
+        return {"type": "interest"}
     if t == "لدي حساب سابق":
         return {"type": "account", "mode": "account"}
     if t == "متابعة كضيف جديد":
@@ -524,6 +531,11 @@ def start_session(variables):
     sess.pending_completion = None                      # {id, quote, issued, payable, redeem}: set when the payment link is issued
     sess.completion = None                              # the recorded demo completion's reply items (returned again on a retry)
     sess.studio = {"variables": {v.get("name"): v.get("value") for v in (variables or []) if isinstance(v, dict)}, "created": time.time()}
+    sess.view, sess.view_seq, sess.page_form_error = None, 0, None   # the website view the latest reply calls for (page_state)
+    vid = str(sess.studio["variables"].get("visitor_id") or "")
+    if vid:                                             # Phase 0 (18 Nov 2026): Studio's visitor_id equals the widget's stored id
+        with _lock:
+            _by_visitor[vid] = sess.sid                 # the latest conversation of this visitor (a new chat issues a new id)
     return sess.sid
 
 
@@ -572,6 +584,7 @@ def handle_message(session_id, message, server, origin):
     if resp.get("error"):
         sys.stderr.write("%s studio %s turn error %s (%s)\n" % (time.strftime("%H:%M:%S"), sess.sid[:8], resp["error"], resp.get("reason", "")))
     sync_pending(sess)
+    note_view(sess, resp.get("items", []))
     text = reply_text(resp.get("items", []), sess.state, origin)
     if not text:                                           # an empty turn (e.g. provider error with no item): the stage's own line
         fb = T.fallback(sess.state)
@@ -581,3 +594,91 @@ def handle_message(session_id, message, server, origin):
         with _lock:
             _recent[sess.sid] = (message, payload, time.time())
     return 200, payload
+
+
+# ---------------------------------------------------------------- website views (18 Nov 2026)
+# The page (visitredsea-chat-fresh/js/booking-views.js) finds its conversation by the visitor id the widget stores,
+# reads this snapshot through its own server (/api/booking/state), and sends every decision back through the widget as
+# the approved card line, so the booking moves only in one place. Only the guest-form draft is written here.
+VIEW_COMPONENTS = {"villas": "villas", "compare": "compare", "comparePick": "compare", "airports": "transport",
+                   "transportTrip": "transport", "guestForm": "guest", "review": "review"}
+VIEW_STAGES = {"villas": ("villa",), "compare": ("resort",), "transport": ("airports", "approve2"),
+               "guest": ("guest", "requests", "review", "payment"), "review": ("review",)}
+DRAFT_KEYS = ("title", "firstName", "familyName", "email", "mobileCode", "mobile", "guest2First", "guest2Family", "requests")
+
+
+def note_view(sess, items):
+    """Remember the website view the latest reply calls for; a new view raises view_seq, so the page offers it once."""
+    view = None
+    for it in items or []:
+        if isinstance(it, dict) and it.get("component") in VIEW_COMPONENTS:
+            view = VIEW_COMPONENTS[it["component"]]
+    if not view and sess.state.get("stage") in ("guest", "requests") and any(isinstance(it, dict) and it.get("text") for it in items or []):
+        view = "guest"                                   # the details asks become the form block at these stages
+    if view and view != getattr(sess, "view", None):
+        sess.view = view
+        sess.view_seq = getattr(sess, "view_seq", 0) + 1
+
+
+def _session_for(visitor_id):
+    with _lock:
+        sid = _by_visitor.get(str(visitor_id or ""))
+    return CHAT.get_session(sid) if sid else None
+
+
+def page_state(visitor_id):
+    """The booking as the website views show it. None when the visitor has no conversation on this server."""
+    sess = _session_for(visitor_id)
+    if not sess:
+        return None
+    st = sess.state
+    stage = st.get("stage", "name")
+    order = T.STAGES
+    at = order.index(stage) if stage in order else 0
+    past = lambda s: at > order.index(s)
+    g = st.get("guest") or {}
+    draft = st.get("pageDraft") or {}
+    guest = {k: str(g.get(k) or draft.get(k) or "") for k in DRAFT_KEYS}
+    guest["firstName"] = guest["firstName"] or st.get("name") or ""
+    guest["title"] = guest["title"] or (T.infer_title(guest["firstName"]) if guest["firstName"] else "") or ""
+    guest["mobileCode"] = guest["mobileCode"] or "+966"
+    villa = next((v for v in D.VILLAS if v["name"] == st.get("villaName")), None)
+    prices = {}
+    if past("dates"):                                    # the state only moves past dates on the priced villa, party and dates
+        prices.update(stay=money(B["rate"]["total"]), taxNote=B["rate"]["taxNoteAr"], basis=B["rate"]["basisAr"])
+    if past("airports"):                                 # and past airports only on the priced arrival and departure
+        prices.update(transfers=money(B["transport"]["transfersTotal"]), total=money(B["grandTotal"]), payable=money(T.payable_total(st)))
+    redeem = st.get("redeem") or {}
+    view = getattr(sess, "view", None)
+    return {
+        "stage": stage,
+        "view": view if view and stage in VIEW_STAGES.get(view, ()) else None,
+        "viewSeq": getattr(sess, "view_seq", 0),
+        "name": st.get("name") or "",
+        "resort": st.get("resortName") or "",
+        "villa": st.get("villaName") or "", "villaAr": villa.get("nameAr", "") if villa else "", "rate": st.get("rateName") or "",
+        "adults": st.get("adults"), "children": st.get("children"), "party": adults_word(st["adults"]) if past("party") and st.get("adults") else "",
+        "dates": ("%s – %s" % (ar_date(st["checkIn"]), ar_date(st["checkOut"]))) if past("dates") and st.get("checkIn") else "",
+        "nights": nights_word(st.get("nights") or 0) if past("dates") else "",
+        "arrivalAirport": st.get("arrivalAirport") or "", "departureAirport": st.get("departureAirport") or "",
+        "transportSet": past("airports"),
+        "prices": prices,
+        "redeemed": ({"points": redeem.get("points"), "value": money(redeem.get("valueSar") or 0)} if redeem.get("points") else None),
+        "guest": guest, "guestSaved": bool(g), "guestEditable": stage in VIEW_STAGES["guest"],
+        "formError": getattr(sess, "page_form_error", None),
+        "pdf": pdf_note(st) if st.get("bookingRef") else "",
+        "catalog": {"villas": [{k: v.get(k, "") for k in ("name", "nameAr", "occupancyAr", "factsAr", "image")} for v in D.VILLAS]} if stage in ("resort", "villa") else None,
+    }
+
+
+def save_draft(visitor_id, fields):
+    """Keep the website form's draft with the conversation (no transition, nothing told to the agent). Returns an HTTP status."""
+    sess = _session_for(visitor_id)
+    if not sess:
+        return 404
+    st = sess.state
+    if st.get("stage") not in VIEW_STAGES["guest"] or not isinstance(fields, dict):
+        return 409
+    clean = {k: str(fields.get(k) or "").strip()[:150 if k == "requests" else 80] for k in DRAFT_KEYS if k in fields}
+    st["pageDraft"] = dict(st.get("pageDraft") or {}, **clean)
+    return 200

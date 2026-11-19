@@ -49,6 +49,45 @@ A scripted iPhone WhatsApp scene, played on the page after the guest activates t
 - Live run (11 Nov, one paid booking, agent spend $0.52 → $0.63): the whole widget route ran on `127.0.0.1:8100` through the bridge (new quick tunnel), ending with the trip card (amount and points side by side) and the «تحميل ملف PDF» link. The real link was clicked twice in the built-in browser pane: `trip.html` opened and the PDF downloaded both times, but that pane opens `target="_blank"` links in the same tab, so the site page unloaded and the overlay could not be watched there. The overlay was then verified on the real site with the real widget history (the SDK keeps it in `localStorage`, key `chatwidget_v2_chatHistory`): loading `trip.html?b=<this booking>` in a second pane tab opened the overlay once above the real widget (booking id matched from the widget's own messages), the 10 messages played, Escape closed only the overlay (widget stayed open with its 58 messages), a second `trip.html` load reopened the finished transcript without replay, no console errors. The card button «تحميل PDF» alone left the overlay idle. Still to watch in a normal browser: the new tab opening on the click itself (Claude in Chrome was not connected that day).
 - Seen in that run, outside this overlay: the Studio template shows the secondary card title as «نقاط الولاء مكت» (cut), so the title in `rsg-trip-summary` should be shortened to «نقاط الولاء».
 
+## Website views, second design: automatic opening and independent cards (18 November 2026, evening)
+
+This supersedes the panel layout and the entry cards described in the section below, on the owner's direction.
+
+- **Automatic opening.** Each view opens by itself once per conversation when the booking reaches its step, after the assistant's reply for that step has arrived:
+  - villa → villas
+  - airports → airports
+  - approve2 → trip legs
+  - activities → activities
+  - guest / requests → guest details
+  - review → review
+
+  It is keyed per widget visitor id in `localStorage`, so closing a view does not reopen it on the next state check. «حجزك» → «عرض الخطوة الحالية» reopens the current step. The resort comparison is optional and keeps its «عرض على الصفحة» card in the chat. The question order is unchanged; the mode step stays in the chat.
+- **Look.** No enclosing panel. Villas and activities are independent photo cards like the site's resort cards; airports are white tiles with a plane icon (no airport photo on file); trip legs are photo cards beside a totals card. Guest details and the review sit on one refined sheet with the resort's hero band. Everything floats on a transparent, blurred backdrop over the page, with a floating action bar at the bottom.
+- **Activities.** New view. Each card offers «مهتم بهذه التجربة», which sends «مهتم بتجربة <الاسم>». The bridge maps that line to the existing rule: «بكل سرور… بعد ما نثبّت الحجز», nothing added to the booking. «نختار عند الوصول» continues.
+- **Stability.** A view redraws only when the booking changes, keeping the scroll position, airport picks, villa comparison choices and form typing.
+- **Polling.** The page polls less often (every 6 s) while the backend has no conversation for this visitor.
+- **Fixture mode.** `index.html?viewsFixture=<stage>` (resort, villa, airports, approve2, activities, guest, review) replays booking states recorded on 18 Nov (`tools/views-fixture.json`, fictional guest) for offline visual review; nothing is sent to the chat. Screenshots in `docs/views-2026-11-18b/`: desktop at 1440 with the chat docked, phone at 390 (headless Edge, the phone page in a 390 px frame).
+- **Verified** on the real site with the Studio widget and the backend on the test stand-in, with loyalty and spend stores in a scratch folder:
+  - each view opened by itself, once, at its step;
+  - each website decision continued the same conversation;
+  - interest left the total at SAR 33,793.90;
+  - the draft and the guest's typing survived repeated state checks;
+  - the review edit returned «حُفظت التعديلات…» and the review did not reopen on its own;
+  - the route reached payment and completion.
+
+## Website views of the booking, connected to the widget (18 November 2026)
+
+`js/booking-views.js` and `css/booking-views.css` add five website views of the booking and the «حجزك» summary: the Shebara and Desert Rock comparison, the villas, transport, guest details and the full review. The question order and the booking rules stay in the bridge.
+
+- **Opening a view.** When a reply calls for one, the page adds an entry card under that reply in the chat: a local `rsg-view` message rendered by this file, with no Studio template needed. «عرض على الصفحة» opens the view, and «حجزك» → «عرض الخطوة الحالية» does the same. A view opens only at its own step; guest details stay editable until payment, and every other step is read-only once passed.
+- **The link to the booking.** The page reads the widget's stored visitor id (`chatwidget_v2_visitorId`), which Studio also sends to the bridge, and polls `GET /api/booking/state?v=<id>`. This server proxies that to the backend's local-only `/api/studio/state`. The guest-form draft goes through `POST /api/booking/draft`.
+- **Decisions.** Every decision goes back through the widget as the bridge's existing card line, so the chat continues from it without asking again. A view closes when the booking moves on, and the chat comes back to the front.
+- **Look.** The site stays recognisable under a light blur. The panel uses the resort's hero photo and logo, the resort cards' radius and gradient, the aqua pill and the Fedra faces.
+- **Layout.** At 1200 px and wider the chat docks as a full-height column on the left. Below that, and on phones, it closes to its button. The WhatsApp mockup buttons hide while a view is open.
+- **Villas.** Photos and verified details only (occupancy plus the five features), with a comparison table for 2 or 3 villas. «السعر يحتاج تأكيد» and the one-tap «نكمل على فيلا فوق الماء بغرفة نوم واحدة» appear only after the bridge kept an unpriced villa at the villa step. Prices appear from the stay summary on, in the views and in «حجزك».
+- **Verified** on the real site with the Studio widget, with the backend on the test stand-in, so no agent turn was paid. The whole route ran from the comparison to the payment link. Every decision made in a view reached the same conversation, and the chat continued in order. Also checked: the draft kept after a reload, an edit from the review answered «حُفظت التعديلات…», desktop at 1440 and mobile at 375. Screenshots are in `docs/views-2026-11-18/`; in `03` a status line left over from the previous view still shows, which was fixed afterwards.
+- **Not yet done.** No extra villa photos have been sourced; only the One Bedroom Overwater Villa has three. A guest who asks in words to see something on the page gets no automatic opening; the card and «حجزك» are the ways in.
+
 ## Arabic RTL inside the widget, and «تحميل PDF» in one click (12 November 2026)
 
 - **RTL (`js/widget-rtl.js`).** Read in the widget's open shadow root (core.min.js 1.15.0), the SDK renders text bubbles with `dir="auto"`, so a reply starting with "Shebara", a number or a link turns LTR. Lists keep a physical `padding-left`, so RTL bullets hang outside the bubble, and the same applies to `.cc-description` lists. Confirmation cards, carousel cards and pickers carry no `dir`, which leaves Arabic left-aligned and puts lines such as «SAR 28,980.00 · ليلتان» in LTR order. The page leaves the SDK as it is. It adds one style element (logical list padding) and sets `dir="rtl"` on every bubble, card and auto-direction text that contains Arabic. It also wraps dates («الجمعة 23 أكتوبر 2026», «23 - 25 أكتوبر 2026»), amounts («SAR 33,793.90») and phone numbers in no-wrap spans, isolating amounts and phones as LTR so a phone does not read «551234567 966+», and isolates Latin-only links. A MutationObserver re-applies all this after each re-render, because the text reveal rewrites a bubble's `innerHTML` on every tick. English-only bubbles keep `dir="auto"`. The carousel track stays LTR, because the SDK's arrows scroll by positive offsets.

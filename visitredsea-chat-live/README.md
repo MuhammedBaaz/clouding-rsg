@@ -38,6 +38,29 @@ Studio's web channel for RSG was bound directly to the Claude agent, so the firs
 - **PDF.** The `[card: trip_summary]` `pdf` line is meant to become the «تحميل PDF» button's payload (Studio template 14). The fresh site opens it on click without a chat turn (`../visitredsea-chat-fresh/js/site.js`). `event_for()` also treats a message equal to a signed `trip.html` link as the PDF request, so a click that does reach the bridge still gets the link.
 - Checks: `python tools/check_widget_flow.py` (villa block, review → payment without terms in the widget, every review line, the website checkbox unchanged, the PDF payload): 25/25. `check_components.py` and `check_loyalty_title.py` still pass. End to end on spare ports (backend 8146 with the test double and a scratch loyalty store, fresh site 8145): the route was driven through the bridge to a recorded booking, `/api/trip` answered 200 for the signed link and 404 for a wrong token, and a real click on the card's «تحميل PDF» opened `trip.html`, which started the download. Restart the backend (`start_backend.cmd`) to load the bridge changes.
 
+## Website views (Round 11, 18 November 2026)
+
+- **Bridge (`agent/studio_bridge.py`).**
+  - `start_session` records Studio's `visitor_id`, keeping the latest conversation per id.
+  - `note_view` remembers which website view the latest reply calls for: villas, compare, transport, guest or review. `view_seq` rises once per new view.
+  - `page_state` returns the booking for the page, with prices only after the steps that set them and the villa catalogue at the villa step.
+  - `save_draft` keeps the website form's draft in `st["pageDraft"]`, which the agent is not told about.
+  - `guest_form_submit` also keeps a changed special request when the form is resubmitted at the review, and stores a rejected field for the page (`page_form_error`).
+- **Server.** `GET /api/studio/state` and `POST /api/studio/draft` answer only on 127.0.0.1 and without Cloudflare headers, so they are refused through the tunnel (403, checked). The site reaches them through its own `/api/booking/*` proxy.
+- **Checks.** `python tools/check_page_views.py`: 30/30, including the activity line. The other three check scripts still pass.
+- **Activities from the website (evening).** `event_for` maps «مهتم بتجربة <activity name>», for an activity in `BOOKING.activities` only, to a new `interest` event (`agent/tools.py`). It calls `T.experience_interest`, the agent tool's own rule: the reply «بكل سرور… بعد ما نثبّت الحجز», the step kept, nothing added. That is a deterministic card line, so no agent turn is needed.
+- **End-to-end run** on the real Studio channel with the test stand-in, so nothing was paid: see `../visitredsea-chat-fresh/README.md`. One test side effect: the site's automatic completion recorded a demo booking (`RSGD-6181987CD2`, fictional e-mail) in `private/loyalty.json`. It was removed afterwards, and the file now equals its earlier content.
+
+## Phase 0 checks for the website views (18 November 2026)
+
+Run on the real Studio channel (site `127.0.0.1:8100`, bridge behind a quick tunnel), with free `rsg:continue` lines only (no agent turn; spend unchanged at $1.30 of $2.00).
+
+- **What Studio sends the bridge.** `server.py` gained an off-by-default diagnostic: with `STUDIO_DEBUG_FIELDS=1`, each `/studio/...` request logs its top-level field names and its `variables`, values as 12-character SHA-256 fingerprints only; any name containing "key" is logged as `<present>`. Studio sends three variables on `POST /studio/sessions` and on every message: `visitor_id`, `channel_slug` and `current_page_context`. There is no `channel_key`, although this module's docstring still says so.
+- **Linking the page to its session works through `visitor_id`.** The value the widget stores in `localStorage["chatwidget_v2_visitorId"]` (`vid_<uuid>`) matched the bridge's `visitor_id` for the same conversation. The SDK's public `session.visitorId` is empty in this transport mode, so the page must read the stored value. «New chat» (`session.reset()`) issues a new visitor id.
+- **Page data does not reach the bridge.** `widget.setContext({...})` is sent to Studio as `user_metadata` on every message (request body checked), including a `current_page_context` key. Studio still passed `current_page_context` as an empty string and nothing else.
+- **Layout.** `widget.update()` moves and resizes the open widget without closing it. With the widget as a full-height column on the left, a view gets 961 px at 1440 and about 800 px at 1280, but only 561 px at 1024. Below about 1200 px, and on mobile (where the open widget is full screen), the widget should close to its 64 px button; `setUnreadCount()` shows its badge. The WhatsApp mockup buttons at the bottom left must hide while a view is open.
+- **In-chat entry card.** A page-registered `rsg-view` renderer (same mechanism as the calendar) rendered a Studio-shaped `rich_components` message, and its button opened the view without sending any message. Studio delivering that component still needs the owner's custom component and template.
+
 ## Round 10 follow-up (12 November 2026, evening)
 
 - The villa records no longer carry the `stay` line either (owner: no party or dates on the selection card); they are `name`, `name_ar`, `occupancy`, `facts`, `rate_badge`, `image`, `button`.

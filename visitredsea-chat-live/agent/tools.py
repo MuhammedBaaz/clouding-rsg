@@ -145,6 +145,8 @@ def handle_event(st, ev, server):
         return T.Result(False, T.S["airports"]["fallback"], {"ok": False})
     if t == "defer":
         return T.defer_experiences(st)
+    if t == "interest":                       # the website's activity card (18 Nov 2026): same rule as the agent's tool
+        return T.experience_interest(st)
     if t == "account":
         return T.account_mode(st, ev.get("mode"))
     if t == "signedIn":

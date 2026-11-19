@@ -4,7 +4,9 @@ rem Usage:  start.cmd            (http://127.0.0.1:8100/)
 rem         start.cmd 8130       (another port; Studio must allow that exact origin)
 rem The Studio channel allows exact browser origins, so this script never moves to another port:
 rem when the port is busy it reports the owning process and stops.
-setlocal
+rem EnableDelayedExpansion: OWNER is set inside the "port busy" block below, so it must be read as !OWNER! there
+rem (%OWNER% is expanded before the block runs and came out empty: "It is process :", 18 Nov 2026).
+setlocal EnableDelayedExpansion
 cd /d "%~dp0"
 set "PORT=%~1"
 if "%PORT%"=="" set "PORT=8100"
@@ -21,9 +23,9 @@ if not errorlevel 1 (
   set "OWNER="
   for /f "tokens=5" %%p in ('netstat -ano -p tcp ^| findstr /R /C:":%PORT% .*LISTENING"') do set "OWNER=%%p"
   echo Cannot start: something answers on 127.0.0.1:%PORT%.
-  if defined OWNER if not "%OWNER%"=="0" (
-    echo It is process %OWNER%:
-    for /f "tokens=1" %%n in ('tasklist /FI "PID eq %OWNER%" /NH') do echo   %%n
+  if defined OWNER if not "!OWNER!"=="0" (
+    echo It is process !OWNER!:
+    for /f "tokens=1" %%n in ('tasklist /FI "PID eq !OWNER!" /NH') do echo   %%n
     echo If it is the live concierge or an older copy of this site, stop it from its own window first.
   )
   echo This script does not start another port, because the Studio channel only allows http://127.0.0.1:%PORT%
