@@ -160,7 +160,7 @@ Startup order matters: backend, then tunnel, then Studio Base URL, then the site
 1. `visitredsea-chat-live/.env` from `.env.example`: `ANTHROPIC_API_KEY`, `ANTHROPIC_AGENT_ID`, `ANTHROPIC_ENVIRONMENT_ID`, `ANTHROPIC_MODEL`. SMTP values are needed only for the backend's own website chat (e-mail codes), not for the widget.
 2. `visitredsea-chat-live/private/bridge_secret.txt`: one line, the value Studio sends as `X-Bridge-Key`.
 3. `visitredsea-chat-live/start_bridge.cmd`: starts the backend on 8110 in its own window and a Cloudflare quick tunnel in another, then prints the Base URL (`https://<random>.trycloudflare.com/studio`) and saves it to `private/base_url.txt`.
-4. In Empathy Studio, paste that Base URL into the Custom Agent (section 6).
+4. In Empathy Studio, paste that Base URL into the Custom Agent. The Custom Agent is shared with Muhammed, so agree with him first (section 6).
 5. `visitredsea-chat-fresh/.env` from `.env.example`: `STUDIO_CHANNEL_KEY` and the endpoint lines.
 6. `visitredsea-chat-fresh/private/studio-widget.snippet.html`: Studio's Customize, then Copy snippet, pasted unchanged. Without it the widget shows the SDK's default look.
 7. `visitredsea-chat-fresh/start.cmd`: site on http://127.0.0.1:8100/. It refuses to start when 8100 is busy, because the Studio channel allows that exact origin only. If the process it names is `python`, the site is most likely already running; open the URL before stopping anything.
@@ -189,7 +189,7 @@ Useful URLs: `/?viewsFixture=<stage>` (views from recorded data), `tools/compone
 | Anthropic API key | `visitredsea-chat-live/.env` `ANTHROPIC_API_KEY` | Claude Console, https://platform.claude.com/settings/keys. To reach the existing agent `agent_01D3yFvZ2ZTDBwxa8i5g8YN3`, issue it in the same Console organization and workspace as that agent (I did not test a key from another workspace). |
 | Agent and environment ids | same `.env` | Not secret. `agent_01D3yFvZ2ZTDBwxa8i5g8YN3`, `env_014yGcQKoVVA6nP1zVTQz5yN`, model `claude-sonnet-5-5`. `python tools/console_setup.py` prints them when run with a key from that workspace. |
 | Studio channel browser key (`acp_…`) | `visitredsea-chat-fresh/.env` `STUDIO_CHANNEL_KEY`, and inside the snippet file | Empathy Studio, the RSG Web channel page |
-| Bridge secret | `visitredsea-chat-live/private/bridge_secret.txt` (read into `STUDIO_BRIDGE_SECRET` by the start scripts) | Must equal the `X-Bridge-Key` Secret Header on the Studio Custom Agent. For your own Custom Agent, generate one: `python -c "import secrets; print(secrets.token_hex(24))"` |
+| Bridge secret | `visitredsea-chat-live/private/bridge_secret.txt` (read into `STUDIO_BRIDGE_SECRET` by the start scripts) | Must equal the `X-Bridge-Key` Secret Header on the shared Studio Custom Agent, so it is the same value Muhammed's backend uses; get it from him. Do not change it: that breaks his backend and every PDF link already issued. |
 | SMTP account (optional) | `visitredsea-chat-live/.env` `OTP_SMTP_*` | Only for the backend's own website chat. Use `tools/local_smtp_sink.py` for tests. |
 
 I could not find our team's approved route for handing over credentials documented anywhere in the repo. Ask Muhammed for access to the Claude Console workspace and to Empathy Studio, and receive the values through that route. Never send them in chat, commit them, or paste them into Lovable.
@@ -253,12 +253,24 @@ RSG_BACKEND_URL=http://127.0.0.1:8110
 
 When the tunnel address changes: run `start_bridge.cmd` (or restart `cloudflared tunnel --url http://127.0.0.1:8110`), copy the new `…/studio` address into the Custom Agent's Base URL, save, then check with one message. The free check used on 19 Nov: from the browser console on the site, `window.__rsgStudioInstance.transport.send("rsg:continue")`. It is answered without a model call and shows the current step's prompt. Use it only before the payment step; at the payment step it completes the booking and credits points.
 
-**A decision for Muhammed before Hazzem runs the live widget.** A Custom Agent has one Base URL. If Hazzem points "RSG Concierge Bridge" at his own tunnel, Muhammed's widget stops talking to Muhammed's backend. Options:
+**Decided 19 Nov 2026: Hazzem and Muhammed share one Studio setup.** One channel ("RSG Web"), one Custom Agent ("RSG Concierge Bridge"), one bridge secret. A Custom Agent has one Base URL, so only one backend serves the widget at a time, for both of you. Whoever's tunnel is in the Base URL owns the live chat.
 
-1. Recommended: Hazzem gets his own Studio channel and Custom Agent, with `http://127.0.0.1:8100` in its Allowed domains and his own bridge secret, and uses that channel's key in his `visitredsea-chat-fresh/.env`. The Studio templates are per channel or per workspace; I could not confirm which, so check whether they need copying.
-2. Share one setup and agree who runs the backend at any time.
+Rules for switching:
 
-The Managed Agent and its budget are shared either way. `console_setup.py` finds the existing agent by name, so with a key from the same workspace both machines drive the same agent and count against the same USD 2.00 cap. Raising the cap (`AGENT_BUDGET_USD`) is Muhammed's call. Do not push prompt or tool changes (`tools/console_update.py`) without telling him, because they change his running demo too.
+1. Agree with the other person first. Their widget will start talking to your backend.
+2. Start your backend and tunnel (`start_bridge.cmd`), paste your Base URL into the Custom Agent, and send the free check below.
+3. When you are done, tell the other person. They restart or reuse their tunnel and paste their Base URL back.
+
+What a switch costs:
+
+- Conversations in progress on the backend you switched away from are lost. Studio gets a 404 and starts a new session from the greeting.
+- Completed bookings, loyalty points and PDF records stay on the machine that recorded them, each in its own `private/loyalty.json`. A PDF link issued by one backend does not open on the other.
+- Both backends must run with the same bridge secret, because Studio sends one `X-Bridge-Key`.
+- Your page's booking views read your local backend (`RSG_BACKEND_URL`). If the Base URL points at the other person's backend, your widget still chats, but your views and PDF have no conversation to show.
+
+For offline work (fixtures, the test stand-in, the check scripts) none of this applies; use spare ports and leave Studio alone.
+
+The Managed Agent and its budget are shared as well. `console_setup.py` finds the existing agent by name, so with a key from the same workspace both machines drive the same agent and count against the same USD 2.00 cap. Raising the cap (`AGENT_BUDGET_USD`) is Muhammed's call. Do not push prompt or tool changes (`tools/console_update.py`) without telling him, because they change his running demo too.
 
 ## 7. Product decisions and behaviour in the current build
 
@@ -408,7 +420,7 @@ Check each in Studio before assuming either way.
 
 ### Next practical tasks, in order
 
-1. Muhammed decides: separate Studio channel and Custom Agent for Hazzem, and the agent budget.
+1. Muhammed decides the agent budget (USD 0.33 left on 19 Nov). The Studio setup is shared (decided 19 Nov), so agree who holds the Base URL before each live session.
 2. Apply or verify the pending Studio template changes above, then run one complete widget booking.
 3. Set up a named Cloudflare tunnel so the Base URL stops changing.
 4. Source the approved extra villa photos from RSG's official pages, recording the source of each in `visitredsea-chat-live/docs/ASSETS.md`.
