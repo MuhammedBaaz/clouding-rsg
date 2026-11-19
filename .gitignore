@@ -23,3 +23,6 @@ reports/tmp/
 # Salesforce CLI cache (org metadata catalog), created by sf commands run inside an app folder
 .sf/
 .sfdx/
+
+# Python virtual environments
+.venv/
