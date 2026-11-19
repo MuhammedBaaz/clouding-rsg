@@ -1,9 +1,9 @@
 {
- "generated": "2026-11-12T11:34:10.566Z",
+ "generated": "2026-11-19T00:31:20.578Z",
  "sources": {
   "data/booking.js": "d36ce135c3c20a40e6b7ad903386ef29788a17ab2c6c7d6b8699e236568abf62",
   "data/resorts.js": "1581fd19a1acb70e733f68a0eb4a328b2447aae79557d1d0585129d41f11984f",
-  "data/villas.js": "85bb190dc40ab0a642c270b257004842da4ca813c98cf6a50851f9fd6bcf9f4a",
+  "data/villas.js": "98ba40e26cfa81454a3989c51fe74ef0f07a9d2c1b1f9dcd12699e0e1d2a787f",
   "data/script.js": "957e614f81ea6cc73e10dac0cebaa172879f5ef73cd977947a2e7fdd8b35bd3d"
  },
  "BOOKING": {

@@ -22,7 +22,9 @@ def _sha256(path):
         raw = fh.read()
     if raw.startswith(b"\xef\xbb\xbf"):
         raw = raw[3:]
-    return hashlib.sha256(raw).hexdigest()
+    # Line endings do not count (19 Nov 2026): Git converts LF/CRLF on checkout, so a fresh clone on another
+    # machine refused to start with byte hashes. Must match tools/dump_data.mjs.
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
 
 
 def load():

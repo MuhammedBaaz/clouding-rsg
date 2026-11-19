@@ -24,7 +24,7 @@ const ctx = vm.createContext({ window });
 const sources = {};
 for (const f of files) {
   const src = readFileSync(join(root, f), "utf8").replace(/^﻿/, "");
-  sources[f] = createHash("sha256").update(src, "utf8").digest("hex");
+  sources[f] = createHash("sha256").update(src.replace(/\r\n/g, "\n"), "utf8").digest("hex");   // line endings do not count (agent/data.py)
   vm.runInContext(src, ctx, { filename: f });
 }
 const out = {
